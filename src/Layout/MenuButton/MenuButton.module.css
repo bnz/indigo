@@ -26,8 +26,8 @@
     .root {
         top: auto;
         left: auto;
-        bottom: calc(var(--spacing) * 2);
-        right: calc(var(--spacing) * 2);
+        bottom: calc(var(--spacing) * 1);
+        right: calc(var(--spacing) * 1);
     }
 }
 

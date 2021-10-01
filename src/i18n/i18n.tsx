@@ -1,4 +1,3 @@
-// import { Language, languageDefaultState } from '../../redux/reducers/language'
 import { i18nKeys } from './i18nKeys'
 import { rus } from './rus'
 import { eng } from './eng'
@@ -17,9 +16,7 @@ const lang: Language = commonSettings.language || languageDefaultState
 
 export type LanguageMap = Record<i18nKeys, string>
 
-type LanguagesMap = Record<Language, LanguageMap>
-
-const languagesMap: LanguagesMap = {
+const languagesMap: Record<Language, LanguageMap> = {
   rus,
   eng,
 }

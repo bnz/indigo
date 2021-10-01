@@ -1,5 +1,5 @@
 .root {
-    padding: calc(var(--spacing) * 2) 0 calc(var(--spacing) * 3);
+    padding: var(--spacing) 0;
 
     --border-radius: calc(var(--spacing) / 2);
 }

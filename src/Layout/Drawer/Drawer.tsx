@@ -3,8 +3,9 @@ import styles from "./Drawer.module.css"
 import cx from "classnames"
 import { observer } from "mobx-react"
 import { useUIStore } from "../../Store/UIProvider"
-import { GamesSwitcher } from "../../GamesSwitcher/GamesSwitcher"
-import { LanguageSwitcher } from "../../LanguageSwitcher/LanguageSwitcher"
+import { GamesSwitcher } from "./GamesSwitcher/GamesSwitcher"
+import { LanguageSwitcher } from "./LanguageSwitcher/LanguageSwitcher"
+import { Footer } from "./Footer/Footer"
 
 export const Drawer: FC = observer(() => {
     const store = useUIStore()
@@ -18,11 +19,24 @@ export const Drawer: FC = observer(() => {
             <div className={styles.drawer}>
                 <GamesSwitcher />
                 <LanguageSwitcher />
-                <div>
+                <div style={{
+                    flex: 1,
+                    overflow: "auto",
+                }}>
                     Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis corporis illum perferendis
-                    provident quas sunt unde voluptas. Cupiditate esse harum ipsam, neque odit optio possimus quis repellat
-                    repellendus sequi vitae!
+                    provident quas sunt unde voluptas. Cupiditate esse harum ipsam, neque odit optio possimus quis
+                    repellat repellendus sequi vitae!
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis corporis illum perferendis
+                    provident quas sunt unde voluptas. Cupiditate esse harum ipsam, neque odit optio possimus quis
+                    repellat repellendus sequi vitae!
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis corporis illum perferendis
+                    provident quas sunt unde voluptas. Cupiditate esse harum ipsam, neque odit optio possimus quis
+                    repellat repellendus sequi vitae!
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis corporis illum perferendis
+                    provident quas sunt unde voluptas. Cupiditate esse harum ipsam, neque odit optio possimus quis
+                    repellat repellendus sequi vitae!
                 </div>
+                <Footer />
             </div>
         </div>
     )

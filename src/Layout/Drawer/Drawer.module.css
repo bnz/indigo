@@ -12,6 +12,9 @@
     transform: translateX(0);
     transition-duration: var(--duration);
     transition-property: transform, box-shadow;
+
+    display: flex;
+    flex-direction: column;
 }
 
 .hidden .drawer {

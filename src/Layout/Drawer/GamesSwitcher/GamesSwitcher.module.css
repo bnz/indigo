@@ -34,13 +34,13 @@
 
 @media (prefers-color-scheme: light) {
     .heading::after {
-        background-image: url("../assets/icons.svg#arrow-down-dark");
+        background-image: url("../../../assets/icons.svg#arrow-down-dark");
     }
 }
 
 @media (prefers-color-scheme: dark) {
     .heading::after {
-        background-image: url("../assets/icons.svg#arrow-down-light");
+        background-image: url("../../../assets/icons.svg#arrow-down-light");
     }
 }
 
