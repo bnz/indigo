@@ -1,0 +1,6 @@
+.root {
+    position: relative;
+    min-height: 100%;
+    user-select: none;
+    padding: calc(var(--spacing) * 2);
+}

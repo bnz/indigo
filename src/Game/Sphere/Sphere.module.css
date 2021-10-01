@@ -1,0 +1,90 @@
+.wrapper {
+    --margin: 3%;
+
+    position: relative;
+    border-radius: 50%;
+    width: 95%;
+    height: 95%;
+    transform: translate(2.5%, 2.5%);
+    /*box-shadow: 0 0 1em rgba(0, 0, 0, 1);*/
+    background-color: #daa520;
+}
+
+.wrapper.alt {
+    --margin: 0;
+    /*box-shadow: 0 0 .5em rgba(0, 0, 0, 1);*/
+}
+
+.wrapper::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: var(--margin);
+    left: var(--margin);
+    bottom: var(--margin);
+    right: var(--margin);
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, .2);
+}
+
+.wrapper.p-1::before {
+    /*background: radial-gradient(circle, rgba(202, 0, 203, 1) 0%, rgba(128, 0, 128, 1) 31%, rgba(18, 0, 115, 1) 100%);*/
+    background: rgba(128, 0, 128, 1);
+}
+
+.wrapper.p-2::before {
+    background: radial-gradient(circle, rgba(64, 224, 208, 1) 0%, rgba(64, 165, 224, 1) 100%);
+}
+
+.wrapper.p-3::before {
+    /*background: radial-gradient(circle, rgba(255, 127, 80, 1) 0%, rgba(255, 80, 80, 1) 100%);*/
+    background: rgba(255, 127, 80, 1);
+}
+
+.wrapper.p-4::before {
+    background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(255, 215, 0, 1) 100%);
+}
+
+.wrapper::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: var(--margin);
+    left: var(--margin);
+    bottom: var(--margin);
+    right: var(--margin);
+    border-radius: 50%;
+    background-position: center;
+    background-repeat: no-repeat;
+    /*box-shadow: inset 0 0 1em rgba(0, 0, 0, 1);*/
+}
+
+@media (min-width: 600px) {
+    .wrapper::after {
+        /*box-shadow: inset 0 0 3em rgba(0, 0, 0, 1);*/
+    }
+}
+
+.wrapper.alt::after {
+    /*box-shadow: none;*/
+}
+
+.wrapper.p-1::after {
+    background-image: url("./assets/purple.svg");
+    background-size: 70% 70%;
+}
+
+.wrapper.p-2::after {
+    background-image: url("./assets/turquoise.svg");
+    background-size: 80% 80%;
+}
+
+.wrapper.p-3::after {
+    background-image: url("./assets/coral.svg");
+    background-size: 90% 90%;
+}
+
+.wrapper.p-4::after {
+    background-image: url("./assets/white.svg");
+    background-size: 75% 75%;
+}
