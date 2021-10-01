@@ -1,0 +1,45 @@
+.drawer {
+    --width: calc(var(--spacing) * 40);
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--width);
+    padding: var(--spacing);
+    background-color: var(--main-background-color);
+    box-shadow: 0 8px 10px -5px rgb(0 0 0 / 20%), 0 16px 24px 2px rgb(0 0 0 / 14%), 0 6px 30px 5px rgb(0 0 0 / 12%);
+    transform: translateX(0);
+    transition-duration: var(--duration);
+    transition-property: transform, box-shadow;
+}
+
+.hidden .drawer {
+    transform: translateX(calc(var(--width) * -1));
+    box-shadow: none;
+}
+
+@media (max-width: 599px) {
+    .drawer {
+        width: 100vw;
+    }
+    .hidden .drawer {
+        transform: translateX(calc(100vw * -1));
+        box-shadow: none;
+    }
+}
+
+.backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: var(--main-backdrop-background-color);
+    opacity: 1;
+    visibility: visible;
+    transition-duration: var(--duration);
+    transition-property: opacity, visibility;
+}
+
+.hidden .backdrop {
+    opacity: 0;
+    visibility: hidden;
+}

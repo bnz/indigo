@@ -1,0 +1,40 @@
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+strong,
+b {
+    font-weight: 700;
+}
+
+body {
+    color: var(--main-text-color);
+    background-color: var(--main-background-color);
+    font-size: 0.875rem;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    line-height: 1.43;
+    letter-spacing: 0.01071em;
+    touch-action: manipulation;
+}
+
+body::backdrop {
+    background-color: #fafafa;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+}
+
+#root {
+    padding: calc(var(--spacing) * 2);
+}
+
+@media (max-width: 599px) {
+    #root {
+        padding: 0;
+    }
+}

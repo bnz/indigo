@@ -1,11 +1,11 @@
-import { Layout } from '../Hexagons/Layout'
-import { Orientation } from '../Hexagons/Orientation'
+import { Layout } from '../Game/Hexagons/Layout'
+import { Orientation } from '../Game/Hexagons/Orientation'
 import { OrientationType, PlayerId, PlayerMove, StoneIds, Stones, StonesEntries, Tile, Tiles } from '../types'
 import { iGamePhaseStore } from './GamePhase'
 import { iPlayersStore } from './PlayersStore'
 import { CSSProperties, MouseEvent } from 'react'
 
-export interface iHexStore {
+export interface iStore {
   layout: Layout
   renderLayout: Layout
   orientation: Orientation

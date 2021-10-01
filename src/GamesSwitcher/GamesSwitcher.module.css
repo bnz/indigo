@@ -1,0 +1,104 @@
+.root {
+    position: relative;
+}
+
+.heading {
+    height: calc(var(--spacing) * 7);
+    text-align: center;
+    margin: 0 calc(var(--spacing) * 8);
+    font-size: 2.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: calc(var(--spacing) * 2);
+}
+
+.heading::before,
+.heading::after {
+    width: calc(var(--spacing) * 3);
+    height: calc(var(--spacing) * 3);
+}
+
+.heading::before {
+    content: "";
+}
+
+.heading::after {
+    content: "";
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+@media (prefers-color-scheme: light) {
+    .heading::after {
+        background-image: url("../assets/icons.svg#arrow-down-dark");
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .heading::after {
+        background-image: url("../assets/icons.svg#arrow-down-light");
+    }
+}
+
+.list {
+    user-select: none;
+    position: absolute;
+    list-style: none;
+    margin: 0;
+    width: 50%;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 10%);
+    box-shadow: 0 5px 5px -3px rgb(0 0 0 / 20%), 0 8px 10px 1px rgb(0 0 0 / 14%), 0 3px 14px 2px rgb(0 0 0 / 12%);
+    padding: calc(var(--spacing) * 1) 0;
+    opacity: 0;
+    visibility: hidden;
+}
+
+@media (prefers-color-scheme: light) {
+    .list {
+        background-color: #fff;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .list {
+        background-color: #424242;
+    }
+}
+
+.list.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.list li {
+    cursor: pointer;
+    font-size: 1.2em;
+    text-align: center;
+    padding: calc(var(--spacing) * 1);
+}
+
+@media (prefers-color-scheme: light) {
+    .list li:not([class]):hover {
+        background-color: rgba(0, 0, 0, 0.08);
+    }
+
+    .active {
+        background-color: rgba(0, 0, 0, 0.16);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .list li:not([class]):hover {
+        background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .active {
+        background-color: rgba(255, 255, 255, 0.16);
+    }
+}

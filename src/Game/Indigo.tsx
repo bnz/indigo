@@ -2,6 +2,6 @@ import { FC } from "react"
 
 export const Indigo: FC = () => {
     return (
-        <>Indigo</>
+        <div style={{ textAlign: 'center' }}>Indigo</div>
     )
 }

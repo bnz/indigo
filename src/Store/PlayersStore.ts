@@ -1,97 +1,97 @@
-import { getRandomInt } from '../../../helpers/random'
+import { makeAutoObservable, runInAction } from 'mobx'
 import { iLocalStorageMgmnt } from './LocalStorageMgmnt'
 import { Keys, Player, PlayerId, Players, Values } from '../types'
-import { makeAutoObservable, runInAction } from 'mobx'
-import { arrayDiff } from '../../../helpers/arrayDiff'
+import { getRandomInt } from '../helpers/random'
+import { arrayDiff } from '../helpers/arrayDiff'
 
-import purple from '../Sphere/assets/purple.svg'
-import turquoise from '../Sphere/assets/turquoise.svg'
-import coral from '../Sphere/assets/coral.svg'
-import white from '../Sphere/assets/white.svg'
+import purple from '../Game/Sphere/assets/purple.svg'
+import turquoise from '../Game/Sphere/assets/turquoise.svg'
+import coral from '../Game/Sphere/assets/coral.svg'
+import white from '../Game/Sphere/assets/white.svg'
 
 export interface iPlayersStore {
-  players: Players
-  entries: [string, Player][]
-  playerIdToSVGMap: Record<PlayerId, string>
+    players: Players
+    entries: [string, Player][]
+    playerIdToSVGMap: Record<PlayerId, string>
 
-  addPlayer(): void
+    addPlayer(): void
 
-  removePlayerById(playerId: PlayerId): () => void
+    removePlayerById(playerId: PlayerId): () => void
 
-  reset(): void
+    reset(): void
 }
 
 export class PlayersStore implements iPlayersStore {
 
-  constructor(
-    private storage: iLocalStorageMgmnt<Keys, Values>,
-  ) {
-    makeAutoObservable<PlayersStore, 'playerIdToSVGMap'>(this, {
-      playerIdToSVGMap: false,
-    })
-  }
-
-  get playerIdToSVGMap(): Record<PlayerId, string> {
-    return {
-      [PlayerId.Player1]: purple,
-      [PlayerId.Player2]: turquoise,
-      [PlayerId.Player3]: coral,
-      [PlayerId.Player4]: white,
+    constructor(
+        private storage: iLocalStorageMgmnt<Keys, Values>,
+    ) {
+        makeAutoObservable<PlayersStore, 'playerIdToSVGMap'>(this, {
+            playerIdToSVGMap: false,
+        })
     }
-  }
 
-  private get ids() {
-    return Object.keys(this.playerIdToSVGMap).map((id) => parseInt(id.split('-')[1], 10))
-  }
+    get playerIdToSVGMap(): Record<PlayerId, string> {
+        return {
+            [PlayerId.Player1]: purple,
+            [PlayerId.Player2]: turquoise,
+            [PlayerId.Player3]: coral,
+            [PlayerId.Player4]: white,
+        }
+    }
 
-  private get totalPlayersCount() {
-    return Object.entries(this.playerIdToSVGMap).length
-  }
+    private get ids() {
+        return Object.keys(this.playerIdToSVGMap).map((id) => parseInt(id.split('-')[1], 10))
+    }
 
-  private generateFirstTwoPlayers = (): Players => {
-    const first = getRandomInt(1, this.totalPlayersCount)
-    let second
-    do {
-      second = getRandomInt(1, this.totalPlayersCount)
-    } while (second === first)
+    private get totalPlayersCount() {
+        return Object.entries(this.playerIdToSVGMap).length
+    }
 
-    return [
-      { id: `p-${first}` as PlayerId },
-      { id: `p-${second}` as PlayerId },
-    ]
-  }
+    private generateFirstTwoPlayers = (): Players => {
+        const first = getRandomInt(1, this.totalPlayersCount)
+        let second
+        do {
+            second = getRandomInt(1, this.totalPlayersCount)
+        } while (second === first)
 
-  private save() {
-    this.storage.set('players', this.players)
-  }
+        return [
+            { id: `p-${first}` as PlayerId },
+            { id: `p-${second}` as PlayerId },
+        ]
+    }
 
-  players = this.storage.getOrApply<Players>('players', this.generateFirstTwoPlayers)
+    private save() {
+        this.storage.set('players', this.players)
+    }
 
-  get entries() {
-    return Object.entries(this.players)
-  }
+    players = this.storage.getOrApply<Players>('players', this.generateFirstTwoPlayers)
 
-  addPlayer = () => {
-    const ids = this.players.map(({ id }) => parseInt(id.split('-')[1], 10))
-    const diff = arrayDiff(this.ids, ids)
-    const index = diff[getRandomInt(0, diff.length - 1)]
-    this.players.push({ id: `p-${index}` as PlayerId })
-    this.save()
-  }
+    get entries() {
+        return Object.entries(this.players)
+    }
 
-  removePlayerById = (playerId: PlayerId) => () => {
-    runInAction(() => {
-      this.players.splice(
-        this.players.findIndex(({ id }) => id === playerId),
-        1,
-      )
-      this.save()
-    })
-  }
+    addPlayer = () => {
+        const ids = this.players.map(({ id }) => parseInt(id.split('-')[1], 10))
+        const diff = arrayDiff(this.ids, ids)
+        const index = diff[getRandomInt(0, diff.length - 1)]
+        this.players.push({ id: `p-${index}` as PlayerId })
+        this.save()
+    }
 
-  reset() {
-    this.players = this.generateFirstTwoPlayers()
-    this.save()
-  }
+    removePlayerById = (playerId: PlayerId) => () => {
+        runInAction(() => {
+            this.players.splice(
+                this.players.findIndex(({ id }) => id === playerId),
+                1,
+            )
+            this.save()
+        })
+    }
+
+    reset() {
+        this.players = this.generateFirstTwoPlayers()
+        this.save()
+    }
 
 }

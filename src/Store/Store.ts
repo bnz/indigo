@@ -1,8 +1,8 @@
 import { CSSProperties, MouseEvent } from 'react'
 import { makeAutoObservable } from 'mobx'
-import { Layout } from '../Hexagons/Layout'
-import { Point } from '../Hexagons/Point'
-import { Hex } from '../Hexagons/Hex'
+import { Layout } from '../Game/Hexagons/Layout'
+import { Point } from '../Game/Hexagons/Point'
+import { Hex } from '../Game/Hexagons/Hex'
 import {
     IAllTiles,
     AllTiles,
@@ -33,13 +33,13 @@ import {
 import { debounce } from '../helpers/debounce'
 import { shuffle } from '../helpers/shuffle'
 import { getRandomInt as rand } from '../helpers/random'
-import svg from '../hex.svg'
+import svg from '../assets/hex.svg'
 import { iLocalStorageMgmnt, LocalStorageMgmnt } from './LocalStorageMgmnt'
 import { GamePhaseStore, iGamePhaseStore } from './GamePhase'
 import { iPlayersStore, PlayersStore } from './PlayersStore'
-import { iHexStore } from './iHexStore'
+import { iStore } from './iStore'
 
-export class HexStore implements iHexStore {
+export class Store implements iStore {
 
     private readonly ratio = 0.8660254
 
@@ -52,7 +52,7 @@ export class HexStore implements iHexStore {
     private smallSide = 9 * this.ratio
 
     constructor() {
-        makeAutoObservable<HexStore,
+        makeAutoObservable<Store,
             | 'ratio'
             | 'corners'
             | 'emptyLines'

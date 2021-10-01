@@ -1,0 +1,21 @@
+:root {
+    --ratio: 0.8660254;
+    --duration: .1s;
+    --spacing: 8px;
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --main-background-color: #fff;
+        --main-text-color: rgba(0, 0, 0, 0.87);
+        --main-backdrop-background-color: rgba(0, 0, 0, 0.2);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --main-background-color: #303030;
+        --main-text-color: #fff;
+        --main-backdrop-background-color: rgba(0, 0, 0, 0.2);
+    }
+}

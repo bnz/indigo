@@ -1,14 +1,16 @@
 import { FC } from "react"
 import { Drawer } from "./Drawer/Drawer"
-import { Wrapper } from "./Wrapper"
+import { Wrapper } from "./Wrapper/Wrapper"
+import { MenuButton } from "./MenuButton/MenuButton"
 
-export const MainLayout: FC = ({ children }) => {
+export const Layout: FC = ({ children }) => {
     return (
         <>
-            <Drawer />
             <Wrapper>
                 {children}
             </Wrapper>
+            <Drawer />
+            <MenuButton />
         </>
     )
 }
