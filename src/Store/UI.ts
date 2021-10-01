@@ -1,9 +1,10 @@
 import { makeAutoObservable } from "mobx"
 import { LocalStorageMgmnt } from "./LocalStorageMgmnt"
+import { Language } from "../i18n/i18n"
 
-type Keys = 'drawer'
+type Keys = 'drawer' | 'language'
 
-type Values = boolean
+type Values = boolean | Language
 
 export class UI {
 
@@ -26,6 +27,23 @@ export class UI {
 
     toggleDrawer = () => {
         this.drawer = !this.drawer
+    }
+
+    private _language: Language = this.storage.getOrApply('language', () => 'rus')
+
+    get language() {
+        return this._language
+    }
+
+    set language(language: Language) {
+        this._language = language
+        this.storage.set('language', this.language)
+    }
+
+    setLanguage = (language: Language): () => void => (): void => {
+        this.storage.set('language', language)
+        // eslint-disable-next-line no-self-assign
+        window.location = window.location
     }
 
     dispose(): void {

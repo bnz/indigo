@@ -8,6 +8,8 @@
     :root {
         --main-background-color: #fff;
         --main-text-color: rgba(0, 0, 0, 0.87);
+        --main-text-color-disabled: rgba(0, 0, 0, 0.35);
+        --main-text-color-hover: rgba(0, 0, 0, 0.1);
         --main-backdrop-background-color: rgba(0, 0, 0, 0.2);
     }
 }
@@ -16,6 +18,7 @@
     :root {
         --main-background-color: #303030;
         --main-text-color: #fff;
+        --main-text-color-disabled: #666;
         --main-backdrop-background-color: rgba(0, 0, 0, 0.2);
     }
 }
