@@ -2,23 +2,96 @@
     --ratio: 0.8660254;
     --duration: .1s;
     --spacing: 8px;
+    --disabled-opacity: 0.3;
 }
 
 @media (prefers-color-scheme: light) {
-    :root {
+    :root,
+    :root.theme-light {
         --main-background-color: #fff;
+        --main-background-hover: rgba(0, 0, 0, 0.08);
+        --main-background-selected: rgba(0, 0, 0, 0.16);
+
         --main-text-color: rgba(0, 0, 0, 0.87);
         --main-text-color-disabled: rgba(0, 0, 0, 0.35);
-        --main-text-color-hover: rgba(0, 0, 0, 0.1);
         --main-backdrop-background-color: rgba(0, 0, 0, 0.2);
+
+        /* theme switcher */
+        --checkbox-empty: url("./assets/icons.svg#checkbox-empty-dark");
+        --checkbox-checked: url("./assets/icons.svg#checkbox-checked-dark");
+        --light-theme-button: url("./assets/icons.svg#light-theme-dark");
+        --dark-theme-button: url("./assets/icons.svg#dark-theme-dark");
+
+        /* menu button */
+        --menu-button-open: url("./assets/icons.svg#burger-dark");
+        --menu-button-close: url("./assets/icons.svg#times-dark");
+
+        --arrow-down: url("./assets/icons.svg#arrow-down-dark");
+    }
+
+    :root.theme-dark {
+        --main-background-color: #303030;
+        --main-background-hover: rgba(255, 255, 255, 0.08);
+        --main-background-selected: rgba(255, 255, 255, 0.16);
+        --main-text-color: #fff;
+        --main-text-color-disabled: #666;
+        --main-backdrop-background-color: rgba(0, 0, 0, 0.2);
+
+        /* theme switcher */
+        --checkbox-empty: url("./assets/icons.svg#checkbox-empty-light");
+        --checkbox-checked: url("./assets/icons.svg#checkbox-checked-light");
+        --light-theme-button: url("./assets/icons.svg#light-theme-light");
+        --dark-theme-button: url("./assets/icons.svg#dark-theme-light");
+
+        /* menu button */
+        --menu-button-open: url("./assets/icons.svg#burger-light");
+        --menu-button-close: url("./assets/icons.svg#times-light");
+
+        --arrow-down: url("./assets/icons.svg#arrow-down-light");
     }
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root,
+    :root.theme-dark {
         --main-background-color: #303030;
+        --main-background-hover: rgba(255, 255, 255, 0.08);
+        --main-background-selected: rgba(255, 255, 255, 0.16);
         --main-text-color: #fff;
         --main-text-color-disabled: #666;
         --main-backdrop-background-color: rgba(0, 0, 0, 0.2);
+
+        /* theme switcher */
+        --checkbox-empty: url("./assets/icons.svg#checkbox-empty-light");
+        --checkbox-checked: url("./assets/icons.svg#checkbox-checked-light");
+        --light-theme-button: url("./assets/icons.svg#light-theme-light");
+        --dark-theme-button: url("./assets/icons.svg#dark-theme-light");
+
+        /* menu button */
+        --menu-button-open: url("./assets/icons.svg#burger-light");
+        --menu-button-close: url("./assets/icons.svg#times-light");
+
+        --arrow-down: url("./assets/icons.svg#arrow-down-light");
+    }
+
+    :root.theme-light {
+        --main-background-color: #fff;
+        --main-background-hover: rgba(0, 0, 0, 0.08);
+        --main-background-selected: rgba(0, 0, 0, 0.16);
+        --main-text-color: rgba(0, 0, 0, 0.87);
+        --main-text-color-disabled: rgba(0, 0, 0, 0.35);
+        --main-backdrop-background-color: rgba(0, 0, 0, 0.2);
+
+        /* theme switcher */
+        --checkbox-empty: url("./assets/icons.svg#checkbox-empty-dark");
+        --checkbox-checked: url("./assets/icons.svg#checkbox-checked-dark");
+        --light-theme-button: url("./assets/icons.svg#light-theme-dark");
+        --dark-theme-button: url("./assets/icons.svg#dark-theme-dark");
+
+        /* menu button */
+        --menu-button-open: url("./assets/icons.svg#burger-dark");
+        --menu-button-close: url("./assets/icons.svg#times-dark");
+
+        --arrow-down: url("./assets/icons.svg#arrow-down-dark");
     }
 }

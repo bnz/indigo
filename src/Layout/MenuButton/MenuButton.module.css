@@ -1,8 +1,12 @@
 .root {
-    position: absolute;
-    top: calc(var(--spacing) * 1);
-    left: calc(var(--spacing) * 1);
+    --margin: var(--spacing);
+    --size: calc(var(--spacing) * 7);
 
+    position: absolute;
+    top: var(--margin);
+    left: var(--margin);
+    width: var(--size);
+    height: var(--size);
     border: 0;
     border-radius: 50%;
     background-color: transparent;
@@ -10,11 +14,6 @@
     background-size: 75%;
     background-position: center;
     cursor: pointer;
-
-    --size: calc(var(--spacing) * 7);
-
-    width: var(--size);
-    height: var(--size);
 }
 
 .root:active,
@@ -26,25 +25,17 @@
     .root {
         top: auto;
         left: auto;
-        bottom: calc(var(--spacing) * 1);
-        right: calc(var(--spacing) * 1);
+        bottom: var(--margin);
+        right: var(--margin);
     }
 }
 
-@media (prefers-color-scheme: light) {
-    .times {
-        background-image: url("../../assets/icons.svg#times-dark");
-    }
-    .burger {
-        background-image: url("../../assets/icons.svg#burger-dark");
-    }
+.openMenu {
+    composes: root;
+    background-image: var(--menu-button-open);
 }
 
-@media (prefers-color-scheme: dark) {
-    .times {
-        background-image: url("../../assets/icons.svg#times-light");
-    }
-    .burger {
-        background-image: url("../../assets/icons.svg#burger-light");
-    }
+.closeMenu {
+    composes: root;
+    background-image: var(--menu-button-close);
 }

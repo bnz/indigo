@@ -26,7 +26,7 @@ export const GamesSwitcher: FC = () => {
                 {i18n('indigo')}
             </h1>
             <ul className={cx(styles.list, { [styles.visible]: visible })}>
-                <li className={styles.active}>{i18n('indigo')}</li>
+                <li className={styles.selected}>{i18n('indigo')}</li>
                 <li>{i18n('yacht')}</li>
             </ul>
         </div>

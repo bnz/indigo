@@ -1,6 +1,5 @@
 import { FC } from "react"
 import { observer } from "mobx-react"
-import cx from "classnames"
 import styles from "./MenuButton.module.css"
 import { useUIStore } from "../../Store/UIProvider"
 
@@ -9,7 +8,7 @@ export const MenuButton: FC = observer(() => {
 
     return (
         <button
-            className={cx(styles.root, store.drawer ? styles.times : styles.burger)}
+            className={store.drawer ? styles.closeMenu : styles.openMenu}
             onClick={store.toggleDrawer}
         />
     )

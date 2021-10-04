@@ -1,0 +1,78 @@
+.wrapper {
+    display: flex;
+    padding: 0;
+    margin: calc(var(--spacing)) 0 calc(var(--spacing) * 2);
+    height: calc(var(--spacing) * 5);
+}
+
+.wrapper > div {
+    flex: 1;
+}
+
+.radio {
+    appearance: none;
+
+    --size: calc(var(--spacing) * 5);
+
+    width: var(--size);
+    height: var(--size);
+    padding: 0;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+}
+
+.radio:first-child {
+    margin-right: var(--spacing);
+}
+
+.radio:not([disabled]) {
+    cursor: pointer;
+}
+
+.radio[disabled] {
+    opacity: var(--disabled-opacity);
+}
+
+.light {
+    composes: radio;
+    background-image: var(--light-theme-button);
+}
+
+.dark {
+    composes: radio;
+    background-image: var(--dark-theme-button);
+}
+
+.checkboxLabel {
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.checkboxLabel h5 {
+    font-weight: 400;
+    color: var(--main-text-color);
+}
+
+.checkboxLabel h5:after {
+    content: ":";
+    color: var(--main-text-color);
+}
+
+.checkbox {
+    composes: radio;
+    border-radius: 50%;
+    background-size: 80%;
+    background-image: var(--checkbox-empty);
+}
+
+.checkbox:first-child {
+    margin-right: 0;
+}
+
+.checkbox:checked {
+    background-image: var(--checkbox-checked);
+}

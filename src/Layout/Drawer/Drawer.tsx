@@ -1,11 +1,12 @@
 import { FC } from "react"
-import styles from "./Drawer.module.css"
 import cx from "classnames"
 import { observer } from "mobx-react"
+import styles from "./Drawer.module.css"
 import { useUIStore } from "../../Store/UIProvider"
 import { GamesSwitcher } from "./GamesSwitcher/GamesSwitcher"
 import { LanguageSwitcher } from "./LanguageSwitcher/LanguageSwitcher"
 import { Footer } from "./Footer/Footer"
+import { ThemeSwitcher } from "./ThemeSwitcher/ThemeSwitcher"
 
 export const Drawer: FC = observer(() => {
     const store = useUIStore()
@@ -18,7 +19,9 @@ export const Drawer: FC = observer(() => {
             />
             <div className={styles.drawer}>
                 <GamesSwitcher />
+                {/*<div style={{ height: "calc(var(--spacing) * 7)" }} />*/}
                 <LanguageSwitcher />
+                <ThemeSwitcher />
                 <div style={{
                     flex: 1,
                     overflow: "auto",
