@@ -27,7 +27,10 @@ export const GamesSwitcher: FC = () => {
             </h1>
             <ul className={cx(styles.list, { [styles.visible]: visible })}>
                 <li className={styles.selected}>{i18n('indigo')}</li>
-                <li>{i18n('yacht')}</li>
+                <li onClick={() => {
+                    // @ts-ignore
+                    window.location = "https://bnz.github.io/yacht/"
+                }}>{i18n('yacht')}</li>
             </ul>
         </div>
     )
