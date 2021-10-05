@@ -1,0 +1,73 @@
+.button {
+    border: 0;
+    margin: 0;
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: calc(var(--spacing) * 2);
+    border-radius: calc(var(--spacing) * 0.5);
+    line-height: calc(var(--spacing) * 5);
+    transition-property: box-shadow, background-color;
+    transition-duration: var(--duration);
+}
+
+.button:not(.withIcon) {
+    padding: 0 calc(var(--spacing) * 2);
+}
+
+.withIcon::before,
+.withIcon::after {
+    --size: 0;
+    content: "";
+    width: var(--size);
+    height: var(--size);
+    display: block;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.withIcon::before {
+    margin-right: var(--spacing);
+}
+
+.withIcon::after {
+    margin-left: var(--spacing);
+}
+
+.buttonContained {
+    box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+}
+
+.buttonContained:hover {
+    box-shadow: 0 2px 4px -1px rgb(0 0 0 / 20%), 0 4px 5px 0 rgb(0 0 0 / 14%), 0 1px 10px 0 rgb(0 0 0 / 12%);
+}
+
+.buttonContained:active {
+    box-shadow: 0 5px 5px -3px rgb(0 0 0 / 20%), 0 8px 10px 1px rgb(0 0 0 / 14%), 0 3px 14px 2px rgb(0 0 0 / 12%);
+}
+
+.main {
+    composes: button;
+    composes: buttonContained;
+
+    background-color: rgba(75, 0, 130, 1);
+    color: #fff;
+    font-weight: 700;
+}
+
+.main:hover {
+    background-color: rgba(125, 112, 152, 1);
+}
+
+.text {
+    composes: button;
+    background-color: transparent;
+    color: var(--main-text-color);
+}
+
+.text:hover {
+    background-color: var(--main-background-hover);
+}

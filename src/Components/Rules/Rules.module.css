@@ -1,0 +1,17 @@
+.root {
+
+}
+
+.root p {
+    margin-bottom: var(--spacing);
+}
+
+.root h3 {
+    margin: calc(var(--spacing) * 2) 0 calc(var(--spacing) * 3);
+}
+
+.players {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    margin-bottom: calc(var(--spacing) * 3);
+}

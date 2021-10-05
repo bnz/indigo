@@ -1,0 +1,19 @@
+.startGameButton {
+    composes: main from "../Button/Button.module.css";
+    composes: withIcon from "../Button/Button.module.css";
+}
+
+.startGameButton::after {
+    --size: calc(var(--spacing) * 3);
+    background-image: var(--play-icon);
+}
+
+.cancelButton {
+    composes: text from "../Button/Button.module.css";
+    composes: withIcon from "../Button/Button.module.css";
+}
+
+.cancelButton::before {
+    --size: calc(var(--spacing) * 3);
+    background-image: var(--left-arrow-icon);
+}

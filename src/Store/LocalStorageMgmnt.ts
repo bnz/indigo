@@ -1,10 +1,7 @@
 export interface iLocalStorageMgmnt<K, V> {
     get(key: K, fallback?: V): any | null
-
     set(key: K, value: V): void
-
     getOrApply<T>(key: K, callback: () => T): T
-
     destroy(): void
 }
 

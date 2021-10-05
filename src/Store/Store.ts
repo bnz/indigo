@@ -1,8 +1,8 @@
 import { CSSProperties, MouseEvent } from 'react'
 import { makeAutoObservable } from 'mobx'
-import { Layout } from '../Game/Hexagons/Layout'
-import { Point } from '../Game/Hexagons/Point'
-import { Hex } from '../Game/Hexagons/Hex'
+import { Layout } from '../Components/Game/Hexagons/Layout'
+import { Point } from '../Components/Game/Hexagons/Point'
+import { Hex } from '../Components/Game/Hexagons/Hex'
 import {
     IAllTiles,
     AllTiles,
@@ -35,7 +35,6 @@ import { shuffle } from '../helpers/shuffle'
 import { getRandomInt as rand } from '../helpers/random'
 import svg from '../assets/hex.svg'
 import { iLocalStorageMgmnt, LocalStorageMgmnt } from './LocalStorageMgmnt'
-import { GamePhaseStore, iGamePhaseStore } from './GamePhase'
 import { iPlayersStore, PlayersStore } from './PlayersStore'
 import { iStore } from './iStore'
 
@@ -90,11 +89,9 @@ export class Store implements iStore {
         // }
     }
 
-    private storage: iLocalStorageMgmnt<Keys, Values> = new LocalStorageMgmnt<Keys, Values>('indigo')
+    private storage: iLocalStorageMgmnt<Keys, Values> = new LocalStorageMgmnt<Keys, Values>('game')
 
     playersStore: iPlayersStore = new PlayersStore(this.storage)
-
-    gamePhase: iGamePhaseStore = new GamePhaseStore(this.storage)
 
     private _hoveredId: string | null = null
 
@@ -103,11 +100,16 @@ export class Store implements iStore {
     }
 
     startGame = () => {
-        this.gamePhase.startGame()
+        throw new Error("startGame")
+        // this.gamePhase.startGame()
     }
 
     dispose(): void {
-        window.removeEventListener('resize', this.debounce)
+        try {
+            window.removeEventListener('resize', this.debounce)
+        } catch (e) {
+            console.warn("%cTODO", "font-size:50px;", e)
+        }
     }
 
     private generateLeftTiles = (): TileName[] => {
@@ -191,7 +193,7 @@ export class Store implements iStore {
     }
 
     restart = () => {
-        this.gamePhase.goToPreGame()
+        // this.gamePhase.goToPreGame()
         window.location.reload()
     }
 

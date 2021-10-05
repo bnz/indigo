@@ -1,12 +1,14 @@
-import { makeAutoObservable, runInAction } from "mobx"
+import { makeAutoObservable, reaction, runInAction } from "mobx"
 import { LocalStorageMgmnt } from "./LocalStorageMgmnt"
 import { Language } from "../i18n/i18n"
+import { GamePhaseStore } from "./GamePhase"
+import { UIPhase } from "../types"
 
 type Theme = "light" | "dark"
 
-type Keys = 'drawer' | 'language' | 'theme' | 'theme-system'
+export type UIKeys = 'drawer' | 'language' | 'theme' | 'theme-system' | 'phase'
 
-type Values = boolean | Language | Theme
+export type UIValues = boolean | Language | Theme | UIPhase
 
 export class UI {
 
@@ -18,17 +20,25 @@ export class UI {
     private defaultTheme: Theme = "light"
     private defaultThemeSystem = true
 
+    private html = document.getElementsByTagName("html")[0]
+
     constructor() {
         makeAutoObservable(this)
 
+        // Theme stuff
+        this.themeReaction({ theme: this.theme, themeSystem: this.themeSystem })
+        reaction(() => ({ theme: this.theme, themeSystem: this.themeSystem }), this.themeReaction)
         UI.matchMedia.addEventListener("change", this.matchMediaListener, true)
+
+        // Drawer stuff
+        reaction(() => this.drawer, this.drawerReaction)
     }
 
-    private matchMediaListener = (e: any) => {
-        this.theme = UI.toggleTheme(e)
-    }
+    storage = new LocalStorageMgmnt<UIKeys, UIValues>('ui')
 
-    storage = new LocalStorageMgmnt<Keys, Values>('ui')
+    gamePhase = new GamePhaseStore(this.storage)
+
+    // Drawer - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     private _drawer = this.storage.getOrApply('drawer', () => this.defaultDrawerState)
 
@@ -44,6 +54,16 @@ export class UI {
     toggleDrawer = () => {
         this.drawer = !this.drawer
     }
+
+    drawerReaction = (flag: boolean) => {
+        if (flag) {
+            this.html.style.overflow = "hidden"
+        } else {
+            this.html.style.overflow = "visible"
+        }
+    }
+
+    // Language - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     private _language: Language = this.storage.getOrApply('language', () => this.defaultLanguage)
 
@@ -62,6 +82,8 @@ export class UI {
         window.location = window.location
     }
 
+    // Theme - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
     private static get matchMedia() {
         return window.matchMedia('(prefers-color-scheme: dark)')
     }
@@ -70,11 +92,11 @@ export class UI {
         return e.matches ? "dark" : "light"
     }
 
-    private static get systemTheme(): Theme {
-        return UI.toggleTheme(UI.matchMedia)
+    private matchMediaListener = (e: any) => {
+        this.theme = UI.toggleTheme(e)
     }
 
-    private _theme: Theme = this.storage.getOrApply("theme", () => UI.systemTheme)
+    private _theme: Theme = this.storage.getOrApply("theme", () => UI.toggleTheme(UI.matchMedia))
 
     get theme(): Theme {
         return this._theme
@@ -91,6 +113,8 @@ export class UI {
         })
     }
 
+    // Theme System - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
     private _themeSystem = this.storage.getOrApply('theme-system', () => this.defaultThemeSystem)
 
     get themeSystem(): boolean {
@@ -104,6 +128,19 @@ export class UI {
 
     useSystemTheme = (): void => {
         this.themeSystem = !this.themeSystem
+    }
+
+    // Theme + Theme System - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    private themeReaction = ({ theme, themeSystem }: { theme: Theme, themeSystem: boolean }): void => {
+        this.html.classList.remove(...this.html.classList)
+        if (!themeSystem) {
+            if (theme === "dark") {
+                this.html.classList.add("theme-dark")
+            } else {
+                this.html.classList.add("theme-light")
+            }
+        }
     }
 
     dispose(): void {

@@ -1,0 +1,17 @@
+.root {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    position: relative;
+    border-radius: 50%;
+    box-sizing: border-box;
+    flex: 1;
+}
+
+.root > svg {
+    margin: 0 0 calc(var(--spacing) * 2) 0;
+}
+
+.clear {
+    position: absolute;
+}

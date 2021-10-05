@@ -1,7 +1,7 @@
 .drawer {
     --width: calc(var(--spacing) * 40);
 
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     height: 100%;
@@ -33,7 +33,7 @@
 }
 
 .backdrop {
-    position: absolute;
+    position: fixed;
     inset: 0;
     background-color: var(--main-backdrop-background-color);
     opacity: 1;

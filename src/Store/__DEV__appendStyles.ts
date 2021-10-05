@@ -1,6 +1,6 @@
 import { OrientationType, Tiles } from '../types'
-import { Layout } from '../Game/Hexagons/Layout'
-import { Point } from '../Game/Hexagons/Point'
+import { Layout } from '../Components/Game/Hexagons/Layout'
+import { Point } from '../Components/Game/Hexagons/Point'
 
 export class __DEV__appendStyles {
 

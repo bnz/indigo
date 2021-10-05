@@ -1,26 +1,13 @@
-import { FC, useEffect } from "react"
+import { FC } from "react"
 import { observer } from "mobx-react"
 import styles from "./ThemeSwitcher.module.css"
-import { useUIStore } from "../../../Store/UIProvider"
-import { i18n } from "../../../i18n/i18n"
-
-const html = document.getElementsByTagName("html")[0]
+import { useUIStore } from "../../../../Store/UIProvider"
+import { i18n } from "../../../../i18n/i18n"
 
 export const ThemeSwitcher: FC = observer(() => {
     const store = useUIStore()
     const themeSystem = store.themeSystem
     const theme = store.theme
-
-    useEffect(() => {
-        html.classList.remove(...html.classList)
-        if (!themeSystem) {
-            if (theme === "dark") {
-                html.classList.add("theme-dark")
-            } else {
-                html.classList.add("theme-light")
-            }
-        }
-    }, [theme, themeSystem])
 
     return (
         <div className={styles.wrapper}>

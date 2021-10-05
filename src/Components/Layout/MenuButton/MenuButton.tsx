@@ -1,7 +1,7 @@
 import { FC } from "react"
 import { observer } from "mobx-react"
 import styles from "./MenuButton.module.css"
-import { useUIStore } from "../../Store/UIProvider"
+import { useUIStore } from "../../../Store/UIProvider"
 
 export const MenuButton: FC = observer(() => {
     const store = useUIStore()

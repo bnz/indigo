@@ -1,7 +1,7 @@
 import { FC, useCallback, useEffect, useState } from "react"
 import styles from "./GamesSwitcher.module.css"
 import cx from "classnames"
-import { i18n } from "../../../i18n/i18n"
+import { i18n } from "../../../../i18n/i18n"
 
 export const GamesSwitcher: FC = () => {
     const [visible, setVisible] = useState(false)

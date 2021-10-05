@@ -1,8 +1,7 @@
-import { Hex } from './Game/Hexagons/Hex'
+import { Hex } from './Components/Game/Hexagons/Hex'
 
 export type Keys =
     | 'orientation'
-    | 'phase'
     | 'player-move'
     | 'players'
     | 'route-tiles'
@@ -12,7 +11,6 @@ export type Keys =
 
 export type Values =
     | OrientationType
-    | GamePhase
     | PlayerMove
     | Players
     | SavedTilesValue[]
@@ -39,10 +37,10 @@ export enum PlayerColors {
     Player4 = '#ff6955',
 }
 
-export enum GamePhase {
+export enum UIPhase {
     PRE_GAME,
     PLAYERS_SELECTION,
-    IN_PLAY,
+    GAME,
 }
 
 type RotationAngle = number

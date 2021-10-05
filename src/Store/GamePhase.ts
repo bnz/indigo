@@ -1,47 +1,37 @@
-import { iLocalStorageMgmnt } from './LocalStorageMgmnt'
-import { GamePhase, Keys, Values } from '../types'
+import { LocalStorageMgmnt } from './LocalStorageMgmnt'
+import { UIPhase } from '../types'
 import { makeAutoObservable } from 'mobx'
+import { UIKeys, UIValues } from "./UI"
 
-export interface iGamePhaseStore {
-  phase: GamePhase
+export class GamePhaseStore {
 
-  goToPreGame(): void
+    constructor(
+        private storage: LocalStorageMgmnt<UIKeys, UIValues>,
+    ) {
+        makeAutoObservable(this)
+    }
 
-  goToPlayersSelection(): void
+    private _phase = this.storage.getOrApply<UIPhase>('phase', () => UIPhase.PRE_GAME)
 
-  startGame(): void
-}
+    get phase() {
+        return this._phase
+    }
 
-export class GamePhaseStore implements iGamePhaseStore {
+    set phase(phase: UIPhase) {
+        this._phase = phase
+        this.storage.set('phase', this._phase)
+    }
 
-  constructor(
-    private storage: iLocalStorageMgmnt<Keys, Values>,
-  ) {
-    makeAutoObservable(this)
-  }
+    goToPreGame = () => {
+        this.phase = UIPhase.PRE_GAME
+        this.storage.destroy()
+    }
 
-  private _phase = this.storage.getOrApply<GamePhase>('phase', () => GamePhase.PRE_GAME)
+    goToPlayersSelection = () => {
+        this.phase = UIPhase.PLAYERS_SELECTION
+    }
 
-  get phase() {
-    return this._phase
-  }
-
-  set phase(phase: GamePhase) {
-    this._phase = phase
-    this.storage.set('phase', this._phase)
-  }
-
-  goToPreGame = () => {
-    this.phase = GamePhase.PRE_GAME
-    this.storage.destroy()
-  }
-
-  goToPlayersSelection = () => {
-    this.phase = GamePhase.PLAYERS_SELECTION
-  }
-
-  startGame = () => {
-    this.phase = GamePhase.IN_PLAY
-  }
-
+    startGame = () => {
+        this.phase = UIPhase.GAME
+    }
 }

@@ -2,7 +2,7 @@
     --margin: var(--spacing);
     --size: calc(var(--spacing) * 7);
 
-    position: absolute;
+    position: fixed;
     top: var(--margin);
     left: var(--margin);
     width: var(--size);

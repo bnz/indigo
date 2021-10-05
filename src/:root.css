@@ -1,8 +1,11 @@
 :root {
+    --R: 0;
     --ratio: 0.8660254;
     --duration: .1s;
     --spacing: 8px;
     --disabled-opacity: 0.3;
+
+    --play-icon: url("./assets/icons.svg#play-light");
 }
 
 @media (prefers-color-scheme: light) {
@@ -27,6 +30,8 @@
         --menu-button-close: url("./assets/icons.svg#times-dark");
 
         --arrow-down: url("./assets/icons.svg#arrow-down-dark");
+
+        --left-arrow-icon: url("./assets/icons.svg#arrow-left-dark");
     }
 
     :root.theme-dark {
@@ -35,7 +40,7 @@
         --main-background-selected: rgba(255, 255, 255, 0.16);
         --main-text-color: #fff;
         --main-text-color-disabled: #666;
-        --main-backdrop-background-color: rgba(0, 0, 0, 0.2);
+        --main-backdrop-background-color: rgba(0, 0, 0, 0.5);
 
         /* theme switcher */
         --checkbox-empty: url("./assets/icons.svg#checkbox-empty-light");
@@ -48,6 +53,8 @@
         --menu-button-close: url("./assets/icons.svg#times-light");
 
         --arrow-down: url("./assets/icons.svg#arrow-down-light");
+
+        --left-arrow-icon: url("./assets/icons.svg#arrow-left-light");
     }
 }
 
@@ -59,7 +66,7 @@
         --main-background-selected: rgba(255, 255, 255, 0.16);
         --main-text-color: #fff;
         --main-text-color-disabled: #666;
-        --main-backdrop-background-color: rgba(0, 0, 0, 0.2);
+        --main-backdrop-background-color: rgba(0, 0, 0, 0.5);
 
         /* theme switcher */
         --checkbox-empty: url("./assets/icons.svg#checkbox-empty-light");
@@ -72,6 +79,8 @@
         --menu-button-close: url("./assets/icons.svg#times-light");
 
         --arrow-down: url("./assets/icons.svg#arrow-down-light");
+
+        --left-arrow-icon: url("./assets/icons.svg#arrow-left-light");
     }
 
     :root.theme-light {
@@ -93,5 +102,7 @@
         --menu-button-close: url("./assets/icons.svg#times-dark");
 
         --arrow-down: url("./assets/icons.svg#arrow-down-dark");
+
+        --left-arrow-icon: url("./assets/icons.svg#arrow-left-dark");
     }
 }

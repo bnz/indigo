@@ -1,0 +1,50 @@
+.root {
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transition-duration: 1s;
+    transition-property: transform, width, height, margin;
+
+    width: calc(var(--R) * 2);
+    height: calc(var(--R) * 2 * var(--ratio));
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.root::before {
+    content: "";
+    --s: 1;
+    width: calc(var(--R) * var(--s));
+    height: calc(var(--R) * var(--s));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition-duration: var(--duration);
+    transition-property: transform, width, height;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.root::after {
+    content: attr(data-id);
+    display: block;
+    position: absolute;
+    color: #333;
+    font-size: calc(var(--R) * 0.25);
+}
+
+.sapphire::before {
+    background-image: url("./assets/sapphire.svg");
+}
+
+.emerald::before {
+    --s: 0.75;
+    background-image: url("./assets/emerald.svg");
+}
+
+.amber::before {
+    background-image: url("./assets/amber.svg");
+}

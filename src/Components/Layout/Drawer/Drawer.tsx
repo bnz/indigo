@@ -1,8 +1,8 @@
-import { FC } from "react"
+import { FC, useEffect } from "react"
 import cx from "classnames"
 import { observer } from "mobx-react"
 import styles from "./Drawer.module.css"
-import { useUIStore } from "../../Store/UIProvider"
+import { useUIStore } from "../../../Store/UIProvider"
 import { GamesSwitcher } from "./GamesSwitcher/GamesSwitcher"
 import { LanguageSwitcher } from "./LanguageSwitcher/LanguageSwitcher"
 import { Footer } from "./Footer/Footer"
@@ -10,6 +10,10 @@ import { ThemeSwitcher } from "./ThemeSwitcher/ThemeSwitcher"
 
 export const Drawer: FC = observer(() => {
     const store = useUIStore()
+
+    useEffect(() => {
+
+    }, [store.drawer])
 
     return (
         <div className={cx({ [styles.hidden]: !store.drawer })}>
