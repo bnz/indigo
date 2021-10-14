@@ -1,38 +1,39 @@
 .wrapper {
-    display: flex;
-    padding: 0;
-    margin: calc(var(--spacing)) 0 calc(var(--spacing) * 2);
-    height: calc(var(--spacing) * 5);
-}
-
-.wrapper > div {
-    flex: 1;
+    composes: box from "../Drawer.module.css";
 }
 
 .radio {
     appearance: none;
 
-    --size: calc(var(--spacing) * 5);
+    --size: calc(var(--spacing) * 7);
 
     width: var(--size);
     height: var(--size);
     padding: 0;
     margin: 0;
+    border-radius: 0;
     background-repeat: no-repeat;
-    background-size: contain;
+    background-size: 75%;
     background-position: center;
-}
-
-.radio:first-child {
-    margin-right: var(--spacing);
-}
-
-.radio:not([disabled]) {
+    border: 1px solid var(--main-text-color-disabled);
     cursor: pointer;
 }
 
-.radio[disabled] {
-    opacity: var(--disabled-opacity);
+.radio:nth-child(1) {
+    border-top-left-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-radius);
+    border-right: 0;
+}
+
+.radio:nth-child(3) {
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+    border-left: 0;
+}
+
+.radio.selected {
+    background-color: var(--main-background-selected);
+    cursor: auto;
 }
 
 .light {
@@ -45,6 +46,12 @@
     background-image: var(--dark-theme-button);
 }
 
+.system {
+    composes: radio;
+    background-image: var(--system-theme-button);
+}
+
+/*
 .checkboxLabel {
     cursor: pointer;
     display: flex;
@@ -55,6 +62,7 @@
 .checkboxLabel h5 {
     font-weight: 400;
     color: var(--main-text-color);
+    margin: 0;
 }
 
 .checkboxLabel h5:after {
@@ -76,3 +84,4 @@
 .checkbox:checked {
     background-image: var(--checkbox-checked);
 }
+*/

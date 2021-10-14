@@ -2,28 +2,32 @@ import { FC } from "react"
 import { observer } from "mobx-react"
 import styles from "./ThemeSwitcher.module.css"
 import { useUIStore } from "../../../../Store/UIProvider"
-import { i18n } from "../../../../i18n/i18n"
+import cx from "classnames"
+import { Theme } from "../../../../Store/UI"
 
 export const ThemeSwitcher: FC = observer(() => {
     const store = useUIStore()
-    const themeSystem = store.themeSystem
     const theme = store.theme
+    const fn = (th: Theme) => cx(styles[th], { [styles.selected]: theme === th })
 
     return (
         <div className={styles.wrapper}>
             <input
                 type="radio"
-                className={styles.light}
+                className={fn("light")}
                 onClick={store.changeTheme("light")}
-                disabled={themeSystem || theme === "light"}
             />
             <input
                 type="radio"
-                className={styles.dark}
+                className={fn("dark")}
                 onClick={store.changeTheme("dark")}
-                disabled={themeSystem || theme === "dark"}
             />
-            <div />
+            <input
+                type="radio"
+                className={fn("system")}
+                onClick={store.changeTheme("system")}
+            />
+            {/*
             <label className={styles.checkboxLabel}>
                 <h5>{i18n("systemTheme")}</h5>
                 <input
@@ -33,6 +37,7 @@ export const ThemeSwitcher: FC = observer(() => {
                     onChange={store.useSystemTheme}
                 />
             </label>
+            */}
         </div>
     )
 })

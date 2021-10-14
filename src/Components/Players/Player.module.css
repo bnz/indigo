@@ -1,0 +1,50 @@
+.root {
+    appearance: none;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    position: relative;
+    border-radius: 50%;
+    box-sizing: border-box;
+    flex: 1;
+}
+
+.clear:hover::after {
+    content: "";
+    cursor: pointer;
+    background-color: var(--player-mgmnt-clear-hover-background);
+    background-position: center;
+    background-image: url("../../assets/icons.svg#times-red");
+    background-size: 75%;
+    background-repeat: no-repeat;
+    position: absolute;
+    inset: 2.5%;
+    border-radius: 50%;
+    box-shadow: 0 0 1em rgba(0, 0, 0, 1);
+}
+
+.add {
+    composes: root;
+    content: "";
+    cursor: pointer;
+    background-color: var(--player-mgmnt-clear-hover-background);
+    background-position: center;
+    background-image: url("../../assets/icons.svg#plus-green");
+    background-size: 75%;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 15%;
+    color: var(--main-text-color);
+}
+
+.add:hover::after {
+    content: "";
+    cursor: pointer;
+    position: absolute;
+    inset: 2.5%;
+    border-radius: 50%;
+    box-shadow: 0 0 1em rgba(0, 0, 0, 1);
+}

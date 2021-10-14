@@ -1,6 +1,5 @@
 .root {
-    padding: var(--spacing) 0;
-    text-align: center;
+    composes: box from "../Drawer.module.css";
 }
 
 .root button {

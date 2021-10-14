@@ -1,4 +1,4 @@
-.root {
+.paper {
     background-color: var(--main-background-color);
     border-radius: calc(var(--spacing) * 0.5);
     margin: var(--spacing);

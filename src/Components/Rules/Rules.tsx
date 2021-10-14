@@ -1,7 +1,6 @@
 import React, { FC } from 'react'
 import { Sphere } from '../Game/Sphere/Sphere'
-import { PlayerId, StoneIds } from '../../types'
-import { Stone } from '../Game/Stone/Stone'
+import { PlayerId } from '../../types'
 import { StonesWrapper } from './StonesWrapper'
 import styles from "./Rules.module.css"
 

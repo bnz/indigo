@@ -21,6 +21,7 @@
     background-color: transparent;
 }
 
+/*
 @media (max-width: 599px) {
     .root {
         top: auto;
@@ -29,6 +30,7 @@
         right: var(--margin);
     }
 }
+*/
 
 .openMenu {
     composes: root;

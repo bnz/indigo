@@ -7,10 +7,12 @@
     justify-content: center;
     align-items: center;
     font-size: calc(var(--spacing) * 2);
-    border-radius: calc(var(--spacing) * 0.5);
+    border-radius: var(--border-radius);
     line-height: calc(var(--spacing) * 5);
     transition-property: box-shadow, background-color;
     transition-duration: var(--duration);
+    background-color: var(--button-background-color);
+    color: var(--main-text-color);
 }
 
 .button:not(.withIcon) {
@@ -27,6 +29,7 @@
     background-color: transparent;
     background-repeat: no-repeat;
     background-position: center;
+    color: var(--main-text-color);
 }
 
 .withIcon::before {
@@ -70,4 +73,29 @@
 
 .text:hover {
     background-color: var(--main-background-hover);
+}
+
+.restart {
+    composes: button;
+    composes: buttonContained;
+    composes: withIcon;
+    background-color: #c51162;
+    color: #ccc;
+    font-weight: 700;
+}
+
+.restart::before {
+    --size: var(--icon-size);
+    background-image: var(--restart-button-icon);
+}
+
+.rotate {
+    composes: button;
+    composes: buttonContained;
+    composes: withIcon;
+}
+
+.rotate::before {
+    --size: var(--icon-size);
+    background-image: var(--rotate-button-icon);
 }

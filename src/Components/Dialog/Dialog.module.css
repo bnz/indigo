@@ -1,0 +1,51 @@
+.root {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: calc(var(--spacing) * 50);
+    background-color: var(--main-background-color);
+    border-radius: var(--border-radius);
+    box-shadow: rgba(0, 0, 0, 0.2) 0 11px 15px -7px, rgba(0, 0, 0, 0.14) 0 24px 38px 3px, rgba(0, 0, 0, 0.12) 0 9px 46px 8px;
+
+    --padding: calc(var(--spacing) * 2);
+}
+
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: var(--main-backdrop-background-color);
+    opacity: 1;
+    visibility: visible;
+    transition-duration: var(--duration);
+    transition-property: opacity, visibility;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--padding);
+    color: var(--main-text-color);
+}
+
+.content {
+    padding: var(--padding);
+}
+
+.closeButton {
+    composes: button from "../Button/Button.module.css";
+    background-image: var(--menu-button-close);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+}
+
+.footer {
+    padding: var(--padding);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.footer > button:first-child {
+    margin-right: var(--spacing);
+}

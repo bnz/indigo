@@ -1,0 +1,44 @@
+.wrap {
+    composes: box from "../Drawer.module.css";
+}
+
+.button {
+    padding: 0;
+    margin: 0;
+    border: 0;
+
+    --size: calc(var(--spacing) * 10);
+
+    width: var(--size);
+    height: var(--size);
+
+    background-image: url("../../../../assets/hex.svg#_");
+    background-size: contain;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: drop-shadow(0 0 1em rgba(68, 68, 68, .08));
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.button[disabled] {
+    opacity: 0.3;
+    cursor: auto;
+}
+
+.button:nth-child(1) {
+    margin-right: var(--spacing);
+}
+
+.button:nth-child(2) {
+    transform: rotate(-30deg);
+}
+
+.flat {
+    composes: button;
+}
+
+.pointy {
+    composes: button;
+}

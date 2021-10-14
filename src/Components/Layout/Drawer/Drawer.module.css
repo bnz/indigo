@@ -26,6 +26,7 @@
     .drawer {
         width: 100vw;
     }
+
     .hidden .drawer {
         transform: translateX(calc(100vw * -1));
         box-shadow: none;
@@ -45,4 +46,21 @@
 .hidden .backdrop {
     opacity: 0;
     visibility: hidden;
+}
+
+.content {
+    flex: 1;
+    overflow: auto;
+}
+
+.box {
+    padding: var(--spacing);
+    border-radius: var(--border-radius);
+    margin-bottom: calc(var(--spacing) * 2);
+    display: flex;
+    justify-content: center;
+}
+
+.actions {
+    composes: box;
 }

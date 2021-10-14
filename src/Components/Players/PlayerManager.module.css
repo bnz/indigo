@@ -1,10 +1,28 @@
+.playersWrapper {
+    margin: 0 auto;
+    padding: calc(var(--spacing) * 3) 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.playersWrapper >:last-child {
+    /*plus-light*/
+}
+
+.actionsWrapper {
+    padding: var(--spacing);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 .startGameButton {
     composes: main from "../Button/Button.module.css";
     composes: withIcon from "../Button/Button.module.css";
 }
 
 .startGameButton::after {
-    --size: calc(var(--spacing) * 3);
+    --size: var(--icon-size);
     background-image: var(--play-icon);
 }
 
@@ -14,6 +32,6 @@
 }
 
 .cancelButton::before {
-    --size: calc(var(--spacing) * 3);
+    --size: var(--icon-size);
     background-image: var(--left-arrow-icon);
 }

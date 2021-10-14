@@ -4,8 +4,14 @@
     --duration: .1s;
     --spacing: 8px;
     --disabled-opacity: 0.3;
+    --icon-size: calc(var(--spacing) * 3);
+
+    --border-radius: calc(var(--spacing) * 0.5);
 
     --play-icon: url("./assets/icons.svg#play-light");
+    --restart-button-icon: url("./assets/icons.svg#restart-light");
+
+    --main-text-color-dark: #ccc;
 }
 
 @media (prefers-color-scheme: light) {
@@ -14,47 +20,44 @@
         --main-background-color: #fff;
         --main-background-hover: rgba(0, 0, 0, 0.08);
         --main-background-selected: rgba(0, 0, 0, 0.16);
-
         --main-text-color: rgba(0, 0, 0, 0.87);
         --main-text-color-disabled: rgba(0, 0, 0, 0.35);
         --main-backdrop-background-color: rgba(0, 0, 0, 0.2);
+        --button-background-color: #ccc;
+        --player-mgmnt-clear-hover-background: rgba(255, 255, 255, 0.9);
 
-        /* theme switcher */
         --checkbox-empty: url("./assets/icons.svg#checkbox-empty-dark");
         --checkbox-checked: url("./assets/icons.svg#checkbox-checked-dark");
         --light-theme-button: url("./assets/icons.svg#light-theme-dark");
         --dark-theme-button: url("./assets/icons.svg#dark-theme-dark");
-
-        /* menu button */
+        --system-theme-button: url("./assets/icons.svg#system-dark");
         --menu-button-open: url("./assets/icons.svg#burger-dark");
         --menu-button-close: url("./assets/icons.svg#times-dark");
-
         --arrow-down: url("./assets/icons.svg#arrow-down-dark");
-
         --left-arrow-icon: url("./assets/icons.svg#arrow-left-dark");
+        --rotate-button-icon: url("./assets/icons.svg#rotate-dark");
     }
 
     :root.theme-dark {
         --main-background-color: #303030;
         --main-background-hover: rgba(255, 255, 255, 0.08);
         --main-background-selected: rgba(255, 255, 255, 0.16);
-        --main-text-color: #fff;
+        --main-text-color: var(--main-text-color-dark);
         --main-text-color-disabled: #666;
         --main-backdrop-background-color: rgba(0, 0, 0, 0.5);
+        --button-background-color: #000;
+        --player-mgmnt-clear-hover-background: rgba(48, 48, 48, 0.9);
 
-        /* theme switcher */
         --checkbox-empty: url("./assets/icons.svg#checkbox-empty-light");
         --checkbox-checked: url("./assets/icons.svg#checkbox-checked-light");
         --light-theme-button: url("./assets/icons.svg#light-theme-light");
         --dark-theme-button: url("./assets/icons.svg#dark-theme-light");
-
-        /* menu button */
+        --system-theme-button: url("./assets/icons.svg#system-light");
         --menu-button-open: url("./assets/icons.svg#burger-light");
         --menu-button-close: url("./assets/icons.svg#times-light");
-
         --arrow-down: url("./assets/icons.svg#arrow-down-light");
-
         --left-arrow-icon: url("./assets/icons.svg#arrow-left-light");
+        --rotate-button-icon: url("./assets/icons.svg#rotate-light");
     }
 }
 
@@ -64,23 +67,22 @@
         --main-background-color: #303030;
         --main-background-hover: rgba(255, 255, 255, 0.08);
         --main-background-selected: rgba(255, 255, 255, 0.16);
-        --main-text-color: #fff;
+        --main-text-color: var(--main-text-color-dark);
         --main-text-color-disabled: #666;
         --main-backdrop-background-color: rgba(0, 0, 0, 0.5);
+        --button-background-color: #000;
+        --player-mgmnt-clear-hover-background: rgba(48, 48, 48, 0.9);
 
-        /* theme switcher */
         --checkbox-empty: url("./assets/icons.svg#checkbox-empty-light");
         --checkbox-checked: url("./assets/icons.svg#checkbox-checked-light");
         --light-theme-button: url("./assets/icons.svg#light-theme-light");
         --dark-theme-button: url("./assets/icons.svg#dark-theme-light");
-
-        /* menu button */
+        --system-theme-button: url("./assets/icons.svg#system-light");
         --menu-button-open: url("./assets/icons.svg#burger-light");
         --menu-button-close: url("./assets/icons.svg#times-light");
-
         --arrow-down: url("./assets/icons.svg#arrow-down-light");
-
         --left-arrow-icon: url("./assets/icons.svg#arrow-left-light");
+        --rotate-button-icon: url("./assets/icons.svg#rotate-light");
     }
 
     :root.theme-light {
@@ -90,19 +92,18 @@
         --main-text-color: rgba(0, 0, 0, 0.87);
         --main-text-color-disabled: rgba(0, 0, 0, 0.35);
         --main-backdrop-background-color: rgba(0, 0, 0, 0.2);
+        --button-background-color: #ccc;
+        --player-mgmnt-clear-hover-background: rgba(255, 255, 255, 0.9);
 
-        /* theme switcher */
         --checkbox-empty: url("./assets/icons.svg#checkbox-empty-dark");
         --checkbox-checked: url("./assets/icons.svg#checkbox-checked-dark");
         --light-theme-button: url("./assets/icons.svg#light-theme-dark");
         --dark-theme-button: url("./assets/icons.svg#dark-theme-dark");
-
-        /* menu button */
+        --system-theme-button: url("./assets/icons.svg#system-dark");
         --menu-button-open: url("./assets/icons.svg#burger-dark");
         --menu-button-close: url("./assets/icons.svg#times-dark");
-
         --arrow-down: url("./assets/icons.svg#arrow-down-dark");
-
         --left-arrow-icon: url("./assets/icons.svg#arrow-left-dark");
+        --rotate-button-icon: url("./assets/icons.svg#rotate-dark");
     }
 }
