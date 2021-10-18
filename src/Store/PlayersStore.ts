@@ -4,10 +4,10 @@ import { Keys, Player, PlayerId, Players, Values } from '../types'
 import { getRandomInt } from '../helpers/random'
 import { arrayDiff } from '../helpers/arrayDiff'
 
-import purple from '../Components/Game/Sphere/assets/purple.svg'
-import turquoise from '../Components/Game/Sphere/assets/turquoise.svg'
-import coral from '../Components/Game/Sphere/assets/coral.svg'
-import white from '../Components/Game/Sphere/assets/white.svg'
+import purple from '../jsx/Game/Sphere/assets/purple.svg'
+import turquoise from '../jsx/Game/Sphere/assets/turquoise.svg'
+import coral from '../jsx/Game/Sphere/assets/coral.svg'
+import white from '../jsx/Game/Sphere/assets/white.svg'
 
 export interface iPlayersStore {
     players: Players

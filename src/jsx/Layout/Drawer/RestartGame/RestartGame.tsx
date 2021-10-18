@@ -1,7 +1,7 @@
 import { FC, useCallback, useState } from "react"
 import { i18n } from "../../../../i18n/i18n"
-import buttonStyles from "../../../Button/Button.module.css"
-import { Dialog } from "../../../Dialog/Dialog"
+import buttonStyles from "../../../Components/Button/Button.module.css"
+import { Dialog } from "../../../Components/Dialog/Dialog"
 import { RestartButton } from "./RestartButton"
 
 export const RestartGame: FC = () => {

@@ -17,8 +17,8 @@
 }
 
 .startGameButton {
-    composes: main from "../Button/Button.module.css";
-    composes: withIcon from "../Button/Button.module.css";
+    composes: main from "../Components/Button/Button.module.css";
+    composes: withIcon from "../Components/Button/Button.module.css";
 }
 
 .startGameButton::after {
@@ -27,8 +27,8 @@
 }
 
 .cancelButton {
-    composes: text from "../Button/Button.module.css";
-    composes: withIcon from "../Button/Button.module.css";
+    composes: text from "../Components/Button/Button.module.css";
+    composes: withIcon from "../Components/Button/Button.module.css";
 }
 
 .cancelButton::before {

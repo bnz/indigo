@@ -7,8 +7,11 @@ import { StoreProvider } from "../../Store/StoreProvider"
 import { Store } from "../../Store/Store"
 import { useUIStore } from "../../Store/UIProvider"
 import { PlayerManager } from "../Players/PlayerManager"
+import { Arena } from "./Arena/Arena"
 
 export const Indigo: FC = observer(() => {
+    console.log("Indigo::render")
+
     switch (useUIStore().gamePhase.phase) {
         case UIPhase.PRE_GAME:
             return (
@@ -31,7 +34,7 @@ export const Indigo: FC = observer(() => {
         case UIPhase.GAME:
             return (
                 <StoreProvider store={new Store()}>
-                    <div>hujiiii</div>
+                    <Arena />
                 </StoreProvider>
             )
         default:

@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import style from './Sphere.module.css'
-import { AspectRatio } from '../../AspectRatio/AspectRatio'
+import { AspectRatio } from '../../Components/AspectRatio/AspectRatio'
 import cx from 'classnames'
 import { PlayerId } from '../../../types'
 

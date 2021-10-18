@@ -1,9 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { FC, useEffect } from "react"
+import { KeyCodes } from "./KeyCodes"
 
 type Dictionary<K extends string, T> = { [P in K]?: T }
-
-type KeyCodes = "Escape"
 
 interface KeyboardActionsProps {
     actions: Dictionary<KeyCodes, () => void>

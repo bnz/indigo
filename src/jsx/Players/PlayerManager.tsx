@@ -5,7 +5,7 @@ import { i18n } from "../../i18n/i18n"
 import { useUIStore } from "../../Store/UIProvider"
 import { useStore } from "../../Store/StoreProvider"
 import { Sphere } from "../Game/Sphere/Sphere"
-import paperStyles from "../Paper/Paper.module.css"
+import paperStyles from "../Components/Paper/Paper.module.css"
 import styles from "./PlayerManager.module.css"
 import playerStyles from "./Player.module.css"
 

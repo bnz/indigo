@@ -70,21 +70,21 @@
 }
 
 .wrapper.p-1::after {
-    background-image: url("./assets/purple.svg");
+    background-image: url("assets/purple.svg");
     background-size: 70% 70%;
 }
 
 .wrapper.p-2::after {
-    background-image: url("./assets/turquoise.svg");
+    background-image: url("assets/turquoise.svg");
     background-size: 80% 80%;
 }
 
 .wrapper.p-3::after {
-    background-image: url("./assets/coral.svg");
+    background-image: url("assets/coral.svg");
     background-size: 90% 90%;
 }
 
 .wrapper.p-4::after {
-    background-image: url("./assets/white.svg");
+    background-image: url("assets/white.svg");
     background-size: 75% 75%;
 }

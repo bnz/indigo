@@ -1,5 +1,5 @@
-import { Layout } from '../Components/Game/Hexagons/Layout'
-import { Orientation } from '../Components/Game/Hexagons/Orientation'
+import { Layout } from '../jsx/Game/Hexagons/Layout'
+import { Orientation } from '../jsx/Game/Hexagons/Orientation'
 import { OrientationType, PlayerId, PlayerMove, StoneIds, Stones, StonesEntries, Tile, Tiles } from '../types'
 import { iPlayersStore } from './PlayersStore'
 import { CSSProperties, MouseEvent } from 'react'

@@ -5,8 +5,8 @@ import "@fontsource/roboto"
 import "./:root.css"
 import "./index.css"
 import { UI } from "./Store/UI"
-import { Layout } from "./Components/Layout/Layout"
-import { Indigo } from "./Components/Game/Indigo"
+import { Layout } from "./jsx/Layout/Layout"
+import { Indigo } from "./jsx/Game/Indigo"
 import { UIProvider } from "./Store/UIProvider"
 
 render(

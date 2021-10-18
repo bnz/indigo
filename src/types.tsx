@@ -1,4 +1,4 @@
-import { Hex } from './Components/Game/Hexagons/Hex'
+import { Hex } from './jsx/Game/Hexagons/Hex'
 
 export type Keys =
     | 'orientation'

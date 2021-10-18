@@ -1,0 +1,19 @@
+.show {
+    transition-property: transform, width, height, opacity;
+    transition-duration: var(--duration);
+    opacity: 1;
+}
+
+.show > div {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    background-size: contain;
+    filter: drop-shadow(0 0 1em rgba(0, 0, 0, 1));
+}
+
+.hide {
+    opacity: 0;
+    transition: none;
+}

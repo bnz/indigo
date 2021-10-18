@@ -1,8 +1,8 @@
 import { CSSProperties, MouseEvent } from 'react'
 import { makeAutoObservable } from 'mobx'
-import { Layout } from '../Components/Game/Hexagons/Layout'
-import { Point } from '../Components/Game/Hexagons/Point'
-import { Hex } from '../Components/Game/Hexagons/Hex'
+import { Layout } from '../jsx/Game/Hexagons/Layout'
+import { Point } from '../jsx/Game/Hexagons/Point'
+import { Hex } from '../jsx/Game/Hexagons/Hex'
 import {
     IAllTiles,
     AllTiles,
