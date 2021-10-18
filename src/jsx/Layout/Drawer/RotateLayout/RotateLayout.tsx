@@ -1,21 +1,24 @@
-import React, { FC, useState } from "react"
+import { FC, useState } from "react"
 import styles from "./RotateLayout.module.css"
+import { observer } from "mobx-react"
+import { useStore } from "../../../../Store/StoreProvider"
 
-export const RotateLayout: FC = () => {
-    const [selected, setSelected] = useState<"flat" | "pointy">("pointy")
+export const RotateLayout: FC = observer(() => {
+    const store = useStore()
+    const isPointy = store.isPointy
 
     return (
         <div className={styles.wrap}>
             <button
-                disabled={selected === "flat"}
+                disabled={!isPointy}
                 className={styles.flat}
-                onClick={() => setSelected("flat")}
+                onClick={() => store.changeOrientation("flat")}
             />
             <button
-                disabled={selected === "pointy"}
+                disabled={isPointy}
                 className={styles.pointy}
-                onClick={() => setSelected("pointy")}
+                onClick={() => store.changeOrientation("pointy")}
             />
         </div>
     )
-}
+})

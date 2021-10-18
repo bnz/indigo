@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import { FC } from 'react'
 import { KeyboardActions } from '../../Components/KeyboardActions/KeyboardActions'
 import { useStore } from "../../../Store/StoreProvider"
 

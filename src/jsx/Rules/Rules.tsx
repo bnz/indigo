@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import { FC } from 'react'
 import { Sphere } from '../Game/Sphere/Sphere'
 import { PlayerId } from '../../types'
 import { StonesWrapper } from './StonesWrapper'

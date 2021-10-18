@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { createContext, FC, useContext, useEffect } from 'react'
+import { createContext, FC, useContext, useEffect } from 'react'
 import { iStore } from './iStore'
 
 const HexContext = createContext<iStore | null>(null)

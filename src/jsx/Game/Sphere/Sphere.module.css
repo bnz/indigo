@@ -6,7 +6,7 @@
     width: 95%;
     height: 95%;
     transform: translate(2.5%, 2.5%);
-    /*box-shadow: 0 0 1em rgba(0, 0, 0, 1);*/
+    box-shadow: 0 0 0.5em rgba(0, 0, 0, 0.5);
     background-color: #daa520;
 }
 
@@ -24,7 +24,7 @@
     bottom: var(--margin);
     right: var(--margin);
     border-radius: 50%;
-    border: 1px solid rgba(0, 0, 0, .2);
+    /*border: 1px solid rgba(0, 0, 0, .2);*/
 }
 
 .wrapper.p-1::before {

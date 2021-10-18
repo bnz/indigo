@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef } from 'react'
+import { FC, useEffect, useRef } from 'react'
 import { observer } from 'mobx-react'
 import styles from './TileHovered.module.css'
 import { useStore } from "../../../Store/StoreProvider"

@@ -269,8 +269,8 @@ export class Store implements iStore {
         return this.isPointy ? 'pointy' : 'flat'
     }
 
-    toggleOrientation = () => {
-        this.orientation = this.isPointy ? Layout.flat : Layout.pointy
+    changeOrientation = (orientation: "flat" | "pointy") => {
+        this.orientation = orientation === "flat" ? Layout.flat : Layout.pointy
         const [width, height] = this.elSizes
         this.width = width
         this.height = height

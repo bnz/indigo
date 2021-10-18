@@ -1,10 +1,8 @@
-import React, { FC } from "react"
+import { FC } from "react"
 import { observer } from "mobx-react"
 import { UIPhase } from "../../types"
 import { Rules } from "../Rules/Rules"
 import { StartButton } from "../Rules/StartButton"
-import { StoreProvider } from "../../Store/StoreProvider"
-import { Store } from "../../Store/Store"
 import { useUIStore } from "../../Store/UIProvider"
 import { PlayerManager } from "../Players/PlayerManager"
 import { Arena } from "./Arena/Arena"
@@ -27,15 +25,11 @@ export const Indigo: FC = observer(() => {
             )
         case UIPhase.PLAYERS_SELECTION:
             return (
-                <StoreProvider store={new Store()}>
-                    <PlayerManager />
-                </StoreProvider>
+                <PlayerManager />
             )
         case UIPhase.GAME:
             return (
-                <StoreProvider store={new Store()}>
-                    <Arena />
-                </StoreProvider>
+                <Arena />
             )
         default:
             return null

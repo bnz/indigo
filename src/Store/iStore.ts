@@ -39,7 +39,7 @@ export interface iStore {
     rotateLeft(): void
     rotateRightButton(e: MouseEvent<HTMLButtonElement>): void
     rotateRight(): void
-    toggleOrientation(): void
+    changeOrientation(orientation: "flat" | "pointy"): void
     getBackgroundUrlById(id: string): CSSProperties
     startGame(): void
     getGateway(position: number): PlayerId

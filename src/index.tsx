@@ -8,13 +8,17 @@ import { UI } from "./Store/UI"
 import { Layout } from "./jsx/Layout/Layout"
 import { Indigo } from "./jsx/Game/Indigo"
 import { UIProvider } from "./Store/UIProvider"
+import { Store } from "./Store/Store"
+import { StoreProvider } from "./Store/StoreProvider"
 
 render(
     <StrictMode>
         <UIProvider store={new UI()}>
-            <Layout>
-                <Indigo />
-            </Layout>
+            <StoreProvider store={new Store()}>
+                <Layout>
+                    <Indigo />
+                </Layout>
+            </StoreProvider>
         </UIProvider>
     </StrictMode>,
     document.getElementById("root"),
