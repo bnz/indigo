@@ -1,16 +1,16 @@
-import { CSSProperties, MouseEvent } from 'react'
-import { makeAutoObservable } from 'mobx'
-import { Layout } from '../jsx/Game/Hexagons/Layout'
-import { Point } from '../jsx/Game/Hexagons/Point'
-import { Hex } from '../jsx/Game/Hexagons/Hex'
+import { CSSProperties, MouseEvent } from "react"
+import { makeAutoObservable, runInAction } from "mobx"
+import { Layout } from "../jsx/Game/Hexagons/Layout"
+import { Point } from "../jsx/Game/Hexagons/Point"
+import { Hex } from "../jsx/Game/Hexagons/Hex"
 import {
-    IAllTiles,
     AllTiles,
     Angle,
     CornersTiles,
     Edge,
     GatewayTiles,
     HexType,
+    IAllTiles,
     Keys,
     LineEmptyTiles,
     OrientationType,
@@ -29,14 +29,14 @@ import {
     Tiles,
     TreasureT,
     Values,
-} from '../types'
-import { debounce } from '../helpers/debounce'
-import { shuffle } from '../helpers/shuffle'
-import { getRandomInt as rand } from '../helpers/random'
-import svg from '../assets/hex.svg'
-import { iLocalStorageMgmnt, LocalStorageMgmnt } from './LocalStorageMgmnt'
-import { iPlayersStore, PlayersStore } from './PlayersStore'
-import { iStore } from './iStore'
+} from "../types"
+import { debounce } from "../helpers/debounce"
+import { shuffle } from "../helpers/shuffle"
+import { getRandomInt as rand } from "../helpers/random"
+import svg from "../assets/hex.svg"
+import { iLocalStorageMgmnt, LocalStorageMgmnt } from "./LocalStorageMgmnt"
+import { iPlayersStore, PlayersStore } from "./PlayersStore"
+import { iStore } from "./iStore"
 
 export class Store implements iStore {
 
@@ -52,21 +52,21 @@ export class Store implements iStore {
 
     constructor() {
         makeAutoObservable<Store,
-            | 'ratio'
-            | 'corners'
-            | 'emptyLines'
-            | 'largeSide'
-            | 'smallSide'
-            | 'treasures'
-            | 'gateways'
-            | 'routes'
-            | '_leftTiles'
-            | '_leftTilesInitialSet'
-            | 'storage'
-            | '_gates'
-            | 'tileNameToAngle'
-            | 'stoneAngleMap'
-            | 'routeTileIdToEdgeMap'>(this, {
+            | "ratio"
+            | "corners"
+            | "emptyLines"
+            | "largeSide"
+            | "smallSide"
+            | "treasures"
+            | "gateways"
+            | "routes"
+            | "_leftTiles"
+            | "_leftTilesInitialSet"
+            | "storage"
+            | "_gates"
+            | "tileNameToAngle"
+            | "stoneAngleMap"
+            | "routeTileIdToEdgeMap">(this, {
             ratio: false,
             corners: false,
             emptyLines: false,
@@ -89,7 +89,7 @@ export class Store implements iStore {
         // }
     }
 
-    private storage: iLocalStorageMgmnt<Keys, Values> = new LocalStorageMgmnt<Keys, Values>('game')
+    private storage: iLocalStorageMgmnt<Keys, Values> = new LocalStorageMgmnt<Keys, Values>("game")
 
     playersStore: iPlayersStore = new PlayersStore(this.storage)
 
@@ -106,7 +106,7 @@ export class Store implements iStore {
 
     dispose(): void {
         try {
-            window.removeEventListener('resize', this.debounce)
+            window.removeEventListener("resize", this.debounce)
         } catch (e) {
             console.warn("%cTODO", "font-size:50px;", e)
         }
@@ -143,11 +143,11 @@ export class Store implements iStore {
         return rand(0, this.tileNameToAngle[tile].length - 1)
     }
 
-    private leftTiles = this.storage.getOrApply<TileName[]>('tiles-left', this.generateLeftTiles)
+    private leftTiles = this.storage.getOrApply<TileName[]>("tiles-left", this.generateLeftTiles)
 
     private get randomTile(): [TileName, Angle] | [] {
         const tile = this.leftTiles.pop()
-        this.storage.set('tiles-left', this.leftTiles)
+        this.storage.set("tiles-left", this.leftTiles)
 
         if (tile) {
             return [tile, this.tileNameToAngle[tile][this.randAngle(tile)]]
@@ -157,7 +157,7 @@ export class Store implements iStore {
     }
 
     private _playerMove = this.storage.getOrApply<PlayerMove>(
-        'player-move',
+        "player-move",
         () => {
             const [tile, angle] = this.randomTile
             return [this.playersStore.players[0].id, tile, angle]
@@ -170,14 +170,14 @@ export class Store implements iStore {
 
     set playerMove(move: PlayerMove) {
         this._playerMove = move
-        this.storage.set('player-move', this.playerMove)
+        this.storage.set("player-move", this.playerMove)
     }
 
     private get playerMoveTile() {
         if (this.isRouteCrossroad) {
             return this.playerMove[1]
         }
-        return this.playerMove[1] ? [this.playerMove[1], this.playerMove[2]].join('-') : undefined
+        return this.playerMove[1] ? [this.playerMove[1], this.playerMove[2]].join("-") : undefined
     }
 
     private _arenaElement: HTMLDivElement | null = null
@@ -189,7 +189,7 @@ export class Store implements iStore {
     set arenaElement(el) {
         this._arenaElement = el
         this.onWindowResize()
-        window.addEventListener('resize', this.debounce, false)
+        window.addEventListener("resize", this.debounce, false)
     }
 
     restart = () => {
@@ -226,7 +226,7 @@ export class Store implements iStore {
     debounce = debounce(this.onWindowResize, 400)
 
     get tileActionsPositionCSS(): CSSProperties {
-        const [_q, _r] = (this.hoveredId || '0,0').split(',')
+        const [_q, _r] = (this.hoveredId || "0,0").split(",")
         const { x, y } = this.layout.hexToPixel(this.toHex(parseInt(_q, 10), parseInt(_r, 10)))
 
         return {
@@ -254,7 +254,7 @@ export class Store implements iStore {
         return this.orientation.start_angle === 0.5
     }
 
-    private _orientation = Layout[this.storage.getOrApply<OrientationType>('orientation', () => 'flat')]
+    private _orientation = Layout[this.storage.getOrApply<OrientationType>("orientation", () => "flat")]
 
     get orientation() {
         return this._orientation
@@ -262,19 +262,21 @@ export class Store implements iStore {
 
     set orientation(orientation) {
         this._orientation = orientation
-        this.storage.set('orientation', this.orientationType)
+        this.storage.set("orientation", this.orientationType)
     }
 
     get orientationType(): OrientationType {
-        return this.isPointy ? 'pointy' : 'flat'
+        return this.isPointy ? "pointy" : "flat"
     }
 
-    changeOrientation = (orientation: "flat" | "pointy") => {
-        this.orientation = orientation === "flat" ? Layout.flat : Layout.pointy
-        const [width, height] = this.elSizes
-        this.width = width
-        this.height = height
-        this.recalc()
+    changeOrientation = (orientation: "flat" | "pointy") => () => {
+        runInAction(() => {
+            this.orientation = orientation === "flat" ? Layout.flat : Layout.pointy
+            const [width, height] = this.elSizes
+            this.width = width
+            this.height = height
+            this.recalc()
+        })
     }
 
     private updateLayout() {
@@ -308,7 +310,7 @@ export class Store implements iStore {
             new Point(1, 1),
             new Point(
                 0,
-                this.orientationType === 'pointy' ? this.largeSide : this.smallSide,
+                this.orientationType === "pointy" ? this.largeSide : this.smallSide,
             ),
         )
     }
@@ -327,36 +329,36 @@ export class Store implements iStore {
     }
 
     private routeTileIdToEdgeMap: Record<keyof typeof RouteTiles, [Edge, Edge, Edge, Edge, Edge, Edge]> = {
-        'l-0': [4, 3, 5, 1, 0, 2],
-        'l-60': [2, 4, 0, 5, 1, 3],
-        'l-120': [3, 5, 4, 0, 2, 1],
-        'h-0': [4, 5, 3, 2, 0, 1],
-        'h-60': [4, 2, 1, 5, 0, 3],
-        'h-120': [1, 0, 4, 5, 2, 3],
-        'h-180': [5, 3, 4, 1, 2, 0],
-        'h-240': [2, 3, 0, 1, 5, 4],
-        'h-300': [2, 5, 0, 4, 3, 1],
-        't-0': [1, 0, 5, 4, 3, 2],
-        't-60': [5, 4, 3, 2, 1, 0],
-        't-120': [3, 2, 1, 0, 5, 4],
-        's-0': [5, 2, 1, 4, 3, 0],
-        's-60': [1, 0, 3, 2, 5, 4],
+        "l-0": [4, 3, 5, 1, 0, 2],
+        "l-60": [2, 4, 0, 5, 1, 3],
+        "l-120": [3, 5, 4, 0, 2, 1],
+        "h-0": [4, 5, 3, 2, 0, 1],
+        "h-60": [4, 2, 1, 5, 0, 3],
+        "h-120": [1, 0, 4, 5, 2, 3],
+        "h-180": [5, 3, 4, 1, 2, 0],
+        "h-240": [2, 3, 0, 1, 5, 4],
+        "h-300": [2, 5, 0, 4, 3, 1],
+        "t-0": [1, 0, 5, 4, 3, 2],
+        "t-60": [5, 4, 3, 2, 1, 0],
+        "t-120": [3, 2, 1, 0, 5, 4],
+        "s-0": [5, 2, 1, 4, 3, 0],
+        "s-60": [1, 0, 3, 2, 5, 4],
         c: [3, 4, 5, 0, 1, 2],
 
-        'l-0_': [0, 0, 0, 0, 0, 0],
-        'l-60_': [0, 0, 0, 0, 0, 0],
-        'l-120_': [0, 0, 0, 0, 0, 0],
-        'h-0_': [0, 0, 0, 0, 0, 0],
-        'h-60_': [0, 0, 0, 0, 0, 0],
-        'h-120_': [0, 0, 0, 0, 0, 0],
-        'h-180_': [0, 0, 0, 0, 0, 0],
-        'h-240_': [0, 0, 0, 0, 0, 0],
-        'h-300_': [0, 0, 0, 0, 0, 0],
-        't-0_': [0, 0, 0, 0, 0, 0],
-        't-60_': [0, 0, 0, 0, 0, 0],
-        't-120_': [0, 0, 0, 0, 0, 0],
-        's-0_': [0, 0, 0, 0, 0, 0],
-        's-60_': [0, 0, 0, 0, 0, 0],
+        "l-0_": [0, 0, 0, 0, 0, 0],
+        "l-60_": [0, 0, 0, 0, 0, 0],
+        "l-120_": [0, 0, 0, 0, 0, 0],
+        "h-0_": [0, 0, 0, 0, 0, 0],
+        "h-60_": [0, 0, 0, 0, 0, 0],
+        "h-120_": [0, 0, 0, 0, 0, 0],
+        "h-180_": [0, 0, 0, 0, 0, 0],
+        "h-240_": [0, 0, 0, 0, 0, 0],
+        "h-300_": [0, 0, 0, 0, 0, 0],
+        "t-0_": [0, 0, 0, 0, 0, 0],
+        "t-60_": [0, 0, 0, 0, 0, 0],
+        "t-120_": [0, 0, 0, 0, 0, 0],
+        "s-0_": [0, 0, 0, 0, 0, 0],
+        "s-60_": [0, 0, 0, 0, 0, 0],
         c_: [0, 0, 0, 0, 0, 0],
     }
 
@@ -371,29 +373,29 @@ export class Store implements iStore {
         const r = this.getRotate(type)
 
         return this.isPointy ? {
-            0: [` + var(--R) / ${x}`, /*--->*/ '' /*<---*/, r(0)],
+            0: [` + var(--R) / ${x}`, /*--->*/ "" /*<---*/, r(0)],
             5: [` + var(--R) / ${y}`, ` + var(--R) / ${x}`, r(1)],
             4: [` + var(--R) / ${-y}`, ` + var(--R) / ${x}`, r(2)],
-            3: [` + var(--R) / ${-x}`, /*--->*/ '' /*<---*/, r(3)],
+            3: [` + var(--R) / ${-x}`, /*--->*/ "" /*<---*/, r(3)],
             2: [` + var(--R) / ${-y}`, ` + var(--R) / ${-x}`, r(4)],
             1: [` + var(--R) / ${y}`, ` + var(--R) / ${-x}`, r(5)],
         } : {
             0: [` + var(--R) / ${x}`, ` + var(--R) / ${y}`, r(0)],
-            5: [ /* ---------> */ '', ` + var(--R) / ${x * this.ratio}`, r(1)],
+            5: [ /* ---------> */ "", ` + var(--R) / ${x * this.ratio}`, r(1)],
             4: [` + var(--R) / ${-x}`, ` + var(--R) / ${y}`, r(2)],
             3: [` + var(--R) / ${-x}`, ` + var(--R) / ${-y}`, r(3)],
-            2: [ /* ---------> */ '', ` + var(--R) / ${-x * this.ratio}`, r(4)],
+            2: [ /* ---------> */ "", ` + var(--R) / ${-x * this.ratio}`, r(4)],
             1: [` + var(--R) / ${x}`, ` + var(--R) / ${-y}`, r(5)],
         }
     }
 
-    private getTransformCSS(q: number, r: number, [x1 = '', y1 = '', r1 = ''] = []): CSSProperties {
+    private getTransformCSS(q: number, r: number, [x1 = "", y1 = "", r1 = ""] = []): CSSProperties {
         const { x, y } = this.renderLayout.hexToPixel(this.toHex(q, r))
         return {
             transform: `translate(${[
                 `calc(${x - 1} * var(--R)${x1})`,
                 `calc(${y - this.ratio} * var(--R)${y1})`,
-            ].join(', ')})${r1}`,
+            ].join(", ")})${r1}`,
         }
     }
 
@@ -409,12 +411,12 @@ export class Store implements iStore {
     getBackgroundUrlById(id: string): CSSProperties {
         const tile = this.tiles[id].tile
 
-        return this.cssBgUrl([svg, '#', (tile !== undefined && AllTiles[tile]) || '_'].join(''))
+        return this.cssBgUrl([svg, "#", (tile !== undefined && AllTiles[tile]) || "_"].join(""))
     }
 
     get playerMoveRouteTile(): CSSProperties | undefined {
         if (this.playerMove[1]) {
-            return this.cssBgUrl([svg, '#', this.playerMoveTile].join(''))
+            return this.cssBgUrl([svg, "#", this.playerMoveTile].join(""))
         }
         return undefined
     }
@@ -447,12 +449,12 @@ export class Store implements iStore {
 
     get getTmpCSS(): CSSProperties {
         return {
-            ...this.cssBgUrl([svg, '#', this.playerMoveTile].join('')),
+            ...this.cssBgUrl([svg, "#", this.playerMoveTile].join("")),
             ...(this.playerMove.length >= 4 && this.playerMove[3] !== undefined ? {
                 transform: `rotate(${this.playerMove[3]}deg)`,
             } : {}),
-            transitionProperty: 'transform',
-            transitionDuration: 'calc(var(--duration) * 5)',
+            transitionProperty: "transform",
+            transitionDuration: "calc(var(--duration) * 5)",
         }
     }
 
@@ -488,7 +490,7 @@ export class Store implements iStore {
                 newRouteTile.push(angle)
             }
 
-            this.tiles[this.hoveredId].tile = RouteTiles[newRouteTile.join('-') as keyof typeof RouteTiles]
+            this.tiles[this.hoveredId].tile = RouteTiles[newRouteTile.join("-") as keyof typeof RouteTiles]
             this.moveStones()
             this.nextMove()
             this.saveStones()
@@ -604,7 +606,7 @@ export class Store implements iStore {
     }
 
     get isRouteCrossroad() {
-        return this.playerMove[1] === 'c'
+        return this.playerMove[1] === "c"
     }
 
     private toHex = (q: number, r: number) => new Hex(q, r, (q + r) * -1)
@@ -626,53 +628,53 @@ export class Store implements iStore {
     }
 
     private readonly corners: TileItems<CornersTiles> = [
-        [6, -3, CornersTiles['c-r']],
-        [-6, 3, CornersTiles['c-l']],
-        [-3, -3, CornersTiles['c-t-l']],
-        [3, -6, CornersTiles['c-t-r']],
-        [3, 3, CornersTiles['c-b-r']],
-        [-3, 6, CornersTiles['c-b-l']],
+        [6, -3, CornersTiles["c-r"]],
+        [-6, 3, CornersTiles["c-l"]],
+        [-3, -3, CornersTiles["c-t-l"]],
+        [3, -6, CornersTiles["c-t-r"]],
+        [3, 3, CornersTiles["c-b-r"]],
+        [-3, 6, CornersTiles["c-b-l"]],
     ]
 
     private readonly emptyLines: TileItems<LineEmptyTiles> = [
-        [-1, -4, LineEmptyTiles['le-t']],
-        [1, -5, LineEmptyTiles['le-t']],
-        [4, -5, LineEmptyTiles['le-l-t']],
-        [5, -4, LineEmptyTiles['le-l-t']],
-        [5, -1, LineEmptyTiles['le-l-b']],
-        [4, 1, LineEmptyTiles['le-l-b']],
-        [1, 4, LineEmptyTiles['le-b']],
-        [-1, 5, LineEmptyTiles['le-b']],
-        [-4, 5, LineEmptyTiles['le-r-b']],
-        [-5, 4, LineEmptyTiles['le-r-b']],
-        [-5, 1, LineEmptyTiles['le-r-t']],
-        [-4, -1, LineEmptyTiles['le-r-t']],
+        [-1, -4, LineEmptyTiles["le-t"]],
+        [1, -5, LineEmptyTiles["le-t"]],
+        [4, -5, LineEmptyTiles["le-l-t"]],
+        [5, -4, LineEmptyTiles["le-l-t"]],
+        [5, -1, LineEmptyTiles["le-l-b"]],
+        [4, 1, LineEmptyTiles["le-l-b"]],
+        [1, 4, LineEmptyTiles["le-b"]],
+        [-1, 5, LineEmptyTiles["le-b"]],
+        [-4, 5, LineEmptyTiles["le-r-b"]],
+        [-5, 4, LineEmptyTiles["le-r-b"]],
+        [-5, 1, LineEmptyTiles["le-r-t"]],
+        [-4, -1, LineEmptyTiles["le-r-t"]],
     ]
 
     private readonly treasures: TileItems<TreasureT> = [
-        /* 0 */ [4, 0, TreasureT['tr-t-l'], [[StoneIds.amber0, 3]]],
-        /* 1 */ [-4, 0, TreasureT['tr-b-r'], [[StoneIds.amber1, 0]]],
-        /* 2 */ [-4, 4, TreasureT['tr-t-r'], [[StoneIds.amber2, 1]]],
-        /* 3 */ [0, -4, TreasureT['tr-b'], [[StoneIds.amber3, 5]]],
-        /* 4 */ [0, 4, TreasureT['tr-t'], [[StoneIds.amber4, 2]]],
-        /* 5 */ [4, -4, TreasureT['tr-b-l'], [[StoneIds.amber5, 4]]],
+        /* 0 */ [4, 0, TreasureT["tr-t-l"], [[StoneIds.amber0, 3]]],
+        /* 1 */ [-4, 0, TreasureT["tr-b-r"], [[StoneIds.amber1, 0]]],
+        /* 2 */ [-4, 4, TreasureT["tr-t-r"], [[StoneIds.amber2, 1]]],
+        /* 3 */ [0, -4, TreasureT["tr-b"], [[StoneIds.amber3, 5]]],
+        /* 4 */ [0, 4, TreasureT["tr-t"], [[StoneIds.amber4, 2]]],
+        /* 5 */ [4, -4, TreasureT["tr-b-l"], [[StoneIds.amber5, 4]]],
 
         [0, 0, TreasureT.center, []],
     ]
 
     private readonly gateways: TileItems<GatewayTiles> = [
-        [-5, 2, GatewayTiles['g-l']],
-        [-5, 3, GatewayTiles['g-l']],
-        [-2, -3, GatewayTiles['g-t-l']],
-        [-3, -2, GatewayTiles['g-t-l']],
-        [2, -5, GatewayTiles['g-t-r']],
-        [3, -5, GatewayTiles['g-t-r']],
-        [5, -3, GatewayTiles['g-r']],
-        [5, -2, GatewayTiles['g-r']],
-        [3, 2, GatewayTiles['g-b-r']],
-        [2, 3, GatewayTiles['g-b-r']],
-        [-3, 5, GatewayTiles['g-b-l']],
-        [-2, 5, GatewayTiles['g-b-l']],
+        [-5, 2, GatewayTiles["g-l"]],
+        [-5, 3, GatewayTiles["g-l"]],
+        [-2, -3, GatewayTiles["g-t-l"]],
+        [-3, -2, GatewayTiles["g-t-l"]],
+        [2, -5, GatewayTiles["g-t-r"]],
+        [3, -5, GatewayTiles["g-t-r"]],
+        [5, -3, GatewayTiles["g-r"]],
+        [5, -2, GatewayTiles["g-r"]],
+        [3, 2, GatewayTiles["g-b-r"]],
+        [2, 3, GatewayTiles["g-b-r"]],
+        [-3, 5, GatewayTiles["g-b-l"]],
+        [-2, 5, GatewayTiles["g-b-l"]],
     ]
 
     private readonly routes: TileItems<RouteTiles> = [
@@ -700,12 +702,12 @@ export class Store implements iStore {
         ...this.generateTiles(this.emptyLines, HexType.decorator),
         ...this.generateTiles(this.gateways, HexType.gateway),
         ...this.generateTiles(
-            this.storage.getOrApply<TileItems<TreasureT>>('treasure-tiles', () => this.treasures),
+            this.storage.getOrApply<TileItems<TreasureT>>("treasure-tiles", () => this.treasures),
             // this.treasures,
             HexType.treasure,
         ),
         ...this.generateTiles(
-            this.storage.getOrApply<TileItems<RouteTiles>>('route-tiles', () => this.routes),
+            this.storage.getOrApply<TileItems<RouteTiles>>("route-tiles", () => this.routes),
             // this.routes,
             HexType.route,
         ),
@@ -737,8 +739,8 @@ export class Store implements iStore {
                 treasureTiles.push(arr)
             }
         })
-        this.storage.set('route-tiles', routeTiles)
-        this.storage.set('treasure-tiles', treasureTiles)
+        this.storage.set("route-tiles", routeTiles)
+        this.storage.set("treasure-tiles", treasureTiles)
     }
 
     private _gates: Record<number, Record<number, number>> = {
@@ -779,7 +781,7 @@ export class Store implements iStore {
         [StoneIds.amber5]: this.getStoneProps(5, StoneType.amber),
     }
 
-    stones: Stones = this.storage.getOrApply<Stones>('stones', () => this._stones)
+    stones: Stones = this.storage.getOrApply<Stones>("stones", () => this._stones)
 
     get stonesEntries(): StonesEntries {
         // @ts-ignore FIXME
@@ -787,7 +789,7 @@ export class Store implements iStore {
     }
 
     private saveStones() {
-        this.storage.set('stones', this.stones)
+        this.storage.set("stones", this.stones)
     }
 
 }
