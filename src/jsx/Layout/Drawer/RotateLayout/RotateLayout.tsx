@@ -1,4 +1,4 @@
-import { FC, useState } from "react"
+import { FC } from "react"
 import styles from "./RotateLayout.module.css"
 import { observer } from "mobx-react"
 import { useStore } from "../../../../Store/StoreProvider"
