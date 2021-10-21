@@ -1,5 +1,5 @@
 [data-qr] {
-    /*pointer-events: none;*/
+    pointer-events: var(--pointer-events);
     position: absolute;
     top: 0;
     left: 50%;

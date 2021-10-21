@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { ArenaWrapper } from "./ArenaWrapper"
-// import { Tiles } from "../Tiles/Tiles"
-// import { Seats } from '../Seats/Seats'
+import { Tiles } from "../Tile/Tiles"
+import { Seats } from '../Seats/Seats'
 import { GatewaySeats } from '../GatewaySeats/GatewaySeats'
 // import { TileHovered } from '../Tile/TileHovered'
 // import { Stones } from "../Stones/Stones"
@@ -9,8 +9,8 @@ import { GatewaySeats } from '../GatewaySeats/GatewaySeats'
 
 export const Arena: FC = () => (
     <ArenaWrapper>
-        {/*<Tiles />*/}
-        {/*<Seats />*/}
+        <Tiles />
+        <Seats />
         <GatewaySeats />
         {/*<TileHovered />*/}
         {/*<Stones />*/}

@@ -1,9 +1,9 @@
 .root {
-    pointer-events: none;
+    pointer-events: var(--pointer-events);
     position: absolute;
     top: 0;
     left: 50%;
-    transition-duration: 1s;
+    transition-duration: var(--duration);
     transition-property: transform, width, height, margin;
 
     width: calc(var(--R) * 2);
