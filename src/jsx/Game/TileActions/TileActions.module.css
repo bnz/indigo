@@ -1,0 +1,116 @@
+.root {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background-color: rgba(255, 0, 0, 0.46);
+}
+
+.container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    --s: calc(var(--R) * 2);
+    /*transition-duration: var(--duration);*/
+    /*transition-property: transform, width, height;*/
+}
+
+/*.button {*/
+/*    font-size: calc(var(--R) * 0.6) !important;*/
+/*    --size: calc(var(--R) * 0.8);*/
+/*    width: var(--size) !important;*/
+/*    min-width: var(--size) !important;*/
+/*    height: var(--size) !important;*/
+/*    min-height: var(--size) !important;*/
+/*    box-shadow: none !important;*/
+/*    position: relative;*/
+/*    background-color: transparent !important;*/
+/*}*/
+
+/*.button::before {*/
+/*    content: "";*/
+/*    position: absolute;*/
+/*    left: 0;*/
+/*    right: 0;*/
+/*    top: 0;*/
+/*    bottom: 0;*/
+/*    background-image: url("../hex.svg#_");*/
+/*    background-size: contain;*/
+/*    background-repeat: no-repeat;*/
+/*    background-position: center;*/
+/*    filter: drop-shadow(0 0 0.5em rgba(0, 0, 0, .7));*/
+/*    opacity: 0.5;*/
+/*}*/
+
+/*.button > span:first-of-type {*/
+/*    position: relative;*/
+/*}*/
+
+/*.button:hover {*/
+/*    filter: drop-shadow(0 0 1em rgba(0, 0, 0, .7));*/
+/*}*/
+
+/*.button:hover::before {*/
+/*    opacity: 1;*/
+/*}*/
+
+/*.button > span > svg {*/
+/*    font-size: inherit;*/
+/*}*/
+
+/*.button.left {*/
+/*    position: absolute;*/
+/*    top: 50%;*/
+/*    left: 105%;*/
+/*    transform: translate(0, -50%);*/
+/*}*/
+
+/*.button.left svg {*/
+/*    color: #1b5e20;*/
+/*}*/
+
+/*.button:disabled svg {*/
+/*    opacity: 0.1;*/
+/*}*/
+
+/*.button.right {*/
+/*    position: absolute;*/
+/*    top: 50%;*/
+/*    right: 105%;*/
+/*    transform: translate(0, -50%);*/
+/*}*/
+
+/*.button.right svg {*/
+/*    color: #e53935;*/
+/*}*/
+
+/*.button.top {*/
+/*    position: absolute;*/
+/*    bottom: 105%;*/
+/*    left: 50%;*/
+/*    transform: translate(-50%, 0);*/
+/*}*/
+
+/*.button.bottom {*/
+/*    position: absolute;*/
+/*    top: 105%;*/
+/*    left: 50%;*/
+/*    transform: translate(-50%, 0);*/
+/*}*/
+
+/*.button.top svg,*/
+/*.button.bottom svg {*/
+/*    color: #1a237e;*/
+/*}*/
+
+:global(.flat) .container {
+    width: var(--s);
+    height: calc(var(--s) * var(--ratio));
+}
+
+:global(.pointy) .container {
+    width: calc(var(--s) * var(--ratio));
+    height: var(--s);
+}
