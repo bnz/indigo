@@ -5,7 +5,16 @@
     right: 0;
     bottom: 0;
 
+    visibility: visible;
+    opacity: 1;
+
     background-color: rgba(255, 0, 0, 0.46);
+}
+
+.hidden {
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
 }
 
 .container {
@@ -13,8 +22,8 @@
     top: 0;
     left: 0;
     --s: calc(var(--R) * 2);
-    /*transition-duration: var(--duration);*/
-    /*transition-property: transform, width, height;*/
+    transition-duration: var(--duration);
+    transition-property: transform, width, height;
 }
 
 /*.button {*/

@@ -1,23 +1,28 @@
 import React, { FC } from "react"
-import { observer } from "mobx-react"
 import { useStore } from "../../../Store/StoreProvider"
-import { AllTiles } from "../../../types"
-import svg from "../../../assets/hex.svg"
+import { Tile, TileProps } from "./Tile"
+import { makeAutoObservable } from "mobx"
 import "./TileCoords.css"
 import "./Tile.css"
 
-export const Tiles: FC = observer(() => {
-    const store = useStore()
+export interface Data<T> {
+    data: T
+}
 
-    return (
-        <>
-            {store.tileEntries.map(([id, { hex: { id: qr }, tile }]) => (
-                <div
-                    key={id}
-                    data-qr={qr}
-                    style={{ backgroundImage: `url(${svg}#${(tile !== undefined && AllTiles[tile]) || "_"})` }}
-                />
-            ))}
-        </>
-    )
-})
+export const Tiles: FC = () => (
+    <>
+        {useStore().tileEntries.map((entry) => (
+            <Tile
+                key={entry[0]}
+                data={makeAutoObservable<TileProps>({
+                    get qr() {
+                        return entry[1].hex.id
+                    },
+                    get tile() {
+                        return entry[1].tile
+                    },
+                })}
+            />
+        ))}
+    </>
+)

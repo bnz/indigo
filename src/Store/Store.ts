@@ -250,6 +250,10 @@ export class Store implements iStore {
         return this._preSit
     }
 
+    set preSit(preSit) {
+        this._preSit = preSit
+    }
+
     get isPointy() {
         return this.orientation.start_angle === 0.5
     }
@@ -411,7 +415,8 @@ export class Store implements iStore {
     getBackgroundUrlById(id: string): CSSProperties {
         const tile = this.tiles[id].tile
 
-        return this.cssBgUrl([svg, "#", (tile !== undefined && AllTiles[tile]) || "_"].join(""))
+        // return this.cssBgUrl([svg, "#", (tile !== undefined && AllTiles[tile]) || "_"].join(""))
+        return {}
     }
 
     get playerMoveRouteTile(): CSSProperties | undefined {
@@ -427,7 +432,7 @@ export class Store implements iStore {
         const nextKey = parseInt(keys[keys.length - 1 > index ? index + 1 : 0], 10)
         const [tile, angle] = this.randomTile
 
-        console.log({ tile, angle })
+        // console.log({ tile, angle })
 
         this.playerMove = [this.playersStore.players[nextKey].id, tile, angle]
     }
@@ -453,14 +458,14 @@ export class Store implements iStore {
             ...(this.playerMove.length >= 4 && this.playerMove[3] !== undefined ? {
                 transform: `rotate(${this.playerMove[3]}deg)`,
             } : {}),
-            transitionProperty: "transform",
-            transitionDuration: "calc(var(--duration) * 5)",
+            // transitionProperty: "transform",
+            // transitionDuration: "calc(var(--duration) * 5)",
         }
     }
 
     onClick = () => {
         if (this.hoveredId !== null) {
-            this._preSit = true
+            this.preSit = true
         }
     }
 
@@ -470,7 +475,7 @@ export class Store implements iStore {
     }
 
     cancelPreSit = () => {
-        this._preSit = false
+        this.preSit = false
     }
 
     applySitButton = (e: MouseEvent<HTMLButtonElement>) => {
@@ -479,7 +484,7 @@ export class Store implements iStore {
     }
 
     applySit = () => {
-        this._preSit = false
+        this.preSit = false
         if (this.hoveredId !== null && this.playerMoveTile !== undefined) {
             const [, name, angle, , nextAngle] = this.playerMove
             const newRouteTile: [TileName?, Angle?] = [name]

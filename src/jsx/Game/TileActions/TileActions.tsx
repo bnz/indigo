@@ -14,36 +14,45 @@ import { useStore } from "../../../Store/StoreProvider"
 export const TileActions: FC = observer(() => {
     const store = useStore()
 
-    if (!store.preSit) {
-        return null
-    }
+    // if (!store.preSit) {
+    //     return null
+    // }
 
     // window.matchMedia("")
 
     return (
-        <div className={style.root} onClick={store.cancelPreSitButton}>
+        <>
             <KeyboardActions actions={{
                 Escape: store.cancelPreSit,
                 Enter: store.applySit,
             }} />
-            <div className={style.container} style={store.tileActionsPositionCSS}>
-                {/*<Fab className={cx(style.button, style.left)} onClick={store.applySitButton}>*/}
-                {/*    <CheckRoundedIcon />*/}
-                {/*</Fab>*/}
-                {/*<Fab className={cx(style.button, style.right)} onClick={store.cancelPreSitButton}>*/}
-                {/*    <CloseRoundedIcon />*/}
-                {/*</Fab>*/}
-                {!store.isRouteCrossroad && (
+            <div className={cx(style.root, { [style.hidden]: !store.preSit })} onClick={store.cancelPreSitButton}>
+                <div className={style.container} style={store.tileActionsPositionCSS}>
                     <>
-                        {/*<Fab className={cx(style.button, style.top)} onClick={store.rotateRightButton}>*/}
-                        {/*    <RotateLeftRoundedIcon />*/}
-                        {/*</Fab>*/}
-                        {/*<Fab className={cx(style.button, style.bottom)} onClick={store.rotateLeftButton}>*/}
-                        {/*    <RotateRightRoundedIcon />*/}
-                        {/*</Fab>*/}
+                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae, deleniti earum enim eos esse
+                        illo
+                        laboriosam nesciunt omnis, quia, quisquam quod reiciendis repellendus reprehenderit sequi
+                        tempore
+                        ullam ut. Exercitationem, nisi!
                     </>
-                )}
+                    {/*<Fab className={cx(style.button, style.left)} onClick={store.applySitButton}>*/}
+                    {/*    <CheckRoundedIcon />*/}
+                    {/*</Fab>*/}
+                    {/*<Fab className={cx(style.button, style.right)} onClick={store.cancelPreSitButton}>*/}
+                    {/*    <CloseRoundedIcon />*/}
+                    {/*</Fab>*/}
+                    {!store.isRouteCrossroad && (
+                        <>
+                            {/*<Fab className={cx(style.button, style.top)} onClick={store.rotateRightButton}>*/}
+                            {/*    <RotateLeftRoundedIcon />*/}
+                            {/*</Fab>*/}
+                            {/*<Fab className={cx(style.button, style.bottom)} onClick={store.rotateLeftButton}>*/}
+                            {/*    <RotateRightRoundedIcon />*/}
+                            {/*</Fab>*/}
+                        </>
+                    )}
+                </div>
             </div>
-        </div>
+        </>
     )
 })

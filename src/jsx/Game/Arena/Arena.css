@@ -1,7 +1,7 @@
 .pointy,
 .flat {
     position: absolute;
-    inset: 0;
+    inset: 1em;
     overflow: hidden;
 }
 

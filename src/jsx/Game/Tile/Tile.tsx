@@ -1,16 +1,17 @@
-import { FC } from "react"
 import { observer } from "mobx-react"
-import { useStore } from "../../../Store/StoreProvider"
-import "./TileCoords.css"
+import { FC } from "react"
+import svg from "../../../assets/hex.svg"
+import { Data } from "./Tiles"
+import { AllTiles, IAllTiles } from "../../../types"
 
-interface TileProps {
-    id: string
+export interface TileProps {
     qr: string
+    tile?: IAllTiles
 }
 
-export const Tile: FC<TileProps> = observer(({ id, qr }) => (
+export const Tile: FC<Data<TileProps>> = observer(({ data }) => (
     <div
-        data-qr={qr}
-        style={useStore().getBackgroundUrlById(id)}
+        data-qr={data.qr}
+        style={{ backgroundImage: `url(${svg}#${(data.tile !== undefined && AllTiles[data.tile]) || "_"})` }}
     />
 ))
