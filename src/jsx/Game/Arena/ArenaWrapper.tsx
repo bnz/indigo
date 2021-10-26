@@ -4,7 +4,6 @@ import { useStore } from "../../../Store/StoreProvider"
 import { FC, useEffect, useMemo, useRef } from "react"
 import { ClickableDiv } from "../../Components/Clickable/ClickableDiv"
 import "./Arena.css"
-// import '../Tile/Tile.css'
 
 export const ArenaWrapper: FC = observer(({ children }) => {
     const store = useStore()
@@ -30,12 +29,9 @@ export const ArenaWrapper: FC = observer(({ children }) => {
                     onClick: store.onClick,
                     onMouseMove: store.onMouseMove,
                     onDoubleClick: store.applySit,
+                    children,
                 }
             }, [store.arenaElement, store.R])}
-        >
-            {store.arenaElement !== null && (
-                children
-            )}
-        </ClickableDiv>
+        />
     )
 })

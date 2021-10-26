@@ -1,7 +1,7 @@
 import { Layout } from '../jsx/Game/Hexagons/Layout'
 import { Orientation } from '../jsx/Game/Hexagons/Orientation'
-import { OrientationType, PlayerId, PlayerMove, StoneIds, Stones, StonesEntries, Tile, Tiles } from '../types'
-import { iPlayersStore } from './PlayersStore'
+import { OrientationType, PlayerId, PlayerMove, StoneIds, Stones, Tile, Tiles } from '../types'
+import { PlayersStore } from "./PlayersStore/PlayersStore"
 import { CSSProperties, MouseEvent } from 'react'
 
 export interface iStore {
@@ -14,19 +14,17 @@ export interface iStore {
     tiles: Tiles
     tileEntries: [string, Tile][]
     orientationType: OrientationType
-    playersStore: iPlayersStore
+    playersStore: PlayersStore
     playerMove: PlayerMove
     gates: Record<number, number>
     playerMoveRouteTile: CSSProperties | undefined
     tileActionsPositionCSS: CSSProperties
     preSit: boolean
     stones: Stones
-    stonesEntries: StonesEntries
     isRouteCrossroad: boolean
     hoveredId: string | null
     getTmpCSS: CSSProperties
     dispose(): void
-    restart(): void
     nextMove(): void
     onMouseMove(event: MouseEvent<HTMLDivElement>): void
     debounce(...args: any[]): void
@@ -41,7 +39,6 @@ export interface iStore {
     rotateRight(): void
     changeOrientation(orientation: "flat" | "pointy"): () => void
     getBackgroundUrlById(id: string): CSSProperties
-    startGame(): void
     getGateway(position: number): PlayerId
     getStoneStyle(id: StoneIds): CSSProperties
 }

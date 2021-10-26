@@ -2,26 +2,21 @@ import { CSSProperties, MouseEvent } from "react"
 import { makeAutoObservable, runInAction } from "mobx"
 import { Layout } from "../jsx/Game/Hexagons/Layout"
 import { Point } from "../jsx/Game/Hexagons/Point"
-import { Hex } from "../jsx/Game/Hexagons/Hex"
 import {
-    AllTiles,
     Angle,
     CornersTiles,
     Edge,
     GatewayTiles,
     HexType,
-    IAllTiles,
     Keys,
     LineEmptyTiles,
     OrientationType,
     PlayerId,
     PlayerMove,
     RouteTiles,
-    SavedTilesValue,
     Stone,
     StoneIds,
     Stones,
-    StonesEntries,
     StoneType,
     Tile,
     TileItems,
@@ -31,12 +26,15 @@ import {
     Values,
 } from "../types"
 import { debounce } from "../helpers/debounce"
-import { shuffle } from "../helpers/shuffle"
-import { getRandomInt as rand } from "../helpers/random"
 import svg from "../assets/hex.svg"
 import { iLocalStorageMgmnt, LocalStorageMgmnt } from "./LocalStorageMgmnt"
-import { iPlayersStore, PlayersStore } from "./PlayersStore"
+import { PlayersStore } from "./PlayersStore/PlayersStore"
 import { iStore } from "./iStore"
+import { generateLeftTiles } from "./applyers/generateLeftTiles"
+import { getRandomTile } from "./applyers/getRandomTile"
+import { toHex } from "./applyers/toHex"
+import { generateTiles } from "./applyers/generateTiles"
+import { saveTiles } from "./applyers/saveTiles"
 
 export class Store implements iStore {
 
@@ -89,19 +87,14 @@ export class Store implements iStore {
         // }
     }
 
-    private storage: iLocalStorageMgmnt<Keys, Values> = new LocalStorageMgmnt<Keys, Values>("game")
+    storage: iLocalStorageMgmnt<Keys, Values> = new LocalStorageMgmnt<Keys, Values>("game")
 
-    playersStore: iPlayersStore = new PlayersStore(this.storage)
+    playersStore: PlayersStore = new PlayersStore(this.storage)
 
     private _hoveredId: string | null = null
 
     get hoveredId() {
         return this._hoveredId
-    }
-
-    startGame = () => {
-        throw new Error("startGame")
-        // this.gamePhase.startGame()
     }
 
     dispose(): void {
@@ -112,26 +105,7 @@ export class Store implements iStore {
         }
     }
 
-    private generateLeftTiles = (): TileName[] => {
-        return shuffle<TileName>(
-            [].concat.apply(
-                [] as any,
-                Object.entries<6 | 14>(this.leftTilesInitialSet).map(
-                    ([name, count]) => (new Array(count)).fill(name),
-                ) as any,
-            ),
-        )
-    }
-
-    private leftTilesInitialSet: Record<TileName, 6 | 14> = {
-        s: 6,
-        c: 6,
-        t: 14,
-        l: 14,
-        h: 14,
-    }
-
-    private tileNameToAngle: Record<TileName, Angle[]> = {
+    readonly tileNameToAngle: Record<TileName, Angle[]> = {
         s: [0, 60],
         c: [],
         t: [0, 60, 120],
@@ -139,27 +113,12 @@ export class Store implements iStore {
         h: [0, 60, 120, 180, 240, 300],
     }
 
-    private randAngle(tile: TileName): number {
-        return rand(0, this.tileNameToAngle[tile].length - 1)
-    }
-
-    private leftTiles = this.storage.getOrApply<TileName[]>("tiles-left", this.generateLeftTiles)
-
-    private get randomTile(): [TileName, Angle] | [] {
-        const tile = this.leftTiles.pop()
-        this.storage.set("tiles-left", this.leftTiles)
-
-        if (tile) {
-            return [tile, this.tileNameToAngle[tile][this.randAngle(tile)]]
-        }
-
-        return []
-    }
+    leftTiles = this.storage.getOrApply<TileName[]>("tiles-left", generateLeftTiles)
 
     private _playerMove = this.storage.getOrApply<PlayerMove>(
         "player-move",
         () => {
-            const [tile, angle] = this.randomTile
+            const [tile, angle] = getRandomTile(this)
             return [this.playersStore.players[0].id, tile, angle]
         },
     )
@@ -192,11 +151,6 @@ export class Store implements iStore {
         window.addEventListener("resize", this.debounce, false)
     }
 
-    restart = () => {
-        // this.gamePhase.goToPreGame()
-        window.location.reload()
-    }
-
     private onWindowResize = () => {
         const [width, height] = this.elSizes
         if (this.width !== width || this.height !== height) {
@@ -227,7 +181,7 @@ export class Store implements iStore {
 
     get tileActionsPositionCSS(): CSSProperties {
         const [_q, _r] = (this.hoveredId || "0,0").split(",")
-        const { x, y } = this.layout.hexToPixel(this.toHex(parseInt(_q, 10), parseInt(_r, 10)))
+        const { x, y } = this.layout.hexToPixel(toHex(parseInt(_q, 10), parseInt(_r, 10)))
 
         return {
             transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
@@ -394,7 +348,7 @@ export class Store implements iStore {
     }
 
     private getTransformCSS(q: number, r: number, [x1 = "", y1 = "", r1 = ""] = []): CSSProperties {
-        const { x, y } = this.renderLayout.hexToPixel(this.toHex(q, r))
+        const { x, y } = this.renderLayout.hexToPixel(toHex(q, r))
         return {
             transform: `translate(${[
                 `calc(${x - 1} * var(--R)${x1})`,
@@ -430,7 +384,7 @@ export class Store implements iStore {
         const index = this.playersStore.entries.findIndex(([, { id }]) => id === this.playerMove[0])
         const keys = Object.keys(this.playersStore.players)
         const nextKey = parseInt(keys[keys.length - 1 > index ? index + 1 : 0], 10)
-        const [tile, angle] = this.randomTile
+        const [tile, angle] = getRandomTile(this)
 
         // console.log({ tile, angle })
 
@@ -498,8 +452,8 @@ export class Store implements iStore {
             this.tiles[this.hoveredId].tile = RouteTiles[newRouteTile.join("-") as keyof typeof RouteTiles]
             this.moveStones()
             this.nextMove()
-            this.saveStones()
-            this.saveTiles()
+            this.storage.set("stones", this.stones)
+            saveTiles(this)
             this._hoveredId = null
         }
     }
@@ -614,24 +568,6 @@ export class Store implements iStore {
         return this.playerMove[1] === "c"
     }
 
-    private toHex = (q: number, r: number) => new Hex(q, r, (q + r) * -1)
-
-    private objToHex = ({ q, r }: { q: number; r: number }) => this.toHex(q, r)
-
-    private generateTiles(data: TileItems<IAllTiles>, type: HexType): Tiles {
-        const res: Tiles = {}
-        data.forEach(([q, r, tile, stones]) => {
-            const hex = this.toHex(q, r)
-            res[hex.id] = {
-                hex,
-                type,
-                ...(tile !== undefined ? { tile } : {}),
-                ...(stones !== undefined && stones.length ? { stones } : {}),
-            }
-        })
-        return res
-    }
-
     private readonly corners: TileItems<CornersTiles> = [
         [6, -3, CornersTiles["c-r"]],
         [-6, 3, CornersTiles["c-l"]],
@@ -695,23 +631,23 @@ export class Store implements iStore {
     ]
 
     private readonly _tiles: Tiles = {
-        // ...this.generateTiles(this.corners, HexType.corner),
-        ...this.generateTiles(this.emptyLines, HexType.decorator),
-        ...this.generateTiles(this.gateways, HexType.gateway),
-        ...this.generateTiles(this.treasures, HexType.treasure),
-        ...this.generateTiles(this.routes, HexType.route),
+        // ...generateTiles(this.corners, HexType.corner),
+        ...generateTiles(this.emptyLines, HexType.decorator),
+        ...generateTiles(this.gateways, HexType.gateway),
+        ...generateTiles(this.treasures, HexType.treasure),
+        ...generateTiles(this.routes, HexType.route),
     }
 
     tiles: Tiles = {
-        // ...this.generateTiles(this.corners, HexType.corner),
-        ...this.generateTiles(this.emptyLines, HexType.decorator),
-        ...this.generateTiles(this.gateways, HexType.gateway),
-        ...this.generateTiles(
+        // ...generateTiles(this.corners, HexType.corner),
+        ...generateTiles(this.emptyLines, HexType.decorator),
+        ...generateTiles(this.gateways, HexType.gateway),
+        ...generateTiles(
             this.storage.getOrApply<TileItems<TreasureT>>("treasure-tiles", () => this.treasures),
             // this.treasures,
             HexType.treasure,
         ),
-        ...this.generateTiles(
+        ...generateTiles(
             this.storage.getOrApply<TileItems<RouteTiles>>("route-tiles", () => this.routes),
             // this.routes,
             HexType.route,
@@ -722,31 +658,31 @@ export class Store implements iStore {
         return Object.entries(this.tiles)
     }
 
-    private saveTiles() {
-        const routeTiles: SavedTilesValue[] = []
-        const treasureTiles: SavedTilesValue[] = []
-        this.tileEntries.forEach(([, { hex: { q, r }, tile, type, stones }]) => {
-            if (type === HexType.route) {
-                const arr: SavedTilesValue = [q, r]
-                if (tile !== undefined) {
-                    arr.push(tile)
-                }
-                if (stones !== undefined) {
-                    arr.push(stones)
-                }
-                routeTiles.push(arr)
-            }
-            if (type === HexType.treasure) {
-                const arr: SavedTilesValue = [q, r, tile]
-                if (stones !== undefined) {
-                    arr.push(stones)
-                }
-                treasureTiles.push(arr)
-            }
-        })
-        this.storage.set("route-tiles", routeTiles)
-        this.storage.set("treasure-tiles", treasureTiles)
-    }
+    // private saveTiles() {
+    //     const routeTiles: SavedTilesValue[] = []
+    //     const treasureTiles: SavedTilesValue[] = []
+    //     this.tileEntries.forEach(([, { hex: { q, r }, tile, type, stones }]) => {
+    //         if (type === HexType.route) {
+    //             const arr: SavedTilesValue = [q, r]
+    //             if (tile !== undefined) {
+    //                 arr.push(tile)
+    //             }
+    //             if (stones !== undefined) {
+    //                 arr.push(stones)
+    //             }
+    //             routeTiles.push(arr)
+    //         }
+    //         if (type === HexType.treasure) {
+    //             const arr: SavedTilesValue = [q, r, tile]
+    //             if (stones !== undefined) {
+    //                 arr.push(stones)
+    //             }
+    //             treasureTiles.push(arr)
+    //         }
+    //     })
+    //     this.storage.set("route-tiles", routeTiles)
+    //     this.storage.set("treasure-tiles", treasureTiles)
+    // }
 
     private _gates: Record<number, Record<number, number>> = {
         2: { 1: 0, 2: 0, 3: 1, 4: 1, 5: 0, 6: 0, 7: 1, 8: 1, 9: 0, 10: 0, 11: 1, 12: 1 },
@@ -787,14 +723,5 @@ export class Store implements iStore {
     }
 
     stones: Stones = this.storage.getOrApply<Stones>("stones", () => this._stones)
-
-    get stonesEntries(): StonesEntries {
-        // @ts-ignore FIXME
-        return Object.entries(this.stones) as StonesEntries
-    }
-
-    private saveStones() {
-        this.storage.set("stones", this.stones)
-    }
 
 }

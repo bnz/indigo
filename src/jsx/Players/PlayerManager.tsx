@@ -8,6 +8,8 @@ import { Sphere } from "../Game/Sphere/Sphere"
 import paperStyles from "../Components/Paper/Paper.module.css"
 import styles from "./PlayerManager.module.css"
 import playerStyles from "./Player.module.css"
+import { addPlayer } from "../../Store/PlayersStore/applyers/addPlayer"
+import { removePlayerById } from "../../Store/PlayersStore/applyers/removePlayerById"
 
 export const PlayerManager: FC = observer(() => {
     const uiStore = useUIStore()
@@ -25,13 +27,13 @@ export const PlayerManager: FC = observer(() => {
                     <button
                         key={id}
                         className={cx(playerStyles.root, { [playerStyles.clear]: hasButton })}
-                        {...(hasButton ? { onClick: store.playersStore.removePlayerById(id) } : {})}
+                        {...(hasButton ? { onClick: removePlayerById(store.playersStore)(id) } : {})}
                     >
                         <Sphere color={id} />
                     </button>
                 ))}
                 {store.playersStore.entries.length < 4 && (
-                    <button className={playerStyles.add} onClick={store.playersStore.addPlayer}>
+                    <button className={playerStyles.add} onClick={addPlayer(store.playersStore)}>
                         {i18n("button.addPlayer")}
                     </button>
                 )}
