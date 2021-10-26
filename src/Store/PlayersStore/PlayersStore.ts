@@ -17,7 +17,7 @@ const playerIdToSVGMap: Record<PlayerId, string> = {
 
 export class PlayersStore {
 
-    static ids = Object.keys(playerIdToSVGMap).map((id) => parseInt(id.split("-")[1], 10))
+    static ids: number[] = Object.keys(playerIdToSVGMap).map((id) => parseInt(id.split("-")[1], 10))
 
     static storageKey: Keys = "players"
 
