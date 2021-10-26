@@ -1,10 +1,9 @@
 import { CSSProperties, MouseEvent } from "react"
-import { makeAutoObservable, runInAction } from "mobx"
+import { makeAutoObservable } from "mobx"
 import { Layout } from "../jsx/Game/Hexagons/Layout"
 import { Point } from "../jsx/Game/Hexagons/Point"
 import {
     Angle,
-    CornersTiles,
     Edge,
     GatewayTiles,
     HexType,
@@ -28,15 +27,18 @@ import { debounce } from "../helpers/debounce"
 import svg from "../assets/hex.svg"
 import { LocalStorageMgmnt } from "./LocalStorageMgmnt"
 import { PlayersStore } from "./PlayersStore/PlayersStore"
-import { iStore } from "./iStore"
-import { generateLeftTiles } from "./applyers/generateLeftTiles"
-import { getRandomTile } from "./applyers/getRandomTile"
 import { toHex } from "./applyers/toHex"
 import { generateTiles } from "./applyers/generateTiles"
 import { saveTiles } from "./applyers/saveTiles"
 import { Orientation } from "../jsx/Game/Hexagons/Orientation"
 import { getStoneProps } from "./applyers/getStoneProps"
 import { getPlayerMoveTile } from "./applyers/playerMoveTile"
+import { onWindowResize } from "./applyers/onWindowResize"
+import { init } from "./applyers/init"
+import { edgeToShiftMap } from "./applyers/edgeToShiftMap"
+import { getTransformCSS } from "./applyers/getTransformCSS"
+import { cssBgUrl } from "./applyers/cssBgUrl"
+import { nextMove } from "./applyers/nextMove"
 
 /**
  *
@@ -53,8 +55,9 @@ export const treasures: TileItems<TreasureT> = [
     [0, 0, TreasureT.center, []],
 ]
 
-const stones: Stones = {
+export const stones: Stones = {
     [StoneIds.sapphire]: [StoneType.sapphire, 0, 0, 0],
+
     [StoneIds.emerald0]: [StoneType.emerald, 0, 0, 5],
     [StoneIds.emerald1]: [StoneType.emerald, 0, 0, 1],
     [StoneIds.emerald2]: [StoneType.emerald, 0, 0, 2],
@@ -77,27 +80,40 @@ export const tileNameToAngle: Record<TileName, Angle[]> = {
     h: [0, 60, 120, 180, 240, 300],
 }
 
+const stoneAngleMap: Record<OrientationType, Record<StoneType, [number?, number?, number?, number?, number?, number?]>> = {
+    pointy: {
+        [StoneType.sapphire]: [],
+        [StoneType.emerald]: [undefined, -30, 30, undefined, -30, 30],
+        [StoneType.amber]: [90, -30, 30, 90, -30, 30],
+    },
+    flat: {
+        [StoneType.sapphire]: [30],
+        [StoneType.emerald]: [30, undefined, 60, 30, undefined, 60],
+        [StoneType.amber]: [120, undefined, 60, 120, undefined, 60],
+    },
+}
+
+
 /**
  *
  */
 
-export class Store implements iStore {
+export class Store {
 
-    private readonly ratio = 0.8660254
+    readonly ratio = 0.8660254
 
-    private width = 0
+    width = 0
 
-    private height = 0
+    height = 0
 
-    private largeSide = 9
+    largeSide = 9
 
-    private smallSide = 9 * this.ratio
+    smallSide = 9 * this.ratio
 
     constructor() {
-        this.init()
+        init(this)
         makeAutoObservable<Store,
             | "ratio"
-            | "corners"
             | "emptyLines"
             | "largeSide"
             | "smallSide"
@@ -108,10 +124,8 @@ export class Store implements iStore {
             | "_leftTilesInitialSet"
             | "storage"
             | "_gates"
-            | "stoneAngleMap"
             | "routeTileIdToEdgeMap">(this, {
             ratio: false,
-            corners: false,
             emptyLines: false,
             largeSide: false,
             smallSide: false,
@@ -122,7 +136,6 @@ export class Store implements iStore {
             _leftTilesInitialSet: false,
             storage: false,
             _gates: false,
-            stoneAngleMap: false,
             routeTileIdToEdgeMap: false,
         })
 
@@ -141,6 +154,10 @@ export class Store implements iStore {
         return this._hoveredId
     }
 
+    set hoveredId(hoveredId) {
+        this._hoveredId = hoveredId
+    }
+
     /**
      * - - - init - - - - - - - - - - - - - - - - - - - - - - - -
      */
@@ -157,45 +174,12 @@ export class Store implements iStore {
 
     /** */
 
-    private init() {
-        this.leftTiles = this.storage.getOrApply<TileName[]>("tiles-left", generateLeftTiles)
-
-        this._playerMove = this.storage.getOrApply<PlayerMove>(
-            "player-move",
-            () => {
-                const [tile, angle] = getRandomTile(this)
-                return [this.playersStore.players[0].id, tile, angle]
-            },
-        )
-
-        this._orientation = Layout[this.storage.getOrApply<OrientationType>("orientation", () => "flat")]
-
-        this.stones = this.storage.getOrApply<Stones>("stones", () => stones)
-
-        this.tiles = {
-            // ...generateTiles(this.corners, HexType.corner),
-            ...generateTiles(this.emptyLines, HexType.decorator),
-            ...generateTiles(this.gateways, HexType.gateway),
-            ...generateTiles(
-                this.storage.getOrApply<TileItems<TreasureT>>("treasure-tiles", () => treasures),
-                // treasures,
-                HexType.treasure,
-            ),
-            ...generateTiles(
-                this.storage.getOrApply<TileItems<RouteTiles>>("route-tiles", () => this.routes),
-                // this.routes,
-                HexType.route,
-            ),
-        }
-
-    }
-
     dispose = (): void => {
         try {
             window.removeEventListener("resize", this.debounce)
             this.storage.destroy()
             this.playersStore.dispose()
-            this.init()
+            init(this)
         } catch (e) {
             console.warn("%cTODO", "font-size:50px;", e)
         }
@@ -222,17 +206,8 @@ export class Store implements iStore {
 
     set arenaElement(el) {
         this._arenaElement = el
-        this.onWindowResize()
+        onWindowResize(this)()
         window.addEventListener("resize", this.debounce, false)
-    }
-
-    private onWindowResize = () => {
-        const [width, height] = this.elSizes
-        if (this.width !== width || this.height !== height) {
-            this.width = width
-            this.height = height
-            this.recalc()
-        }
     }
 
     get elSizes() {
@@ -245,14 +220,7 @@ export class Store implements iStore {
         return [0, 0]
     }
 
-    private recalc() {
-        const withSize = this.isPointy ? this.smallSide * 2 : this.largeSide * 2
-        const heightSize = this.isPointy ? this.largeSide * 2 : this.smallSide * 2
-        this.R = Math.min(this.width / withSize, this.height / heightSize)
-        this.updateLayout()
-    }
-
-    debounce = debounce(this.onWindowResize, 400)
+    debounce = debounce(onWindowResize(this), 400)
 
     get tileActionsPositionCSS(): CSSProperties {
         const [_q, _r] = (this.hoveredId || "0,0").split(",")
@@ -300,27 +268,6 @@ export class Store implements iStore {
         return this.isPointy ? "pointy" : "flat"
     }
 
-    changeOrientation = (orientation: "flat" | "pointy") => () => {
-        runInAction(() => {
-            this.orientation = orientation === "flat" ? Layout.flat : Layout.pointy
-            const [width, height] = this.elSizes
-            this.width = width
-            this.height = height
-            this.recalc()
-        })
-    }
-
-    private updateLayout() {
-        this.layout = new Layout(
-            this.orientation,
-            new Point(this.R, this.R),
-            new Point(
-                this.width / 2,
-                this.R * (this.isPointy ? this.largeSide : this.smallSide),
-            ),
-        )
-    }
-
     private _layout: Layout = new Layout(
         this.orientation,
         new Point(0, 0),
@@ -336,27 +283,16 @@ export class Store implements iStore {
     }
 
     get renderLayout(): Layout {
+        const orientation = this.orientationType
+
         return new Layout(
-            Layout[this.orientationType],
+            Layout[orientation],
             new Point(1, 1),
             new Point(
                 0,
-                this.orientationType === "pointy" ? this.largeSide : this.smallSide,
+                orientation === "pointy" ? this.largeSide : this.smallSide,
             ),
         )
-    }
-
-    private readonly stoneAngleMap: Record<OrientationType, Record<StoneType, [number?, number?, number?, number?, number?, number?]>> = {
-        pointy: {
-            [StoneType.sapphire]: [],
-            [StoneType.emerald]: [undefined, -30, 30, undefined, -30, 30],
-            [StoneType.amber]: [90, -30, 30, 90, -30, 30],
-        },
-        flat: {
-            [StoneType.sapphire]: [30],
-            [StoneType.emerald]: [30, undefined, 60, 30, undefined, 60],
-            [StoneType.amber]: [120, undefined, 60, 120, undefined, 60],
-        },
     }
 
     private routeTileIdToEdgeMap: Record<keyof typeof RouteTiles, [Edge, Edge, Edge, Edge, Edge, Edge]> = {
@@ -393,97 +329,30 @@ export class Store implements iStore {
         c_: [0, 0, 0, 0, 0, 0],
     }
 
-    private getRotate = (type: StoneType) => (edge: Edge): string | undefined => {
-        const rotate = this.stoneAngleMap[this.orientationType][type]
+    getRotate = (type: StoneType) => (edge: Edge): string | undefined => {
+        const rotate = stoneAngleMap[this.orientationType][type]
         return rotate[edge] !== undefined ? ` rotate(${rotate[edge]}deg)` : undefined
-    }
-
-    private edgeToShiftMap(type: StoneType): Record<Edge, [string, string, string?]> {
-        const x = this.isPointy ? 1.5 : 1.8
-        const y = this.isPointy ? 2.75 : 3
-        const r = this.getRotate(type)
-
-        return this.isPointy ? {
-            0: [` + var(--R) / ${x}`, /*--->*/ "" /*<---*/, r(0)],
-            5: [` + var(--R) / ${y}`, ` + var(--R) / ${x}`, r(1)],
-            4: [` + var(--R) / ${-y}`, ` + var(--R) / ${x}`, r(2)],
-            3: [` + var(--R) / ${-x}`, /*--->*/ "" /*<---*/, r(3)],
-            2: [` + var(--R) / ${-y}`, ` + var(--R) / ${-x}`, r(4)],
-            1: [` + var(--R) / ${y}`, ` + var(--R) / ${-x}`, r(5)],
-        } : {
-            0: [` + var(--R) / ${x}`, ` + var(--R) / ${y}`, r(0)],
-            5: [ /* ---------> */ "", ` + var(--R) / ${x * this.ratio}`, r(1)],
-            4: [` + var(--R) / ${-x}`, ` + var(--R) / ${y}`, r(2)],
-            3: [` + var(--R) / ${-x}`, ` + var(--R) / ${-y}`, r(3)],
-            2: [ /* ---------> */ "", ` + var(--R) / ${-x * this.ratio}`, r(4)],
-            1: [` + var(--R) / ${x}`, ` + var(--R) / ${-y}`, r(5)],
-        }
-    }
-
-    private getTransformCSS(q: number, r: number, [x1 = "", y1 = "", r1 = ""] = []): CSSProperties {
-        const { x, y } = this.renderLayout.hexToPixel(toHex(q, r))
-        return {
-            transform: `translate(${[
-                `calc(${x - 1} * var(--R)${x1})`,
-                `calc(${y - this.ratio} * var(--R)${y1})`,
-            ].join(", ")})${r1}`,
-        }
     }
 
     getStoneStyle = (id: StoneIds): CSSProperties => {
         const [type, q, r, edge] = this.stones[id]
-        return this.getTransformCSS(q, r, this.edgeToShiftMap(type)[edge])
-    }
-
-    private cssBgUrl = (url: string): CSSProperties => ({
-        backgroundImage: `url(${url})`,
-    })
-
-    getBackgroundUrlById(id: string): CSSProperties {
-        const tile = this.tiles[id].tile
-
-        // return this.cssBgUrl([svg, "#", (tile !== undefined && AllTiles[tile]) || "_"].join(""))
-        return {}
+        return getTransformCSS(this)(q, r, edgeToShiftMap(this)(type)[edge])
     }
 
     get playerMoveRouteTile(): CSSProperties | undefined {
         if (this.playerMove[1]) {
-            return this.cssBgUrl([svg, "#", getPlayerMoveTile(this)].join(""))
+            return cssBgUrl([svg, "#", getPlayerMoveTile(this)].join(""))
         }
         return undefined
     }
 
-    nextMove = () => {
-        const index = this.playersStore.entries.findIndex(([, { id }]) => id === this.playerMove[0])
-        const keys = Object.keys(this.playersStore.players)
-        const nextKey = parseInt(keys[keys.length - 1 > index ? index + 1 : 0], 10)
-        const [tile, angle] = getRandomTile(this)
-
-        // console.log({ tile, angle })
-
-        this.playerMove = [this.playersStore.players[nextKey].id, tile, angle]
-    }
-
-    onMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-        if (this.preSit) {
-            return
-        }
-
-        const rect = e.currentTarget.getBoundingClientRect() as DOMRect
-        const hex = this.layout.pixelToHex({ x: e.pageX - rect.x, y: e.pageY - rect.y }).round()
-
-        if (this.tiles[hex.id] && this.tiles[hex.id].type === HexType.route && this.tiles[hex.id].tile === undefined) {
-            this._hoveredId = hex.id
-        } else {
-            this._hoveredId = null
-        }
-    }
-
     get getTmpCSS(): CSSProperties {
+        const playerMove = this.playerMove
+
         return {
-            ...this.cssBgUrl([svg, "#", getPlayerMoveTile(this)].join("")),
-            ...(this.playerMove.length >= 4 && this.playerMove[3] !== undefined ? {
-                transform: `rotate(${this.playerMove[3]}deg)`,
+            ...cssBgUrl([svg, "#", getPlayerMoveTile(this)].join("")),
+            ...(playerMove.length >= 4 && playerMove[3] !== undefined ? {
+                transform: `rotate(${playerMove[3]}deg)`,
             } : {}),
             // transitionProperty: "transform",
             // transitionDuration: "calc(var(--duration) * 5)",
@@ -496,7 +365,7 @@ export class Store implements iStore {
         }
     }
 
-    cancelPreSitButton = (e: MouseEvent<HTMLButtonElement>) => {
+    cancelPreSitButton = (e: MouseEvent<HTMLDivElement>) => {
         e.stopPropagation()
         this.cancelPreSit()
     }
@@ -524,7 +393,7 @@ export class Store implements iStore {
 
             this.tiles[this.hoveredId].tile = RouteTiles[newRouteTile.join("-") as keyof typeof RouteTiles]
             this.moveStones()
-            this.nextMove()
+            nextMove(this)
             this.storage.set("stones", this.stones)
             saveTiles(this)
             this._hoveredId = null
@@ -641,16 +510,16 @@ export class Store implements iStore {
         return this.playerMove[1] === "c"
     }
 
-    private readonly corners: TileItems<CornersTiles> = [
-        [6, -3, CornersTiles["c-r"]],
-        [-6, 3, CornersTiles["c-l"]],
-        [-3, -3, CornersTiles["c-t-l"]],
-        [3, -6, CornersTiles["c-t-r"]],
-        [3, 3, CornersTiles["c-b-r"]],
-        [-3, 6, CornersTiles["c-b-l"]],
-    ]
+    // readonly corners: TileItems<CornersTiles> = [
+    //     [6, -3, CornersTiles["c-r"]],
+    //     [-6, 3, CornersTiles["c-l"]],
+    //     [-3, -3, CornersTiles["c-t-l"]],
+    //     [3, -6, CornersTiles["c-t-r"]],
+    //     [3, 3, CornersTiles["c-b-r"]],
+    //     [-3, 6, CornersTiles["c-b-l"]],
+    // ]
 
-    private readonly emptyLines: TileItems<LineEmptyTiles> = [
+    readonly emptyLines: TileItems<LineEmptyTiles> = [
         [-1, -4, LineEmptyTiles["le-t"]],
         [1, -5, LineEmptyTiles["le-t"]],
         [4, -5, LineEmptyTiles["le-l-t"]],
@@ -665,7 +534,7 @@ export class Store implements iStore {
         [-4, -1, LineEmptyTiles["le-r-t"]],
     ]
 
-    private readonly gateways: TileItems<GatewayTiles> = [
+    readonly gateways: TileItems<GatewayTiles> = [
         [-5, 2, GatewayTiles["g-l"]],
         [-5, 3, GatewayTiles["g-l"]],
         [-2, -3, GatewayTiles["g-t-l"]],
@@ -680,7 +549,7 @@ export class Store implements iStore {
         [-2, 5, GatewayTiles["g-b-l"]],
     ]
 
-    private readonly routes: TileItems<RouteTiles> = [
+    readonly routes: TileItems<RouteTiles> = [
         [-4, 1], [-4, 2], [-4, 3],
         [-3, -1], [-3, 0], [-3, 1], [-3, 2], [-3, 3], [-3, 4],
         [-2, -2], [-2, -1], [-2, 0], [-2, 1], [-2, 2], [-2, 3], [-2, 4],
@@ -693,7 +562,6 @@ export class Store implements iStore {
     ]
 
     private readonly _tiles: Tiles = {
-        // ...generateTiles(this.corners, HexType.corner),
         ...generateTiles(this.emptyLines, HexType.decorator),
         ...generateTiles(this.gateways, HexType.gateway),
         ...generateTiles(treasures, HexType.treasure),

@@ -2,6 +2,7 @@ import { FC } from "react"
 import styles from "./RotateLayout.module.css"
 import { observer } from "mobx-react"
 import { useStore } from "../../../../Store/StoreProvider"
+import { changeOrientation } from "../../../../Store/applyers/changeOrientation"
 
 export const RotateLayout: FC = observer(() => {
     const store = useStore()
@@ -12,12 +13,12 @@ export const RotateLayout: FC = observer(() => {
             <button
                 disabled={!isPointy}
                 className={styles.flat}
-                onClick={store.changeOrientation("flat")}
+                onClick={changeOrientation(store)("flat")}
             />
             <button
                 disabled={isPointy}
                 className={styles.pointy}
-                onClick={store.changeOrientation("pointy")}
+                onClick={changeOrientation(store)("pointy")}
             />
         </div>
     )

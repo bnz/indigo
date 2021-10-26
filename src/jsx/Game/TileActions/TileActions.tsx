@@ -26,7 +26,10 @@ export const TileActions: FC = observer(() => {
                 Escape: store.cancelPreSit,
                 Enter: store.applySit,
             }} />
-            <div className={cx(style.root, { [style.hidden]: !store.preSit })} onClick={store.cancelPreSitButton}>
+            <div
+                className={cx(style.root, { [style.hidden]: !store.preSit })}
+                onClick={store.cancelPreSitButton}
+            >
                 <div className={style.container} style={store.tileActionsPositionCSS}>
                     <>
                         Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae, deleniti earum enim eos esse

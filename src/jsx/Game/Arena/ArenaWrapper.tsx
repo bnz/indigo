@@ -3,6 +3,7 @@ import { observer } from "mobx-react"
 import { useStore } from "../../../Store/StoreProvider"
 import { FC, useEffect, useMemo, useRef } from "react"
 import { ClickableDiv } from "../../Components/Clickable/ClickableDiv"
+import { onMouseMove } from "../../../Store/applyers/onMouseMove"
 import "./Arena.css"
 
 export const ArenaWrapper: FC = observer(({ children }) => {
@@ -27,7 +28,7 @@ export const ArenaWrapper: FC = observer(({ children }) => {
                         ["--R" as string]: `${store.R}px`,
                     },
                     onClick: store.onClick,
-                    onMouseMove: store.onMouseMove,
+                    onMouseMove: onMouseMove(store),
                     onDoubleClick: store.applySit,
                     children,
                 }

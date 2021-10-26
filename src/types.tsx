@@ -60,14 +60,14 @@ export enum TreasureT {
     "tr-t-r",
 }
 
-export enum CornersTiles {
-    "c-r" = 7,
-    "c-l",
-    "c-t-l",
-    "c-t-r",
-    "c-b-l",
-    "c-b-r",
-}
+// export enum CornersTiles {
+//     "c-r" = 7,
+//     "c-l",
+//     "c-t-l",
+//     "c-t-r",
+//     "c-b-l",
+//     "c-b-r",
+// }
 
 export enum LineEmptyTiles {
     "le-t" = 13,
@@ -152,14 +152,14 @@ export enum RouteTiles {
 }
 
 export const AllTiles = {
-    ...CornersTiles,
+    // ...CornersTiles,
     ...TreasureT,
     ...LineEmptyTiles,
     ...GatewayTiles,
     ...RouteTiles,
 }
 
-export type IAllTiles = CornersTiles | TreasureT | LineEmptyTiles | GatewayTiles | RouteTiles
+export type IAllTiles = TreasureT | LineEmptyTiles | GatewayTiles | RouteTiles
 
 export type TileItems<T> = [number, number, T?, StoneWithEdge?][]
 
