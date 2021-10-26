@@ -1,7 +1,7 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx"
 import { LocalStorageMgmnt } from "./LocalStorageMgmnt"
 import { Language } from "../i18n/i18n"
-import { GamePhaseStore } from "./GamePhase"
+import { GamePhaseStore } from "./GamePhaseStore/GamePhaseStore"
 import { UIPhase } from "../types"
 
 export type Theme = "light" | "dark" | "system"
@@ -19,7 +19,9 @@ export class UI {
     private defaultLanguage: Language = "rus"
     private html = document.getElementsByTagName("html")[0]
 
-    constructor() {
+    constructor(
+        private storeDispose: () => void,
+    ) {
         makeAutoObservable(this)
 
         // Theme stuff
@@ -37,6 +39,7 @@ export class UI {
 
     restartGame = () => {
         this.gamePhase.goToPreGame()
+        this.storeDispose()
         this.drawer = false
     }
 

@@ -1,12 +1,12 @@
 import { makeAutoObservable } from "mobx"
 import { iLocalStorageMgmnt } from "../LocalStorageMgmnt"
 import { Keys, PlayerId, Players, Values } from "../../types"
-import { generateFirstTwoPlayers } from "./applyers/generateFirstTwoPlayers"
 
 import purple from "../../jsx/Game/Sphere/assets/purple.svg"
 import turquoise from "../../jsx/Game/Sphere/assets/turquoise.svg"
 import coral from "../../jsx/Game/Sphere/assets/coral.svg"
 import white from "../../jsx/Game/Sphere/assets/white.svg"
+import { generateFirstTwoPlayers } from "./applyers/generateFirstTwoPlayers"
 
 const playerIdToSVGMap: Record<PlayerId, string> = {
     [PlayerId.Player1]: purple,
@@ -23,15 +23,25 @@ export class PlayersStore {
 
     static maxPlayersCount: number = Object.keys(playerIdToSVGMap).length
 
+    players: Players = []
+
     constructor(
         public storage: iLocalStorageMgmnt<Keys, Values>,
     ) {
+        this.init()
         makeAutoObservable<PlayersStore>(this)
     }
 
-    players = this.storage.getOrApply<Players>(PlayersStore.storageKey, generateFirstTwoPlayers)
+    private init() {
+        this.players = this.storage.getOrApply<Players>(PlayersStore.storageKey, generateFirstTwoPlayers)
+    }
 
     get entries() {
         return Object.entries(this.players)
+    }
+
+    dispose = () => {
+        this.storage.destroy()
+        this.init()
     }
 }

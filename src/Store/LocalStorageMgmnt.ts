@@ -49,6 +49,7 @@ export class LocalStorageMgmnt<K, V> implements iLocalStorageMgmnt<K, V> {
     }
 
     destroy() {
+        console.log("destroy", this.storageName)
         localStorage.removeItem(this.storageName)
     }
 

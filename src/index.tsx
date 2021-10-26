@@ -11,10 +11,12 @@ import { UIProvider } from "./Store/UIProvider"
 import { Store } from "./Store/Store"
 import { StoreProvider } from "./Store/StoreProvider"
 
+const store = new Store()
+
 render(
     <StrictMode>
-        <UIProvider store={new UI()}>
-            <StoreProvider store={new Store()}>
+        <UIProvider store={new UI(store.dispose)}>
+            <StoreProvider store={store}>
                 <Layout>
                     <Indigo />
                 </Layout>

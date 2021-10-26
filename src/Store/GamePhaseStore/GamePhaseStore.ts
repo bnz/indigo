@@ -1,7 +1,7 @@
-import { LocalStorageMgmnt } from './LocalStorageMgmnt'
-import { UIPhase } from '../types'
-import { makeAutoObservable } from 'mobx'
-import { UIKeys, UIValues } from "./UI"
+import { LocalStorageMgmnt } from "../LocalStorageMgmnt"
+import { UIPhase } from "../../types"
+import { makeAutoObservable } from "mobx"
+import { UIKeys, UIValues } from "../UI"
 
 export class GamePhaseStore {
 
@@ -11,7 +11,7 @@ export class GamePhaseStore {
         makeAutoObservable(this)
     }
 
-    private _phase = this.storage.getOrApply<UIPhase>('phase', () => UIPhase.PRE_GAME)
+    private _phase = this.storage.getOrApply<UIPhase>("phase", () => UIPhase.PRE_GAME)
 
     get phase() {
         return this._phase
@@ -19,7 +19,7 @@ export class GamePhaseStore {
 
     set phase(phase: UIPhase) {
         this._phase = phase
-        this.storage.set('phase', this._phase)
+        this.storage.set("phase", this._phase)
     }
 
     goToPreGame = () => {
