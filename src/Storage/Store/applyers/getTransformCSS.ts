@@ -1,12 +1,13 @@
 import { CSSProperties } from "react"
 import { toHex } from "./toHex"
 import { Store } from "../Store"
+import { renderLayout } from "./renderLayout"
 
 type GetTransformCSS = (store: Store) => (q: number, r: number, map: [x1?: string, y1?: string, r1?: string]) => CSSProperties
 
 export const getTransformCSS: GetTransformCSS = (store) =>
     (q, r, [x1 = "", y1 = "", r1 = ""] = []) => {
-        const { x, y } = store.renderLayout.hexToPixel(toHex(q, r))
+        const { x, y } = renderLayout(store).hexToPixel(toHex(q, r))
 
         return {
             transform: `translate(${[

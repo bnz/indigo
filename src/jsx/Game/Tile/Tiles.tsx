@@ -11,7 +11,7 @@ export interface Data<T> {
 
 export const Tiles: FC = () => (
     <>
-        {useStore().tileEntries.map((entry) => (
+        {Object.entries(useStore().tiles).map((entry) => (
             <Tile
                 key={entry[0]}
                 data={makeAutoObservable<TileProps>({

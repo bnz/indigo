@@ -44,11 +44,11 @@ export enum UIPhase {
 }
 
 export type PlayerMove = [
-    playerId: PlayerId,
-    tileName?: TileName,
-    angle?: Angle,
-    rotationAngle?: number,
-    nextAngle?: Angle,
+    /* 0 */ playerId: PlayerId,
+    /* 1 */ tileName?: TileName,
+    /* 2 */ angle?: Angle,
+    /* 3 */ rotationAngle?: number,
+    /* 4 */ nextAngle?: Angle,
 ]
 
 export type OrientationType = "flat" | "pointy"

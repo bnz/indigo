@@ -2,8 +2,12 @@ import { Store } from "../Store"
 import { PlayerMove } from "../../../types"
 
 export const getPlayerMoveTile = (store: Store): PlayerMove | string | undefined => {
+    const move = store.playerMove
+    let res = undefined
     if (store.isRouteCrossroad) {
-        return store.playerMove[1]
+        res = move[1]
+    } else if (move[1]) {
+        res = [move[1], move[2]].join("-")
     }
-    return store.playerMove[1] ? [store.playerMove[1], store.playerMove[2]].join("-") : undefined
+    return res
 }

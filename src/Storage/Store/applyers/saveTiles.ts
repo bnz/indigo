@@ -4,7 +4,13 @@ import { Store } from "../Store"
 export const saveTiles = (store: Store) => {
     const routeTiles: SavedTilesValue[] = []
     const treasureTiles: SavedTilesValue[] = []
-    store.tileEntries.forEach(([, { hex: { q, r }, tile, type, stones }]) => {
+
+    Object.entries(store.tiles).forEach(([, {
+        hex: { q, r },
+        tile,
+        type,
+        stones,
+    }]) => {
         if (type === HexType.route) {
             const arr: SavedTilesValue = [q, r]
             if (tile !== undefined) {
@@ -23,6 +29,7 @@ export const saveTiles = (store: Store) => {
             treasureTiles.push(arr)
         }
     })
+
     store.storage.set("route-tiles", routeTiles)
     store.storage.set("treasure-tiles", treasureTiles)
 }

@@ -1,6 +1,7 @@
 import { Edge, HexType, RouteTiles, StoneId } from "../../../types"
 import { routeTileIdToEdgeMap } from "../maps/routeTileIdToEdgeMap"
 import { Store } from "../Store"
+import { runInAction } from "mobx"
 
 const toEdge = (d: number): number => (d + 3) % 6
 
@@ -43,8 +44,10 @@ export const moveStones = (store: Store): void => {
 
         tile.stones.push([stoneId, newEdge])
 
-        store.stones[stoneId][1] = hex.q
-        store.stones[stoneId][2] = hex.r
-        store.stones[stoneId][3] = newEdge
+        runInAction(() => {
+            store.stones[stoneId][1] = hex.q
+            store.stones[stoneId][2] = hex.r
+            store.stones[stoneId][3] = newEdge
+        })
     })
 }

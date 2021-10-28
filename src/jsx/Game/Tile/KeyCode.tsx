@@ -9,6 +9,7 @@ export const KeyCode: FC = () => {
 
     return (
         <KeyboardActions actions={{
+            Escape: store.cancelPreSit,
             ArrowLeft: rotateRight(store),
             ArrowRight: rotateLeft(store),
             Space: rotateLeft(store),

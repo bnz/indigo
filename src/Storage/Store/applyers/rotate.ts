@@ -47,6 +47,6 @@ export const rotateLeft = (store: Store) => (): void => {
     rotate(store)(false)
 }
 
-export const rotateRight = (store: Store) => () => {
+export const rotateRight = (store: Store) => (): void => {
     rotate(store)(true)
 }

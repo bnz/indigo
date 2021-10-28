@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { FC, useEffect, useMemo, useRef } from "react"
 import { observer } from "mobx-react"
 import { useStore } from "../../../Storage/Store/StoreProvider"
-import { FC, useEffect, useMemo, useRef } from "react"
-import { ClickableDiv } from "../../Components/Clickable/ClickableDiv"
 import { onMouseMove } from "../../../Storage/Store/applyers/onMouseMove"
 import { applySit } from "../../../Storage/Store/applyers/applySit"
+import { onClick } from "../../../Storage/Store/applyers/onClick"
 import "./Arena.css"
 
 export const ArenaWrapper: FC = observer(({ children }) => {
@@ -16,7 +16,7 @@ export const ArenaWrapper: FC = observer(({ children }) => {
     }, [store.arenaElement])
 
     return (
-        <ClickableDiv
+        <div
             ref={arenaRef}
             className={store.orientationType}
             {...useMemo(() => {
@@ -25,10 +25,7 @@ export const ArenaWrapper: FC = observer(({ children }) => {
                 }
 
                 return {
-                    style: {
-                        ["--R" as string]: `${store.R}px`,
-                    },
-                    onClick: store.onClick,
+                    onClick: onClick(store),
                     onMouseMove: onMouseMove(store),
                     onDoubleClick: applySit(store),
                     children,

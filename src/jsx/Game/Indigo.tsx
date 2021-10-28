@@ -8,8 +8,6 @@ import { PlayerManager } from "../Players/PlayerManager"
 import { Arena } from "./Arena/Arena"
 
 export const Indigo: FC = observer(() => {
-    console.log("Indigo::render")
-
     switch (useUIStore().gamePhase.phase) {
         case UIPhase.PRE_GAME:
             return (
