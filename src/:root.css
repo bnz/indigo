@@ -14,7 +14,7 @@
 
     --main-text-color-dark: #ccc;
 
-    --__main-background-color-light: #dedede;
+    --__main-background-color-light: rgba(247, 248, 251, 1);
     --__main-background-color-dark: #303030;
     --__main-background-hover-light: rgba(0, 0, 0, 0.08);
     --__main-background-hover-dark: rgba(255, 255, 255, 0.08);

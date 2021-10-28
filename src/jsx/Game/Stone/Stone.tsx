@@ -1,23 +1,22 @@
-import { FC } from 'react'
-import cx from 'classnames'
-import { observer } from 'mobx-react'
-import { StoneIds, StoneType } from '../../../types'
-import { useStore } from "../../../Store/StoreProvider"
-import style from './Stone.module.css'
+import { FC } from "react"
+import cx from "classnames"
+import { observer } from "mobx-react"
+import { StoneId, StoneType } from "../../../types"
+import styles from "./Stone.module.css"
+import { useStoneStyles } from "./useStoneStyles"
 
 interface StoneProps {
-    id: StoneIds
+    id: StoneId
 }
 
 export const Stone: FC<StoneProps> = observer(({ id }) => {
-    const store = useStore()
-    const type = store.stones[id][0]
+    const [type, style] = useStoneStyles(id)
 
     return (
         <div
-            // data-id={id}
-            className={cx(style.root, style[StoneType[type]])}
-            style={store.getStoneStyle(id)}
+            data-id={id}
+            className={cx(styles.root, styles[StoneType[type]])}
+            style={style}
         />
     )
 })

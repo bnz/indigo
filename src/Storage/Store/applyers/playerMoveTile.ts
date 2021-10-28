@@ -1,5 +1,5 @@
 import { Store } from "../Store"
-import { PlayerMove } from "../../types"
+import { PlayerMove } from "../../../types"
 
 export const getPlayerMoveTile = (store: Store): PlayerMove | string | undefined => {
     if (store.isRouteCrossroad) {

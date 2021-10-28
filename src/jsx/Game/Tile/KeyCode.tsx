@@ -1,18 +1,18 @@
-import { FC } from 'react'
-import { KeyboardActions } from '../../Components/KeyboardActions/KeyboardActions'
-import { useStore } from "../../../Store/StoreProvider"
+import { FC } from "react"
+import { KeyboardActions } from "../../Components/KeyboardActions/KeyboardActions"
+import { useStore } from "../../../Storage/Store/StoreProvider"
+import { applySit } from "../../../Storage/Store/applyers/applySit"
+import { rotateLeft, rotateRight } from "../../../Storage/Store/applyers/rotate"
 
 export const KeyCode: FC = () => {
-  const store = useStore()
+    const store = useStore()
 
-  return (
-    <KeyboardActions
-      actions={{
-        ArrowLeft: store.rotateRight,
-        ArrowRight: store.rotateLeft,
-        Space: store.rotateLeft,
-        Enter: store.applySit,
-      }}
-    />
-  )
+    return (
+        <KeyboardActions actions={{
+            ArrowLeft: rotateRight(store),
+            ArrowRight: rotateLeft(store),
+            Space: rotateLeft(store),
+            Enter: applySit(store),
+        }} />
+    )
 }

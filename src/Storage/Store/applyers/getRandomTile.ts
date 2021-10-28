@@ -1,6 +1,7 @@
-import { Angle, TileName } from "../../types"
+import { Angle, TileName } from "../../../types"
 import { randAngle } from "./randAngle"
-import { Store, tileNameToAngle } from "../Store"
+import { Store} from "../Store"
+import { tileNameToAngle } from "../maps/TileNameToAngle"
 
 export const getRandomTile = (store: Store): [TileName, Angle] | [] => {
     const tile = store.leftTiles.pop()

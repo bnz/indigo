@@ -1,5 +1,5 @@
 import { MouseEvent } from "react"
-import { HexType } from "../../types"
+import { HexType } from "../../../types"
 import { Store } from "../Store"
 
 type OnMouseMove = (store: Store) => (e: MouseEvent<HTMLDivElement>) => void

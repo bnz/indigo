@@ -1,5 +1,5 @@
 import { runInAction } from "mobx"
-import { Layout } from "../../jsx/Game/Hexagons/Layout"
+import { Layout } from "../../../jsx/Game/Hexagons/Layout"
 import { recalc } from "./recalc"
 import { Store } from "../Store"
 

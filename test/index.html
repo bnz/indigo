@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+      html {
+          background-color: #303030;
+      }
+
+      #root {
+          gap: 1em;
+
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr 1fr;
+          grid-template-rows: 1fr 1fr 1fr;
+      }
+
+      .container {
+          outline: 1px solid #000;
+          margin: 0;
+          box-sizing: border-box;
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: contain;
+          width: 100%;
+          padding-top: 100%; /* 1:1 Aspect Ratio */
+          position: relative;
+          display: flex;
+          justify-content: center;
+          color: #ccc;
+      }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="script.js"></script>
+
+<script type="application/javascript">
+  const root = document.getElementById('root')
+  ids.forEach((id) => {
+    const div = document.createElement('div')
+    div.classList.add('container')
+    div.style.backgroundImage = `url(../src/assets/hex.svg#${id})`
+    div.innerHTML = id
+    root.appendChild(div)
+  })
+</script>
+</body>
+</html>

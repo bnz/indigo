@@ -3,7 +3,7 @@ import cx from 'classnames'
 import { observer } from 'mobx-react'
 import { Sphere } from '../Sphere/Sphere'
 import style from './Seats.module.css'
-import { useStore } from "../../../Store/StoreProvider"
+import { useStore } from "../../../Storage/Store/StoreProvider"
 
 export const Seats: FC = observer(() => {
     const store = useStore()

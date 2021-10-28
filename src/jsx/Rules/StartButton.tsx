@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { i18n } from "../../i18n/i18n"
 import buttonStyles from "../Components/Button/Button.module.css"
-import { useUIStore } from "../../Store/UIProvider"
+import { useUIStore } from "../../Storage/UIStore/UIStoreProvider"
 
 export const StartButton: FC = () => (
     <button

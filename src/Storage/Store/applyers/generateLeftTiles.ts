@@ -1,5 +1,5 @@
-import { TileName } from "../../types"
-import { shuffle } from "../../helpers/shuffle"
+import { TileName } from "../../../types"
+import { shuffle } from "../../../helpers/shuffle"
 
 const leftTilesInitialSet: Record<TileName, 6 | 14> = {
     s: 6,

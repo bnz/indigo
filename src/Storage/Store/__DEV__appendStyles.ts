@@ -1,6 +1,6 @@
-import { OrientationType, Tiles } from '../types'
-import { Layout } from '../jsx/Game/Hexagons/Layout'
-import { Point } from '../jsx/Game/Hexagons/Point'
+import { OrientationType, Tiles } from '../../types'
+import { Layout } from '../../jsx/Game/Hexagons/Layout'
+import { Point } from '../../jsx/Game/Hexagons/Point'
 
 export class __DEV__appendStyles {
 

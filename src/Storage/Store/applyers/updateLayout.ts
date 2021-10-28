@@ -1,5 +1,5 @@
-import { Layout } from "../../jsx/Game/Hexagons/Layout"
-import { Point } from "../../jsx/Game/Hexagons/Point"
+import { Layout } from "../../../jsx/Game/Hexagons/Layout"
+import { Point } from "../../../jsx/Game/Hexagons/Point"
 import { Store } from "../Store"
 
 export const updateLayout = (store: Store): void => {

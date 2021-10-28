@@ -1,9 +1,9 @@
 import { FC } from "react"
 import { observer } from "mobx-react"
 import styles from "./ThemeSwitcher.module.css"
-import { useUIStore } from "../../../../Store/UIProvider"
+import { useUIStore } from "../../../../Storage/UIStore/UIStoreProvider"
 import cx from "classnames"
-import { Theme } from "../../../../Store/UI"
+import { Theme } from "../../../../Storage/UIStore/UIStore"
 
 export const ThemeSwitcher: FC = observer(() => {
     const store = useUIStore()

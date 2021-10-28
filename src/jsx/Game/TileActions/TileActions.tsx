@@ -9,7 +9,7 @@ import cx from "classnames"
 // import Fab from '@material-ui/core/Fab'
 import style from "./TileActions.module.css"
 import { KeyboardActions } from "../../Components/KeyboardActions/KeyboardActions"
-import { useStore } from "../../../Store/StoreProvider"
+import { useStore } from "../../../Storage/Store/StoreProvider"
 
 export const TileActions: FC = observer(() => {
     const store = useStore()
@@ -22,10 +22,12 @@ export const TileActions: FC = observer(() => {
 
     return (
         <>
+            {/*
             <KeyboardActions actions={{
                 Escape: store.cancelPreSit,
                 Enter: store.applySit,
             }} />
+            */}
             <div
                 className={cx(style.root, { [style.hidden]: !store.preSit })}
                 onClick={store.cancelPreSitButton}

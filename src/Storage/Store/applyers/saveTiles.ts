@@ -1,4 +1,4 @@
-import { HexType, SavedTilesValue } from "../../types"
+import { HexType, SavedTilesValue } from "../../../types"
 import { Store } from "../Store"
 
 export const saveTiles = (store: Store) => {

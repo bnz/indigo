@@ -1,8 +1,8 @@
 import { FC } from "react"
 import styles from "./RotateLayout.module.css"
 import { observer } from "mobx-react"
-import { useStore } from "../../../../Store/StoreProvider"
-import { changeOrientation } from "../../../../Store/applyers/changeOrientation"
+import { useStore } from "../../../../Storage/Store/StoreProvider"
+import { changeOrientation } from "../../../../Storage/Store/applyers/changeOrientation"
 
 export const RotateLayout: FC = observer(() => {
     const store = useStore()

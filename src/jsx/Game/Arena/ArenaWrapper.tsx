@@ -1,9 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { observer } from "mobx-react"
-import { useStore } from "../../../Store/StoreProvider"
+import { useStore } from "../../../Storage/Store/StoreProvider"
 import { FC, useEffect, useMemo, useRef } from "react"
 import { ClickableDiv } from "../../Components/Clickable/ClickableDiv"
-import { onMouseMove } from "../../../Store/applyers/onMouseMove"
+import { onMouseMove } from "../../../Storage/Store/applyers/onMouseMove"
+import { applySit } from "../../../Storage/Store/applyers/applySit"
 import "./Arena.css"
 
 export const ArenaWrapper: FC = observer(({ children }) => {
@@ -29,7 +30,7 @@ export const ArenaWrapper: FC = observer(({ children }) => {
                     },
                     onClick: store.onClick,
                     onMouseMove: onMouseMove(store),
-                    onDoubleClick: store.applySit,
+                    onDoubleClick: applySit(store),
                     children,
                 }
             }, [store.arenaElement, store.R])}

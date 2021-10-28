@@ -1,4 +1,4 @@
-import { HexType, IAllTiles, TileItems, Tiles } from "../../types"
+import { HexType, IAllTiles, TileItems, Tiles } from "../../../types"
 import { toHex } from "./toHex"
 
 export const generateTiles = (data: TileItems<IAllTiles>, type: HexType): Tiles => {

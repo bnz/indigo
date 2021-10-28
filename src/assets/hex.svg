@@ -5,10 +5,14 @@
             --color-indigo: #000;
             --color-outer-line: #daa520;
             --color-outer-bg: rgba(0, 0, 0, 0);
+
+            --color-amber: #ffb248;
+            --color-sapphire: #26b7ff;
+            --color-emerald: #8fdc2e;
             }
 
-            #_, g[id], [id^="c-"] { display: none }
-            #_:target, g[id]:target, [id^="c-"]:target { display: inline }
+            #_, g[id], svg { display: none }
+            #_:target, g[id]:target, svg:target { display: inline }
 
             #bg { fill: #bdb76b }
             #bg-main { fill: #808000 }
@@ -17,7 +21,6 @@
             [id^="g-"] > path:nth-child(2),
             [id^="le-"] > path:nth-child(2) { fill: var(--color-outer-line) }
 
-            [id^="c-"],
             [id^="g-"] > path:nth-child(1),
             [id^="le-"] > path:nth-child(1) { fill: var(--color-outer-bg) }
 
@@ -28,6 +31,10 @@
             [id^="arc-"],
             .stroked,
             [id^="tr-"] > path:nth-child(2) { stroke-width: 15; fill: none; stroke: var(--color-indigo) }
+
+            [id*="-amber-"] { --color-indigo: var(--color-amber) }
+            [id*="-sapphire-"] { --color-indigo: var(--color-sapphire) }
+            [id*="-emerald-"] { --color-indigo: var(--color-emerald) }
 
             #center path,
             #center circle,
@@ -58,6 +65,10 @@
         <!-- STRAIGHT LINE ROADS -->
 
         <path id="line-0" d="M50.008 0v86.617"/>
+        <path id="line-amber-0" d="M50.008 0v86.617"/>
+        <path id="line-sapphire-0" d="M50.008 0v86.617"/>
+        <path id="line-emerald-0" d="M50.008 0v86.617"/>
+
         <path id="line-60" d="M87.518 21.66l-75.02 43.296"/>
         <path id="line-120" d="M87.514 64.963L12.502 21.654"/>
 
@@ -85,32 +96,34 @@
         <use href="#arc-t"/>
         <use href="#arc-b"/>
     </g>
-    <g id="l-0_">
-        <use href="#bg"/>
-        <use href="#line-0"/>
+    <svg id="l-0-2">
+        <use href="#bg-main"/>
         <use href="#arc-t"/>
         <use href="#arc-b"/>
+        <use href="#line-amber-0"/>
+    </svg>
+    <svg id="l-0-3">
+        <use href="#bg-main"/>
+        <use href="#arc-t"/>
+        <use href="#arc-b"/>
+        <use href="#line-sapphire-0"/>
+    </svg>
+    <g id="l-0-4">
+        <use href="#bg-main"/>
+        <use href="#arc-t"/>
+        <use href="#arc-b"/>
+        <use href="#line-emerald-0"/>
     </g>
+
+
     <g id="l-60">
         <use href="#bg-main"/>
         <use href="#line-60"/>
         <use href="#arc-t-r"/>
         <use href="#arc-b-l"/>
     </g>
-    <g id="l-60_">
-        <use href="#bg"/>
-        <use href="#line-60"/>
-        <use href="#arc-t-r"/>
-        <use href="#arc-b-l"/>
-    </g>
     <g id="l-120">
         <use href="#bg-main"/>
-        <use href="#line-120"/>
-        <use href="#arc-b-r"/>
-        <use href="#arc-t-l"/>
-    </g>
-    <g id="l-120_">
-        <use href="#bg"/>
         <use href="#line-120"/>
         <use href="#arc-b-r"/>
         <use href="#arc-t-l"/>
@@ -124,23 +137,10 @@
         <use href="#line-60"/>
         <use href="#line-120"/>
     </g>
-    <g id="c_">
-        <use href="#bg"/>
-        <use href="#line-0"/>
-        <use href="#line-60"/>
-        <use href="#line-120"/>
-    </g>
-
     <!-- HUMAN -->
 
     <g id="h-0">
         <use href="#bg-main"/>
-        <use href="#arc-b"/>
-        <use href="#arc-b-r"/>
-        <use href="#circle-t-l"/>
-    </g>
-    <g id="h-0_">
-        <use href="#bg"/>
         <use href="#arc-b"/>
         <use href="#arc-b-r"/>
         <use href="#circle-t-l"/>
@@ -151,20 +151,8 @@
         <use href="#arc-b-l"/>
         <use href="#circle-t-r"/>
     </g>
-    <g id="h-60_">
-        <use href="#bg"/>
-        <use href="#arc-b"/>
-        <use href="#arc-b-l"/>
-        <use href="#circle-t-r"/>
-    </g>
     <g id="h-120">
         <use href="#bg-main"/>
-        <use href="#arc-b-l"/>
-        <use href="#arc-t-l"/>
-        <use href="#circle-c-r"/>
-    </g>
-    <g id="h-120_">
-        <use href="#bg"/>
         <use href="#arc-b-l"/>
         <use href="#arc-t-l"/>
         <use href="#circle-c-r"/>
@@ -175,32 +163,14 @@
         <use href="#arc-t"/>
         <use href="#circle-b-r"/>
     </g>
-    <g id="h-180_">
-        <use href="#bg"/>
-        <use href="#arc-t-l"/>
-        <use href="#arc-t"/>
-        <use href="#circle-b-r"/>
-    </g>
     <g id="h-240">
         <use href="#bg-main"/>
         <use href="#arc-t"/>
         <use href="#arc-t-r"/>
         <use href="#circle-b-l"/>
     </g>
-    <g id="h-240_">
-        <use href="#bg"/>
-        <use href="#arc-t"/>
-        <use href="#arc-t-r"/>
-        <use href="#circle-b-l"/>
-    </g>
     <g id="h-300">
         <use href="#bg-main"/>
-        <use href="#arc-t-r"/>
-        <use href="#arc-b-r"/>
-        <use href="#circle-c-l"/>
-    </g>
-    <g id="h-300_">
-        <use href="#bg"/>
         <use href="#arc-t-r"/>
         <use href="#arc-b-r"/>
         <use href="#circle-c-l"/>
@@ -214,20 +184,8 @@
         <use href="#circle-c-l"/>
         <use href="#circle-c-r"/>
     </g>
-    <g id="t-0_">
-        <use href="#bg"/>
-        <use href="#line-0"/>
-        <use href="#circle-c-l"/>
-        <use href="#circle-c-r"/>
-    </g>
     <g id="t-60">
         <use href="#bg-main"/>
-        <use href="#line-60"/>
-        <use href="#circle-t-l"/>
-        <use href="#circle-b-r"/>
-    </g>
-    <g id="t-60_">
-        <use href="#bg"/>
         <use href="#line-60"/>
         <use href="#circle-t-l"/>
         <use href="#circle-b-r"/>
@@ -238,35 +196,17 @@
         <use href="#circle-b-l"/>
         <use href="#circle-t-r"/>
     </g>
-    <g id="t-120_">
-        <use href="#bg"/>
-        <use href="#line-120"/>
-        <use href="#circle-b-l"/>
-        <use href="#circle-t-r"/>
-    </g>
 
     <!-- SHURIKEN -->
 
     <g id="s-0">
         <use href="#bg-main"/>
-        <use href="#circle-t-r"/>
-        <use href="#circle-b-r"/>
-        <use href="#circle-c-l"/>
-    </g>
-    <g id="s-0_">
-        <use href="#bg"/>
-        <use href="#circle-t-r"/>
+        <use href="#circle-t-r" fill="red"/>
         <use href="#circle-b-r"/>
         <use href="#circle-c-l"/>
     </g>
     <g id="s-60">
         <use href="#bg-main"/>
-        <use href="#circle-t-l"/>
-        <use href="#circle-b-l"/>
-        <use href="#circle-c-r"/>
-    </g>
-    <g id="s-60_">
-        <use href="#bg"/>
         <use href="#circle-t-l"/>
         <use href="#circle-b-l"/>
         <use href="#circle-c-r"/>
@@ -324,17 +264,6 @@
         <path d="M87.504 64.98c-9.388-5.283-17.601-8.134-26.67-2.91-10.354 5.967-23.606 2.406-29.574-7.949-5.967-10.355-2.406-23.606 7.949-29.574C49.844 18.326 49.97 10.679 50.016.038M87.504 21.685l-8.48 4.901"/>
         <path d="M55.619 40.097c-4.188-7.246-1.705-16.53 5.542-20.718 7.246-4.188 16.53-1.705 20.718 5.542 4.188 7.246 1.705 16.53-5.542 20.718-7.246 4.188-16.53 1.705-20.718-5.542zm6.518.96l-4.099-7.189 8.701-4.96-3.806-6.676 16.126 4.415-4.415 16.126-3.806-6.676-8.701 4.96z"/>
     </g>
-
-    <!-- CORNER -->
-    <!--
-    <path id="c-r" d="M50.00797 43.3081l-25.004 43.309-25.004-43.309 25.004-43.308 25.004 43.308z"/>
-    <path id="c-l"
-          d="M74.99992273-.00016055l25.004 43.3081782L74.999246 86.61660675l-25.004-43.3081782L74.99992273-.00016055z"/>
-    <path id="c-t-l" d="M50.00797 43.3081h50.008l-25.004 43.309h-50.008l25.004-43.309z"/>
-    <path id="c-t-r" d="M-.00003 43.3081h50.008l25.004 43.309h-50.008l-25.004-43.309z"/>
-    <path id="c-b-l" d="M75.01197.0001l25.004 43.308h-50.008L25.00397.0001h50.008z"/>
-    <path id="c-b-r" d="M25.0039-.0001h50.008l-25.004 43.309H-.0001l25.004-43.309z"/>
-    -->
 
     <!-- DECORATOR LINE EMPTY -->
 

@@ -4,24 +4,24 @@ import "modern-css-reset"
 import "@fontsource/roboto"
 import "./:root.css"
 import "./index.css"
-import { UI } from "./Store/UI"
+import { UIStore } from "./Storage/UIStore/UIStore"
 import { Layout } from "./jsx/Layout/Layout"
 import { Indigo } from "./jsx/Game/Indigo"
-import { UIProvider } from "./Store/UIProvider"
-import { Store } from "./Store/Store"
-import { StoreProvider } from "./Store/StoreProvider"
+import { UIStoreProvider } from "./Storage/UIStore/UIStoreProvider"
+import { Store } from "./Storage/Store/Store"
+import { StoreProvider } from "./Storage/Store/StoreProvider"
 
 const store = new Store()
 
 render(
     <StrictMode>
-        <UIProvider store={new UI(store.dispose)}>
+        <UIStoreProvider store={new UIStore(store.dispose)}>
             <StoreProvider store={store}>
                 <Layout>
                     <Indigo />
                 </Layout>
             </StoreProvider>
-        </UIProvider>
+        </UIStoreProvider>
     </StrictMode>,
     document.getElementById("root"),
 )

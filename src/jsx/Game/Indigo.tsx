@@ -3,7 +3,7 @@ import { observer } from "mobx-react"
 import { UIPhase } from "../../types"
 import { Rules } from "../Rules/Rules"
 import { StartButton } from "../Rules/StartButton"
-import { useUIStore } from "../../Store/UIProvider"
+import { useUIStore } from "../../Storage/UIStore/UIStoreProvider"
 import { PlayerManager } from "../Players/PlayerManager"
 import { Arena } from "./Arena/Arena"
 

@@ -43,10 +43,13 @@ export enum UIPhase {
     GAME,
 }
 
-type RotationAngle = number
-type NextAngle = Angle
-
-export type PlayerMove = [PlayerId, TileName?, Angle?, RotationAngle?, NextAngle?]
+export type PlayerMove = [
+    playerId: PlayerId,
+    tileName?: TileName,
+    angle?: Angle,
+    rotationAngle?: number,
+    nextAngle?: Angle,
+]
 
 export type OrientationType = "flat" | "pointy"
 
@@ -60,17 +63,8 @@ export enum TreasureT {
     "tr-t-r",
 }
 
-// export enum CornersTiles {
-//     "c-r" = 7,
-//     "c-l",
-//     "c-t-l",
-//     "c-t-r",
-//     "c-b-l",
-//     "c-b-r",
-// }
-
 export enum LineEmptyTiles {
-    "le-t" = 13,
+    "le-t" = 7,
     "le-b",
     "le-l-t",
     "le-l-b",
@@ -79,7 +73,7 @@ export enum LineEmptyTiles {
 }
 
 export enum GatewayTiles {
-    "g-l" = 19,
+    "g-l" = 13,
     "g-t-l",
     "g-t-r",
     "g-r",
@@ -89,12 +83,9 @@ export enum GatewayTiles {
 
 export type Tiles = Record<string, Tile>
 
-type StoneWithEdge = [StoneIds, Edge][]
+type StoneWithEdge = [stoneId: StoneId, edge: Edge][]
 
-type Q = number
-type R = number
-type TileId = number
-export type SavedTilesValue = [Q, R, TileId?, StoneWithEdge?]
+export type SavedTilesValue = [Q: number, R: number, id?: number, stoneWithEdge?: StoneWithEdge]
 export type SavedTiles = Record<string, SavedTilesValue>
 
 export enum TileName2 {
@@ -126,29 +117,29 @@ export type Angle = 0 | 60 | 120 | 180 | 240 | 300
 
 export enum RouteTiles {
     // CROSSROAD
-    c = 25, c_,
+    c = 25,
 
     // LIZARD
-    "l-0", "l-0_",
-    "l-60", "l-60_",
-    "l-120", "l-120_",
+    "l-0",
+    "l-60",
+    "l-120",
 
     // HUMAN
-    "h-0", "h-0_",
-    "h-60", "h-60_",
-    "h-120", "h-120_",
-    "h-180", "h-180_",
-    "h-240", "h-240_",
-    "h-300", "h-300_",
+    "h-0",
+    "h-60",
+    "h-120",
+    "h-180",
+    "h-240",
+    "h-300",
 
     // TURTLE
-    "t-0", "t-0_",
-    "t-60", "t-60_",
-    "t-120", "t-120_",
+    "t-0",
+    "t-60",
+    "t-120",
 
     // SHURIKEN
-    "s-0", "s-0_",
-    "s-60", "s-60_",
+    "s-0",
+    "s-60",
 }
 
 export const AllTiles = {
@@ -171,7 +162,7 @@ export interface Tile {
     hovered?: boolean
 }
 
-export enum StoneIds {
+export enum StoneId {
     sapphire = "s",
     emerald0 = "e0",
     emerald1 = "e1",
@@ -194,8 +185,6 @@ export enum StoneType {
 
 export type Edge = 0 | 1 | 2 | 3 | 4 | 5
 
-export type Stone = [StoneType, Q, R, Edge]
+export type Stone = [type: StoneType, Q: number, R: number, edge: Edge]
 
-export type Stones = Record<StoneIds, Stone>
-
-export type StonesEntries = [StoneIds, any][]
+export type Stones = Record<StoneId, Stone>

@@ -2,14 +2,14 @@ import { FC } from "react"
 import { observer } from "mobx-react"
 import cx from "classnames"
 import { i18n } from "../../i18n/i18n"
-import { useUIStore } from "../../Store/UIProvider"
-import { useStore } from "../../Store/StoreProvider"
+import { useUIStore } from "../../Storage/UIStore/UIStoreProvider"
+import { useStore } from "../../Storage/Store/StoreProvider"
 import { Sphere } from "../Game/Sphere/Sphere"
 import paperStyles from "../Components/Paper/Paper.module.css"
 import styles from "./PlayerManager.module.css"
 import playerStyles from "./Player.module.css"
-import { addPlayer } from "../../Store/PlayersStore/applyers/addPlayer"
-import { removePlayerById } from "../../Store/PlayersStore/applyers/removePlayerById"
+import { addPlayer } from "../../Storage/PlayersStore/applyers/addPlayer"
+import { removePlayerById } from "../../Storage/PlayersStore/applyers/removePlayerById"
 
 export const PlayerManager: FC = observer(() => {
     const uiStore = useUIStore()

@@ -1,8 +1,8 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx"
-import { LocalStorageMgmnt } from "./LocalStorageMgmnt"
-import { Language } from "../i18n/i18n"
-import { GamePhaseStore } from "./GamePhaseStore/GamePhaseStore"
-import { UIPhase } from "../types"
+import { LocalStorageMgmnt } from "../LocalStorageMgmnt"
+import { Language } from "../../i18n/i18n"
+import { GamePhaseStore } from "../GamePhaseStore/GamePhaseStore"
+import { UIPhase } from "../../types"
 
 export type Theme = "light" | "dark" | "system"
 
@@ -10,7 +10,7 @@ export type UIKeys = "drawer" | "language" | "theme" | "phase"
 
 export type UIValues = boolean | Language | Theme | UIPhase
 
-export class UI {
+export class UIStore {
 
     /**
      * Defaults
@@ -27,7 +27,7 @@ export class UI {
         // Theme stuff
         this.themeReaction(this.theme)
         reaction(() => this.theme, this.themeReaction)
-        UI.matchMedia.addEventListener("change", this.matchMediaListener, true)
+        UIStore.matchMedia.addEventListener("change", this.matchMediaListener, true)
 
         // Drawer stuff
         reaction(() => this.drawer, this.drawerReaction)
@@ -98,10 +98,10 @@ export class UI {
     }
 
     private matchMediaListener = (e: any) => {
-        this.theme = UI.toggleTheme(e)
+        this.theme = UIStore.toggleTheme(e)
     }
 
-    private _theme: Theme = this.storage.getOrApply("theme", () => UI.toggleTheme(UI.matchMedia))
+    private _theme: Theme = this.storage.getOrApply("theme", () => UIStore.toggleTheme(UIStore.matchMedia))
 
     get theme(): Theme {
         return this._theme
@@ -130,6 +130,6 @@ export class UI {
     }
 
     dispose(): void {
-        UI.matchMedia.removeEventListener("change", this.matchMediaListener)
+        UIStore.matchMedia.removeEventListener("change", this.matchMediaListener)
     }
 }

@@ -1,7 +1,7 @@
 import { LocalStorageMgmnt } from "../LocalStorageMgmnt"
 import { UIPhase } from "../../types"
 import { makeAutoObservable } from "mobx"
-import { UIKeys, UIValues } from "../UI"
+import { UIKeys, UIValues } from "../UIStore/UIStore"
 
 export class GamePhaseStore {
 

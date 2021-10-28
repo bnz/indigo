@@ -1,5 +1,6 @@
-import { Edge, StoneType } from "../../types"
+import { Edge, StoneType } from "../../../types"
 import { Store } from "../Store"
+import { getRotate } from "./getRotate"
 
 type EdgeToShiftMap = (store: Store) => (type: StoneType) => Record<Edge, [string, string, string?]>
 
@@ -7,7 +8,7 @@ export const edgeToShiftMap: EdgeToShiftMap = (store) => (type) => {
     const isPointy = store.isPointy
     const x = isPointy ? 1.5 : 1.8
     const y = isPointy ? 2.75 : 3
-    const r = store.getRotate(type)
+    const r = getRotate(store)(type)
 
     return isPointy ? {
         0: [` + var(--R) / ${x}`, /*--->*/ "" /*<---*/, r(0)],

@@ -1,7 +1,7 @@
 import { FC, useEffect, useRef } from "react"
 import { observer } from "mobx-react"
 import styles from "./TileHovered.module.css"
-import { useStore } from "../../../Store/StoreProvider"
+import { useStore } from "../../../Storage/Store/StoreProvider"
 import { KeyCode } from "./KeyCode"
 
 export const TileHovered: FC = observer(() => {
@@ -18,7 +18,7 @@ export const TileHovered: FC = observer(() => {
         <>
             <KeyCode />
             <div data-qr={store.hoveredId} ref={ref}>
-                <div style={store.getTmpCSS} />
+                <div style={store.getTileHoveredCSS} />
             </div>
         </>
     )

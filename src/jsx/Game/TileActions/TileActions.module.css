@@ -5,16 +5,18 @@
     right: 0;
     bottom: 0;
 
-    visibility: visible;
-    opacity: 1;
+    /*visibility: visible;*/
+    /*opacity: 1;*/
 
     background-color: rgba(255, 0, 0, 0.46);
 }
 
 .hidden {
     pointer-events: none;
-    visibility: hidden;
-    opacity: 0;
+    /*visibility: hidden;*/
+    /*opacity: 0;*/
+
+    display: none;
 }
 
 .container {

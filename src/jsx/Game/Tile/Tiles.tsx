@@ -1,5 +1,5 @@
 import React, { FC } from "react"
-import { useStore } from "../../../Store/StoreProvider"
+import { useStore } from "../../../Storage/Store/StoreProvider"
 import { Tile, TileProps } from "./Tile"
 import { makeAutoObservable } from "mobx"
 import "./TileCoords.css"
