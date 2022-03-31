@@ -1,4 +1,4 @@
-import { FC } from "react"
+import type { FC } from "react"
 import { observer } from "mobx-react"
 import { useUIStore } from "../../../../Storage/UIStore/UIStoreProvider"
 import styles from "./LanguageSwitcher.module.css"

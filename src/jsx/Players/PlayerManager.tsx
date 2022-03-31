@@ -1,4 +1,4 @@
-import { FC } from "react"
+import type { FC } from "react"
 import { observer } from "mobx-react"
 import cx from "classnames"
 import { i18n } from "../../i18n/i18n"

@@ -1,4 +1,4 @@
-import { FC } from "react"
+import type { FC } from "react"
 import { observer } from "mobx-react"
 import { useStore } from "../../../Storage/Store/StoreProvider"
 import styles from "./LayoutWrapper.module.css"

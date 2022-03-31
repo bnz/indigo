@@ -13,5 +13,6 @@ export type i18nKeys =
     | "button.light"
     | "button.dark"
     | "button.system"
+    | "button.apply"
 
     | "currentGameWillBeLost"

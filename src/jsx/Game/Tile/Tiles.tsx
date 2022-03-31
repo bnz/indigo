@@ -1,13 +1,9 @@
-import React, { FC } from "react"
+import type { FC } from "react"
 import { useStore } from "../../../Storage/Store/StoreProvider"
 import { Tile, TileProps } from "./Tile"
 import { makeAutoObservable } from "mobx"
 import "./TileCoords.css"
 import "./Tile.css"
-
-export interface Data<T> {
-    data: T
-}
 
 export const Tiles: FC = () => (
     <>

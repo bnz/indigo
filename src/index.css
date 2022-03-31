@@ -17,6 +17,15 @@ body {
     line-height: 1.43;
     letter-spacing: 0.01071em;
     touch-action: manipulation;
+
+    background-image: radial-gradient(at 74% 41%, rgb(104, 217, 104) 0px, rgba(0, 0, 0, 0) 54%),
+    radial-gradient(at 100% 1%, rgb(245, 123, 78) 0px, rgba(0, 0, 0, 0) 50%),
+    radial-gradient(at 46% 97%, rgb(61, 239, 233) 0px, rgba(0, 0, 0, 0) 50%),
+    radial-gradient(at 74% 0%, rgb(254, 204, 27) 0px, rgba(0, 0, 0, 0) 50%),
+    radial-gradient(at 22% 89%, rgb(244, 66, 80) 0px, rgba(0, 0, 0, 0) 50%),
+    radial-gradient(at 0% 100%, rgb(249, 173, 146) 0px, rgba(0, 0, 0, 0) 50%),
+    radial-gradient(at 79% 99%, rgb(57, 146, 255) 0px, rgba(0, 0, 0, 0) 50%);
+
 }
 
 body::backdrop {

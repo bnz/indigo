@@ -4,6 +4,7 @@ export type Keys =
     | "orientation"
     | "player-move"
     | "players"
+    | "players-gateways"
     | "route-tiles"
     | "treasure-tiles"
     | "tiles-left"
@@ -16,6 +17,7 @@ export type Values =
     | SavedTilesValue[]
     | TileName[]
     | Stones
+    | PlayersGateways
 
 export enum PlayerId {
     Player1 = "p-1",
@@ -26,9 +28,14 @@ export enum PlayerId {
 
 export interface Player {
     id: PlayerId
+    stones: StoneId[]
 }
 
 export type Players = Player[]
+
+type Dictionary<K extends string, T> = { [P in K]?: T }
+
+export type PlayersGateways = Dictionary<PlayerId, [tile: GatewayTiles, edges: [Edge, Edge?]][]>
 
 export enum PlayerColors {
     Player1 = "#ffbe37",
@@ -53,7 +60,7 @@ export type PlayerMove = [
 
 export type OrientationType = "flat" | "pointy"
 
-export enum TreasureT {
+export enum TreasureTiles {
     "center",
     "tr-b",
     "tr-b-l",
@@ -63,17 +70,14 @@ export enum TreasureT {
     "tr-t-r",
 }
 
-export enum LineEmptyTiles {
+export enum GatewayTiles {
     "le-t" = 7,
     "le-b",
     "le-l-t",
     "le-l-b",
     "le-r-b",
     "le-r-t",
-}
-
-export enum GatewayTiles {
-    "g-l" = 13,
+    "g-l",
     "g-t-l",
     "g-t-r",
     "g-r",
@@ -143,14 +147,12 @@ export enum RouteTiles {
 }
 
 export const AllTiles = {
-    // ...CornersTiles,
-    ...TreasureT,
-    ...LineEmptyTiles,
+    ...TreasureTiles,
     ...GatewayTiles,
     ...RouteTiles,
 }
 
-export type IAllTiles = TreasureT | LineEmptyTiles | GatewayTiles | RouteTiles
+export type IAllTiles = TreasureTiles | GatewayTiles | RouteTiles
 
 export type TileItems<T> = [number, number, T?, StoneWithEdge?][]
 
@@ -187,4 +189,8 @@ export type Edge = 0 | 1 | 2 | 3 | 4 | 5
 
 export type Stone = [type: StoneType, Q: number, R: number, edge: Edge]
 
-export type Stones = Record<StoneId, Stone>
+export type  Stones = Record<StoneId, Stone>
+
+export interface Data<T> {
+    data: T
+}

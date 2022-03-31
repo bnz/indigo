@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import type { FC } from 'react'
 import style from './Sphere.module.css'
 import { AspectRatio } from '../../Components/AspectRatio/AspectRatio'
 import cx from 'classnames'

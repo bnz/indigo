@@ -13,95 +13,12 @@
     --s: calc(var(--R) * 2);
     transition-duration: var(--duration);
     transition-property: transform, width, height;
+
+    --XX: 0;
+    --YY: 0;
+
+    transform: translate(-50%, -50%) translate(var(--XX), var(--YY));
 }
-
-/*.button {*/
-/*    font-size: calc(var(--R) * 0.6) !important;*/
-/*    --size: calc(var(--R) * 0.8);*/
-/*    width: var(--size) !important;*/
-/*    min-width: var(--size) !important;*/
-/*    height: var(--size) !important;*/
-/*    min-height: var(--size) !important;*/
-/*    box-shadow: none !important;*/
-/*    position: relative;*/
-/*    background-color: transparent !important;*/
-/*}*/
-
-/*.button::before {*/
-/*    content: "";*/
-/*    position: absolute;*/
-/*    left: 0;*/
-/*    right: 0;*/
-/*    top: 0;*/
-/*    bottom: 0;*/
-/*    background-image: url("../hex.svg#_");*/
-/*    background-size: contain;*/
-/*    background-repeat: no-repeat;*/
-/*    background-position: center;*/
-/*    filter: drop-shadow(0 0 0.5em rgba(0, 0, 0, .7));*/
-/*    opacity: 0.5;*/
-/*}*/
-
-/*.button > span:first-of-type {*/
-/*    position: relative;*/
-/*}*/
-
-/*.button:hover {*/
-/*    filter: drop-shadow(0 0 1em rgba(0, 0, 0, .7));*/
-/*}*/
-
-/*.button:hover::before {*/
-/*    opacity: 1;*/
-/*}*/
-
-/*.button > span > svg {*/
-/*    font-size: inherit;*/
-/*}*/
-
-/*.button.left {*/
-/*    position: absolute;*/
-/*    top: 50%;*/
-/*    left: 105%;*/
-/*    transform: translate(0, -50%);*/
-/*}*/
-
-/*.button.left svg {*/
-/*    color: #1b5e20;*/
-/*}*/
-
-/*.button:disabled svg {*/
-/*    opacity: 0.1;*/
-/*}*/
-
-/*.button.right {*/
-/*    position: absolute;*/
-/*    top: 50%;*/
-/*    right: 105%;*/
-/*    transform: translate(0, -50%);*/
-/*}*/
-
-/*.button.right svg {*/
-/*    color: #e53935;*/
-/*}*/
-
-/*.button.top {*/
-/*    position: absolute;*/
-/*    bottom: 105%;*/
-/*    left: 50%;*/
-/*    transform: translate(-50%, 0);*/
-/*}*/
-
-/*.button.bottom {*/
-/*    position: absolute;*/
-/*    top: 105%;*/
-/*    left: 50%;*/
-/*    transform: translate(-50%, 0);*/
-/*}*/
-
-/*.button.top svg,*/
-/*.button.bottom svg {*/
-/*    color: #1a237e;*/
-/*}*/
 
 :global(.flat) .container {
     width: var(--s);
@@ -111,4 +28,66 @@
 :global(.pointy) .container {
     width: calc(var(--s) * var(--ratio));
     height: var(--s);
+}
+
+.inner {
+    display: flex;
+    gap: calc(var(--R) * 0.1);
+    position: absolute;
+    left: 50%;
+    top: calc(100% + var(--R) * 0.1);
+    transform: translateX(-50%);
+}
+
+.button {
+    composes: button from "../../Components/Button/Button.module.css";
+    composes: buttonContained from "../../Components/Button/Button.module.css";
+    composes: withIcon from "../../Components/Button/Button.module.css";
+
+    --bg-icon: none;
+
+    --a: var(--R);
+    --p: calc(var(--a) * 0.1);
+
+    --m: calc(var(--R) * 0.1);
+    --top: calc(50% + var(--m));
+
+    padding: var(--p);
+    border-radius: calc(var(--a) * 0.15);
+    font-size: calc(var(--a) * 0.25);
+    display: flex;
+    flex-direction: column;
+}
+
+.button::after {
+    display: none;
+}
+
+.button::before {
+    margin: 0;
+}
+
+.button::before {
+    --size: var(--a);
+    background-image: var(--bg-icon);
+}
+
+.apply, .cancel, .left, .right {
+    composes: button;
+}
+
+.apply {
+    --bg-icon: var(--apply-button-icon);
+}
+
+.cancel {
+    --bg-icon: var(--cancel-button-icon);
+}
+
+.left {
+    --bg-icon: var(--rotate-left-icon);
+}
+
+.right {
+    --bg-icon: var(--rotate-right-icon);
 }

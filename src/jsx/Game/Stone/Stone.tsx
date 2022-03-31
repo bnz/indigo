@@ -1,4 +1,4 @@
-import { FC } from "react"
+import type { CSSProperties, FC } from "react"
 import cx from "classnames"
 import { observer } from "mobx-react"
 import { StoneId, StoneType } from "../../../types"
@@ -9,14 +9,22 @@ interface StoneProps {
     id: StoneId
 }
 
-export const Stone: FC<StoneProps> = observer(({ id }) => {
-    const [type, style] = useStoneStyles(id)
+export const StoneC: FC<StoneProps & { style?: CSSProperties | undefined }> = ({ id, style }) => {
+    const [type] = useStoneStyles(id)
 
     return (
         <div
-            data-id={id}
-            className={cx(styles.root, styles[StoneType[type]])}
+            // data-id={id}
             style={style}
+            className={cx(styles.root, styles[StoneType[type]])}
         />
+    )
+}
+
+export const Stone: FC<StoneProps> = observer(({ id }) => {
+    const [, style] = useStoneStyles(id)
+
+    return (
+        <StoneC id={id} style={style} />
     )
 })

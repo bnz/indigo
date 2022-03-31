@@ -1,4 +1,3 @@
-import { CSSProperties, MouseEvent } from "react"
 import { makeAutoObservable } from "mobx"
 import { Layout } from "../../jsx/Game/Hexagons/Layout"
 import { Point } from "../../jsx/Game/Hexagons/Point"
@@ -6,13 +5,10 @@ import { Keys, OrientationType, PlayerMove, Stones, TileName, Tiles, Values } fr
 import { debounce } from "../../helpers/debounce"
 import { LocalStorageMgmnt } from "../LocalStorageMgmnt"
 import { PlayersStore } from "../PlayersStore/PlayersStore"
-import { toHex } from "./applyers/toHex"
 import { Orientation } from "../../jsx/Game/Hexagons/Orientation"
 import { onWindowResize } from "./applyers/onWindowResize"
 import { init } from "./applyers/init"
 import { stones } from "./defaults/stones"
-import { rotateLeft, rotateRight } from "./applyers/rotate"
-import { applySit } from "./applyers/applySit"
 import { gates } from "./constants/gates"
 
 export class Store {
@@ -104,15 +100,6 @@ export class Store {
 
     debounce = debounce(onWindowResize(this), 400)
 
-    get tileActionsPositionCSS(): CSSProperties {
-        const [_q, _r] = (this.hoveredId || "0,0").split(",")
-        const { x, y } = this.layout.hexToPixel(toHex(parseInt(_q, 10), parseInt(_r, 10)))
-
-        return {
-            transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
-        }
-    }
-
     private _orientation: Orientation = Layout.flat
 
     get orientation() {
@@ -130,30 +117,6 @@ export class Store {
 
     get isPointy() {
         return this.orientation.start_angle === 0.5
-    }
-
-    cancelPreSitButton = (e: MouseEvent<HTMLDivElement>) => {
-        e.stopPropagation()
-        this.cancelPreSit()
-    }
-
-    cancelPreSit = () => {
-        this.preSit = false
-    }
-
-    applySitButton = (e: MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation()
-        applySit(this)
-    }
-
-    rotateLeftButton = (e: MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation()
-        rotateLeft(this)()
-    }
-
-    rotateRightButton = (e: MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation()
-        rotateRight(this)()
     }
 
     get isRouteCrossroad() {

@@ -1,4 +1,4 @@
-import React, { FC } from "react"
+import type { FC } from "react"
 import { Stone } from "../Stone/Stone"
 import { useStore } from "../../../Storage/Store/StoreProvider"
 import { StoneId } from "../../../types"

@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import type { FC } from 'react'
 import { Sphere } from '../Game/Sphere/Sphere'
 import { PlayerId } from '../../types'
 import { StonesWrapper } from './StonesWrapper'
@@ -6,18 +6,19 @@ import styles from "./Rules.module.css"
 
 export const Rules: FC = () => (
     <div className={styles.root}>
+        <Sphere color={PlayerId.Player3} />
         <div className={styles.players}>
             <div>
-                <Sphere color={PlayerId.Player1} />
+                {/*<Sphere color={PlayerId.Player1} />*/}
             </div>
             <div>
-                <Sphere color={PlayerId.Player2} />
+                {/*<Sphere color={PlayerId.Player2} />*/}
+            </div>
+
+            <div>
             </div>
             <div>
-                <Sphere color={PlayerId.Player3} />
-            </div>
-            <div>
-                <Sphere color={PlayerId.Player4} />
+                {/*<Sphere color={PlayerId.Player4} />*/}
             </div>
         </div>
 

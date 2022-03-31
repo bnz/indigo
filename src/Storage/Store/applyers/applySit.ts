@@ -5,8 +5,13 @@ import { saveTiles } from "./saveTiles"
 import { Store } from "../Store"
 import { moveStones } from "./moveStones"
 import { runInAction } from "mobx"
+import type { MouseEvent } from "react"
 
 export const applySit = (store: Store) => () => {
+
+    // moveStones(store)
+    // return
+
     runInAction(() => {
         store.preSit = false
     })
@@ -29,11 +34,16 @@ export const applySit = (store: Store) => () => {
 
         moveStones(store)
         nextMove(store)
-        store.storage.set("stones", store.stones)
+        // store.storage.set("stones", store.stones)
         saveTiles(store)
 
         runInAction(() => {
             store.hoveredId = null
         })
     }
+}
+
+export const applySitButton = (store: Store) => (e: MouseEvent<HTMLButtonElement>): void => {
+    e.stopPropagation()
+    applySit(store)
 }

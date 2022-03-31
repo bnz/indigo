@@ -15,6 +15,7 @@ export const rus: LanguageMap = {
     "button.light": "Светлая",
     "button.dark": "Темная",
     "button.system": "Как в системе",
+    "button.apply": "Применить",
 
     currentGameWillBeLost: 'Текущая игра будет утеряна.',
 }

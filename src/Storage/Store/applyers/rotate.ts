@@ -1,6 +1,7 @@
 import { tileNameToAngle } from "../maps/TileNameToAngle"
 import { Angle } from "../../../types"
 import { Store } from "../Store"
+import { MouseEvent } from "react"
 
 const rotate = (store: Store) => (rotateBack: boolean): void => {
     if (store.playerMove[1] && !store.isRouteCrossroad) {
@@ -47,6 +48,16 @@ export const rotateLeft = (store: Store) => (): void => {
     rotate(store)(false)
 }
 
+export const rotateLeftButton = (store: Store) => (e: MouseEvent<HTMLButtonElement>): void => {
+    e.stopPropagation()
+    rotateLeft(store)()
+}
+
 export const rotateRight = (store: Store) => (): void => {
     rotate(store)(true)
+}
+
+export const rotateRightButton = (store: Store) => (e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+    rotateRight(store)()
 }

@@ -25,7 +25,8 @@ export const ArenaWrapper: FC = observer(({ children }) => {
                 }
 
                 return {
-                    onClick: onClick(store),
+                    // onClick: onClick(store),
+                    onClick: applySit(store),
                     onMouseMove: onMouseMove(store),
                     onDoubleClick: applySit(store),
                     children,

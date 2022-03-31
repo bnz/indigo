@@ -1,53 +1,106 @@
-import { Edge, HexType, RouteTiles, StoneId } from "../../../types"
-import { routeTileIdToEdgeMap } from "../maps/routeTileIdToEdgeMap"
 import { Store } from "../Store"
-import { runInAction } from "mobx"
+import { keys, runInAction } from "mobx"
+import { Edge, GatewayTiles, HexType, PlayerId, RouteTiles, StoneId, TreasureTiles } from "../../../types"
+import { routeTileIdToEdgeMap } from "../maps/routeTileIdToEdgeMap"
+import { treasureTileIdToEdgeMap } from "../maps/treasureTileIdToEdgeMap"
+import { Hex } from "../../../jsx/Game/Hexagons/Hex"
+import { toHex } from "./toHex"
 
-const toEdge = (d: number): number => (d + 3) % 6
+const getOppositeCorner = (d: number): Edge => (d + 3) % 6 as Edge
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export const moveStones = (store: Store): void => {
-    const tile = store.tiles[store.hoveredId!]
-    const hex = tile.hex
-    const directions = [...Array(6).keys()]
+type Res = [q: number, r: number, edge: Edge][]
 
-    const directionsWithStones = directions.filter((direction) => {
-        const { type, tile: neighborTile, stones } = store.tiles[hex.neighbor(direction).id]
-        return [HexType.route, HexType.treasure].indexOf(type) !== -1
-            && neighborTile !== undefined
-            && stones !== undefined
-            && stones.length
-            && stones.some(([, e]) => toEdge(direction) === e)
-    })
+class Klass {
 
-    const fn = (direction: number): [StoneId, Edge] => {
-        const neighbor = store.tiles[hex.neighbor(direction).id]
-        const index = neighbor.stones!.findIndex(([, e]) => toEdge(direction) === e)
-        const [stoneId, stoneEdge] = neighbor.stones![index]
-        const routeTile = RouteTiles[tile.tile!] as keyof typeof RouteTiles
-        const newEdge = routeTileIdToEdgeMap[routeTile][toEdge(stoneEdge)]
-
-        neighbor.stones!.splice(index, 1)
-
-        if (neighbor.stones!.length === 0) {
-            delete neighbor.stones
-        }
-
-        return [stoneId, newEdge]
+    constructor(
+        private store: Store,
+        private stoneId: StoneId,
+    ) {
+        const [, q, r, edge] = this.store.stones[stoneId]
+        this.run(q, r, edge)
     }
 
-    directionsWithStones.forEach((direction) => {
-        const [stoneId, newEdge] = fn(direction)
+    private path: Res = []
 
-        if (tile.stones === undefined) {
-            tile.stones = []
+    private run(q: number, r: number, edge: Edge) {
+        const neighbor = this.store.tiles[toHex(q, r).neighbor(edge).id]
+
+        if (neighbor) {
+            const { hex, type, tile } = neighbor
+
+            switch (type) {
+                case HexType.treasure: {
+                    if (tile) {
+                        const routeTile = TreasureTiles[tile!] as keyof typeof TreasureTiles
+                        const edgeFrom = getOppositeCorner(edge)
+                        const edgeTo = treasureTileIdToEdgeMap[routeTile][edgeFrom]
+                        this.cacheAndRun(hex, edgeTo)
+                    } else {
+                        void this.move()
+                    }
+                    break
+                }
+                case HexType.route: {
+                    if (tile) {
+                        const routeTile = RouteTiles[tile!] as keyof typeof RouteTiles
+                        const edgeFrom = getOppositeCorner(edge)
+                        const edgeTo = routeTileIdToEdgeMap[routeTile][edgeFrom]
+                        this.cacheAndRun(hex, edgeTo)
+                    } else {
+                        void this.move()
+                    }
+                    break
+                }
+                case HexType.gateway: {
+                    if (this.stoneId !== StoneId.emerald4) {
+                        break
+                    }
+
+                    const edgeFrom = getOppositeCorner(edge)
+
+                    this.path.push([hex.q, hex.r, edgeFrom])
+
+                    ;(async () => {
+                        await this.move()
+
+                        const player = Object.keys(this.store.playersStore.gateways).find((key) => (
+                            this.store.playersStore.gateways[key as PlayerId]?.find(([_tile, edges]) => (
+                                _tile === tile && edges.indexOf(edgeFrom) !== -1
+                            ))
+                        ))
+
+                        console.log(`move to player "${player}"`)
+
+                        // add stone to player
+
+
+                    })()
+                    break
+                }
+            }
         }
+    }
 
-        tile.stones.push([stoneId, newEdge])
+    private cacheAndRun(hex: Hex, edge: Edge) {
+        this.path.push([hex.q, hex.r, edge])
+        this.run(hex.q, hex.r, edge)
+    }
 
-        runInAction(() => {
-            store.stones[stoneId][1] = hex.q
-            store.stones[stoneId][2] = hex.r
-            store.stones[stoneId][3] = newEdge
-        })
-    })
+    private async move() {
+        for (const [q, r, edge] of this.path) {
+            runInAction(() => {
+                this.store.stones[this.stoneId][1] = q
+                this.store.stones[this.stoneId][2] = r
+                this.store.stones[this.stoneId][3] = edge
+            })
+            await sleep(500)
+        }
+    }
+}
+
+export const moveStones = (store: Store): void => {
+    keys(store.stones).map((value) =>
+        new Klass(store, value as StoneId),
+    )
 }

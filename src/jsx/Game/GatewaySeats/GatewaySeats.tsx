@@ -1,4 +1,4 @@
-import { FC } from "react"
+import type { FC } from "react"
 import cx from "classnames"
 import { Sphere } from "../Sphere/Sphere"
 import { useStore } from "../../../Storage/Store/StoreProvider"

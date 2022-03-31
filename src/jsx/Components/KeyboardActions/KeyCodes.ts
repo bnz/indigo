@@ -4,3 +4,5 @@ export type KeyCodes =
     | "ArrowRight"
     | "Space"
     | "Enter"
+    | "NumpadEnter"
+    | "KeyR"

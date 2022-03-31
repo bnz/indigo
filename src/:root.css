@@ -42,6 +42,10 @@
         --arrow-down: url("./assets/icons.svg#arrow-down-dark");
         --left-arrow-icon: url("./assets/icons.svg#arrow-left-dark");
         --rotate-button-icon: url("./assets/icons.svg#rotate-dark");
+        --apply-button-icon: url("./assets/icons.svg#apply-dark");
+        --cancel-button-icon: url("./assets/icons.svg#close-dark");
+        --rotate-left-icon: url("./assets/icons.svg#rotate-left-dark");
+        --rotate-right-icon: url("./assets/icons.svg#rotate-right-dark");
     }
 
     :root.theme-dark {
@@ -64,6 +68,10 @@
         --arrow-down: url("./assets/icons.svg#arrow-down-light");
         --left-arrow-icon: url("./assets/icons.svg#arrow-left-light");
         --rotate-button-icon: url("./assets/icons.svg#rotate-light");
+        --apply-button-icon: url("./assets/icons.svg#apply-light");
+        --cancel-button-icon: url("./assets/icons.svg#close-light");
+        --rotate-left-icon: url("./assets/icons.svg#rotate-left-light");
+        --rotate-right-icon: url("./assets/icons.svg#rotate-right-light");
     }
 }
 
@@ -89,6 +97,11 @@
         --arrow-down: url("./assets/icons.svg#arrow-down-light");
         --left-arrow-icon: url("./assets/icons.svg#arrow-left-light");
         --rotate-button-icon: url("./assets/icons.svg#rotate-light");
+        --apply-button-icon: url("./assets/icons.svg#apply-light");
+        --cancel-button-icon: url("./assets/icons.svg#close-light");
+        --rotate-left-icon: url("./assets/icons.svg#rotate-left-light");
+        --rotate-right-icon: url("./assets/icons.svg#rotate-right-light");
+
     }
 
     :root.theme-light {
@@ -111,5 +124,9 @@
         --arrow-down: url("./assets/icons.svg#arrow-down-dark");
         --left-arrow-icon: url("./assets/icons.svg#arrow-left-dark");
         --rotate-button-icon: url("./assets/icons.svg#rotate-dark");
+        --apply-button-icon: url("./assets/icons.svg#apply-dark");
+        --cancel-button-icon: url("./assets/icons.svg#close-dark");
+        --rotate-left-icon: url("./assets/icons.svg#rotate-left-dark");
+        --rotate-right-icon: url("./assets/icons.svg#rotate-right-dark");
     }
 }

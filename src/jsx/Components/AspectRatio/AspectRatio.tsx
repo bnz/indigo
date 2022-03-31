@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import type { FC } from 'react'
 import style from './AspectRatio.module.css'
 
 export const AspectRatio: FC = ({ children }) => (

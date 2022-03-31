@@ -12,7 +12,11 @@ export const Seats: FC = () => (
 
             return (
                 <Fragment key={player.id}>
-                    <Seat playerId={player.id} playerClass={playerClass} />
+                    <Seat
+                        playerClass={playerClass}
+                        playerId={player.id}
+                        stones={player.stones}
+                    />
                     <div className={cx(style.item, playerClass)}>
                         <Sphere color={player.id} />
                     </div>
