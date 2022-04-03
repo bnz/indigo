@@ -25,7 +25,6 @@ body {
     radial-gradient(at 22% 89%, rgb(244, 66, 80) 0px, rgba(0, 0, 0, 0) 50%),
     radial-gradient(at 0% 100%, rgb(249, 173, 146) 0px, rgba(0, 0, 0, 0) 50%),
     radial-gradient(at 79% 99%, rgb(57, 146, 255) 0px, rgba(0, 0, 0, 0) 50%);
-
 }
 
 body::backdrop {

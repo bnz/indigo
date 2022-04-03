@@ -3,7 +3,6 @@
     position: absolute;
     top: 0;
     left: 50%;
-    /*transition-duration: var(--duration);*/
     transition-duration: 0.5s;
     transition-property: transform, width, height, margin;
     transition-timing-function: linear;

@@ -35,7 +35,7 @@ export type Players = Player[]
 
 type Dictionary<K extends string, T> = { [P in K]?: T }
 
-export type PlayersGateways = Dictionary<PlayerId, [tile: GatewayTiles, edges: [Edge, Edge?]][]>
+export type PlayersGateways = Dictionary<PlayerId, [tileID: string, edge: Edge][]>
 
 export enum PlayerColors {
     Player1 = "#ffbe37",
@@ -187,9 +187,9 @@ export enum StoneType {
 
 export type Edge = 0 | 1 | 2 | 3 | 4 | 5
 
-export type Stone = [type: StoneType, Q: number, R: number, edge: Edge]
+export type Stone = [type: StoneType, Q: number, R: number, edge: Edge, isOut?: boolean]
 
-export type  Stones = Record<StoneId, Stone>
+export type Stones = Record<StoneId, Stone>
 
 export interface Data<T> {
     data: T

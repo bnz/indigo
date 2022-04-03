@@ -1,6 +1,6 @@
 import { makeAutoObservable } from "mobx"
 import { iLocalStorageMgmnt } from "../LocalStorageMgmnt"
-import { GatewayTiles, Keys, PlayerId, Players, PlayersGateways, Values } from "../../types"
+import { Edge, Keys, Player, PlayerId, Players, PlayersGateways, StoneId, Values } from "../../types"
 import { generateFirstTwoPlayers } from "./applyers/generateFirstTwoPlayers"
 
 import purple from "../../jsx/Game/Sphere/assets/purple.svg"
@@ -34,46 +34,79 @@ export class PlayersStore {
         makeAutoObservable<PlayersStore, "gateways">(this, { gateways: false })
     }
 
-    private init() {
+    private init = () => {
         this.players = this.storage.getOrApply<Players>(PlayersStore.storageKey, generateFirstTwoPlayers)
         this.generatePlayersGateways()
+    }
+
+    private findGatewayOwnerId = (tileId: string, edgeFrom: Edge): PlayerId =>
+        this.players.find(
+            ({ id }) => this.gateways[id]!.find(
+                ([id, edge]) => id === tileId && edge === edgeFrom,
+            ),
+        )!.id
+
+    get leadingPlayer(): Player {
+        const stonesCount = this.players.map(({ stones }) => stones.length)
+        const index = stonesCount.indexOf(Math.max(...stonesCount))
+
+        return this.players[index]
+    }
+
+    addStoneToPlayer = (tileId: string, edgeFrom: Edge, stoneId: StoneId) => {
+        const playerId = this.findGatewayOwnerId(tileId, edgeFrom)
+        const index = this.players.findIndex(({ id }) => id === playerId)
+        this.players[index].stones.push(stoneId)
+        this.storage.set(PlayersStore.storageKey, this.players)
     }
 
     generatePlayersGateways = () => {
         switch (this.players.length) {
             case 2:
                 this.gateways[this.players[0].id] = [
-                    [GatewayTiles["le-r-t"], [0]],
-                    [GatewayTiles["g-t-l"], [0, 5]],
-                    [GatewayTiles["g-t-l"], [0, 5]],
-                    [GatewayTiles["le-t"], [5]],
+                    ["-4,-1", 0],
+                    ["-3,-2", 0],
+                    ["-3,-2", 5],
+                    ["-2,-3", 5],
+                    ["-2,-3", 0],
+                    ["-1,-4", 5],
 
-                    [GatewayTiles["le-l-t"], [4]],
-                    [GatewayTiles["g-r"], [3, 4]],
-                    [GatewayTiles["g-r"], [3, 4]],
-                    [GatewayTiles["le-l-b"], [3]],
+                    ["5,-4", 4],
+                    ["5,-3", 3],
+                    ["5,-3", 4],
+                    ["5,-2", 3],
+                    ["5,-2", 4],
+                    ["5,-1", 3],
 
-                    [GatewayTiles["le-r-b"], [1]],
-                    [GatewayTiles["g-b-l"], [1, 2]],
-                    [GatewayTiles["g-b-l"], [1, 2]],
-                    [GatewayTiles["le-b"], [2]],
+                    ["-1,5", 2],
+                    ["-2,5", 1],
+                    ["-2,5", 2],
+                    ["-3,5", 1],
+                    ["-3,5", 2],
+                    ["-4,5", 1],
                 ]
 
                 this.gateways[this.players[1].id] = [
-                    [GatewayTiles["le-r-t"], [0]],
-                    [GatewayTiles["g-l"], [0, 1]],
-                    [GatewayTiles["g-l"], [0, 1]],
-                    [GatewayTiles["le-r-b"], [1]],
+                    ["1,-5", 5],
+                    ["2,-5", 4],
+                    ["2,-5", 5],
+                    ["3,-5", 4],
+                    ["3,-5", 5],
+                    ["4,-5", 4],
 
-                    [GatewayTiles["le-l-b"], [3]],
-                    [GatewayTiles["g-b-r"], [2, 3]],
-                    [GatewayTiles["g-b-r"], [2, 3]],
-                    [GatewayTiles["le-b"], [2]],
+                    ["4,1", 3],
+                    ["3,2", 2],
+                    ["3,2", 3],
+                    ["2,3", 2],
+                    ["2,3", 3],
+                    ["1,4", 2],
 
-                    [GatewayTiles["le-t"], [5]],
-                    [GatewayTiles["g-t-r"], [4, 5]],
-                    [GatewayTiles["g-t-r"], [4, 5]],
-                    [GatewayTiles["le-l-t"], [4]],
+                    ["-5,4", 1],
+                    ["-5,3", 0],
+                    ["-5,3", 1],
+                    ["-5,2", 0],
+                    ["-5,2", 1],
+                    ["-5,1", 0],
                 ]
                 this.storage.set("players-gateways", this.gateways)
                 break

@@ -7,6 +7,7 @@ import { TileHovered } from "../Tile/TileHovered"
 import { Stones } from "../Stones/Stones"
 import { TileActions } from "../TileActions/TileActions"
 import { Actions } from "./Actions"
+import { GameResults } from "../GameResults/GameResults"
 
 export const Arena: FC = () => (
     <ArenaWrapper>
@@ -17,5 +18,6 @@ export const Arena: FC = () => (
         <Stones />
         <TileHovered />
         <TileActions />
+        <GameResults />
     </ArenaWrapper>
 )

@@ -172,8 +172,8 @@
 }
 
 :global(.flat) .hex.p-1 {
-    --X: calc(var(--R) * -8.75);
-    --Y: calc(var(--R) * 3);
+    --X: calc(var(--R) * -8.95);
+    --Y: calc(var(--R) * 4.25);
 }
 
 :global(.pointy) .hex.p-1 {
@@ -182,8 +182,8 @@
 }
 
 :global(.flat) .hex.p-2 {
-    --X: calc(var(--R) * 7.25);
-    --Y: calc(var(--R) * 3);
+    --X: calc(var(--R) * 7.45);
+    --Y: calc(var(--R) * 4.25);
 }
 
 :global(.pointy) .hex.p-2 {
@@ -225,22 +225,33 @@
     --y: 0;
 
     transform: translate(var(--x), var(--y)) translate(-50%, 0);
-    font-size: calc(var(--R) * 0.5);
+    font-size: calc(var(--R) * 0.45);
+
+    width: calc(var(--R) * 0.7);
+    height: calc(var(--R) * 0.7);
+
+    background-color: rgba(0, 0, 0, 0.3);
+    /*color: var(--main-text-color-dark);*/
+    box-shadow: 0 0 var(--spacing) rgba(0, 0, 0, 1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 :global(.flat) .score.p-1 {
-    --x: calc(var(--R) * -5.5);
-    --y: calc(var(--R) * 0.2);
+    --x: calc(var(--R) * -5.4);
+    --y: calc(var(--R) * 0.15);
 }
 
 :global(.pointy) .score.p-1 {
-    --x: calc(var(--R) * -7);
-    --y: calc(var(--R) * 2.75);
+    --x: calc(var(--R) * -7.25);
+    --y: calc(var(--R) * 3.25);
 }
 
 :global(.flat) .score.p-2 {
-    --x: calc(var(--R) * 5.5);
-    --y: calc(var(--R) * 0.2);
+    --x: calc(var(--R) * 5.4);
+    --y: calc(var(--R) * 0.15);
 }
 
 :global(.pointy) .score.p-2 {
@@ -258,7 +269,8 @@
     --size: calc(var(--R) * 0.6);
     --x-shift: 5.2;
     --x-ad: 0;
-    --x: calc(var(--R) * var(--x-shift) + var(--size) * var(--x-ad));
+    --x-reverse: 1;
+    --x: calc(var(--R) * var(--x-shift) * var(--x-reverse) + var(--size) * var(--x-ad) * var(--x-reverse));
     --y-ad: 0;
     --y: calc(var(--R) + var(--size) * var(--y-ad));
     transform: translate(var(--x), var(--y)) translate(-50%, 0);
@@ -278,78 +290,90 @@
     --s: 0.75;
 }
 
-:global(.flat) .stone.p-1 {
-    display: none;
-}
-
 :global(.flat) .stone > div[class*="emerald"]::before {
     --s: 0.5;
     transform: rotate(60deg);
 }
 
-/* p-2 */
 
-:global(.flat) .stone.p-2.s-1 {
-    --x-ad: 3.25;
-    --y-ad: 3;
+.stone.p-1 {
+    --x-reverse: -1;
 }
 
-:global(.pointy) .stone.p-2.s-1 {
-    --x-ad: 3.25;
-    --y-ad: 2.45;
+.stone.p-2 {
+
 }
 
-:global(.flat) .stone.p-2.s-2 {
-    --x-ad: 1.3;
-    --y-ad: -0.2;
-}
+/**/
+/** p-1 */
+/**/
 
-:global(.flat) .stone.p-2.s-3 {
-    --x-ad: 1.2;
-    --y-ad: 1;
-}
 
-:global(.flat) .stone.p-2.s-4 {
+/**/
+/** p-2 */
+/**/
+
+/*:global(.pointy) .stone.s-1 {*/
+/*    --x-ad: 3.25;*/
+/*    --y-ad: 2.45;*/
+/*}*/
+
+:global(.flat) .stone.s-1 {
     --x-ad: 1.75;
     --y-ad: 2;
 }
 
-:global(.flat) .stone.p-2.s-5 {
-    --x-ad: 2.3;
-    --y-ad: 3;
+:global(.flat) .stone.s-2 {
+    --x-ad: 1.2;
+    --y-ad: 1;
 }
 
-:global(.flat) .stone.p-2.s-6 {
-    --x-ad: 2.9;
+:global(.flat) .stone.s-3 {
+    --x-ad: 2.6;
+    --y-ad: 2.8;
+}
+
+:global(.flat) .stone.s-4 {
+    --x-ad: 3.7;
+    --y-ad: 3.1;
+}
+
+:global(.flat) .stone.s-5 {
+    --x-ad: 1.3;
+    --y-ad: -0.2;
+}
+
+:global(.flat) .stone.s-6 {
+    --x-ad: 4.8;
+    --y-ad: 2.9;
+}
+
+:global(.flat) .stone.s-7 {
+    --x-ad: 5.7;
+    --y-ad: 2.3;
+}
+
+:global(.flat) .stone.s-8 {
+    --x-ad: 1.8;
+    --y-ad: -1.3;
+}
+
+:global(.flat) .stone.s-9 {
+    --x-ad: 3;
+    --y-ad: 3.75;
+}
+
+:global(.flat) .stone.s-10 {
+    --x-ad: 4.2;
     --y-ad: 4;
 }
 
-:global(.flat) .stone.p-2.s-7 {
+:global(.flat) .stone.s-11 {
+    --x-ad: 5.2;
+    --y-ad: 3.8;
+}
+
+:global(.flat) .stone.s-12 {
     --x-ad: 3.5;
-    --y-ad: 5;
-}
-
-:global(.flat) .stone.p-2.s-8 {
-    --x-ad: 4.1;
-    --y-ad: 6;
-}
-
-:global(.flat) .stone.p-2.s-9 {
-    --x-ad: 4.65;
-    --y-ad: 7;
-}
-
-:global(.flat) .stone.p-2.s-10 {
-    --x-ad: 5;
-    --y-ad: 5.7;
-}
-
-:global(.flat) .stone.p-2.s-11 {
-    --x-ad: 5.8;
-    --y-ad: 5.25;
-}
-
-:global(.flat) .stone.p-2.s-12 {
-    --x-ad: 5.6;
-    --y-ad: 6.5;
+    --y-ad: 4.6;
 }

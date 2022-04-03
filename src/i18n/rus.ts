@@ -6,7 +6,7 @@ export const rus: LanguageMap = {
     systemTheme: "Из системы",
 
     "button.startNewGame": "Начать новую игру",
-    'button.restartGame': 'Начать заново',
+    "button.restartGame": "Начать заново",
     "button.startGame": "Начать игру",
     "button.cancel": "Отмена",
     "button.addPlayer": "Добавить игрока",
@@ -16,6 +16,10 @@ export const rus: LanguageMap = {
     "button.dark": "Темная",
     "button.system": "Как в системе",
     "button.apply": "Применить",
+    "button.viewBoard": "Посмотреть игру",
 
-    currentGameWillBeLost: 'Текущая игра будет утеряна.',
+    currentGameWillBeLost: "Текущая игра будет утеряна.",
+    "result.text.h1": "Игра окончена!",
+    winner: "Победитель",
+
 }

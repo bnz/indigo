@@ -16,6 +16,9 @@ export const eng: LanguageMap = {
     "button.dark": "Dark",
     "button.system": "System",
     "button.apply": "Apply",
+    "button.viewBoard": "View board",
 
     currentGameWillBeLost: "Current game will be lost.",
+    "result.text.h1": "Game is finished!",
+    winner: "Winner",
 }

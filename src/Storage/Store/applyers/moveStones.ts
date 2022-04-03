@@ -1,6 +1,6 @@
 import { Store } from "../Store"
 import { keys, runInAction } from "mobx"
-import { Edge, GatewayTiles, HexType, PlayerId, RouteTiles, StoneId, TreasureTiles } from "../../../types"
+import { Edge, HexType, RouteTiles, StoneId, TreasureTiles } from "../../../types"
 import { routeTileIdToEdgeMap } from "../maps/routeTileIdToEdgeMap"
 import { treasureTileIdToEdgeMap } from "../maps/treasureTileIdToEdgeMap"
 import { Hex } from "../../../jsx/Game/Hexagons/Hex"
@@ -17,8 +17,10 @@ class Klass {
         private store: Store,
         private stoneId: StoneId,
     ) {
-        const [, q, r, edge] = this.store.stones[stoneId]
-        this.run(q, r, edge)
+        const [, q, r, edge, isOut] = this.store.stones[stoneId]
+        if (!isOut) {
+            this.run(q, r, edge)
+        }
     }
 
     private path: Res = []
@@ -46,6 +48,11 @@ class Klass {
                         const routeTile = RouteTiles[tile!] as keyof typeof RouteTiles
                         const edgeFrom = getOppositeCorner(edge)
                         const edgeTo = routeTileIdToEdgeMap[routeTile][edgeFrom]
+
+                        if (this.stoneId === StoneId.emerald1) {
+                            console.log(hex.q, hex.r, edgeTo)
+                        }
+
                         this.cacheAndRun(hex, edgeTo)
                     } else {
                         void this.move()
@@ -53,28 +60,17 @@ class Klass {
                     break
                 }
                 case HexType.gateway: {
-                    if (this.stoneId !== StoneId.emerald4) {
-                        break
-                    }
-
                     const edgeFrom = getOppositeCorner(edge)
-
                     this.path.push([hex.q, hex.r, edgeFrom])
 
                     ;(async () => {
                         await this.move()
+                        this.store.playersStore.addStoneToPlayer(hex.id, edgeFrom, this.stoneId)
 
-                        const player = Object.keys(this.store.playersStore.gateways).find((key) => (
-                            this.store.playersStore.gateways[key as PlayerId]?.find(([_tile, edges]) => (
-                                _tile === tile && edges.indexOf(edgeFrom) !== -1
-                            ))
-                        ))
-
-                        console.log(`move to player "${player}"`)
-
-                        // add stone to player
-
-
+                        runInAction(() => {
+                            this.store.stones[this.stoneId][4] = true
+                            // this.store.storage.set("stones", this.store.stones)
+                        })
                     })()
                     break
                 }
@@ -93,6 +89,7 @@ class Klass {
                 this.store.stones[this.stoneId][1] = q
                 this.store.stones[this.stoneId][2] = r
                 this.store.stones[this.stoneId][3] = edge
+                // this.store.storage.set("stones", this.store.stones)
             })
             await sleep(500)
         }

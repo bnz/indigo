@@ -14,5 +14,8 @@ export type i18nKeys =
     | "button.dark"
     | "button.system"
     | "button.apply"
+    | "button.viewBoard"
 
     | "currentGameWillBeLost"
+    | "result.text.h1"
+    | "winner"

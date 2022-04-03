@@ -6,6 +6,7 @@ import { onMouseMove } from "../../../Storage/Store/applyers/onMouseMove"
 import { applySit } from "../../../Storage/Store/applyers/applySit"
 import { onClick } from "../../../Storage/Store/applyers/onClick"
 import "./Arena.css"
+import { moveStones } from "../../../Storage/Store/applyers/moveStones"
 
 export const ArenaWrapper: FC = observer(({ children }) => {
     const store = useStore()
@@ -25,8 +26,7 @@ export const ArenaWrapper: FC = observer(({ children }) => {
                 }
 
                 return {
-                    // onClick: onClick(store),
-                    onClick: applySit(store),
+                    onClick: () => moveStones(store),
                     onMouseMove: onMouseMove(store),
                     onDoubleClick: applySit(store),
                     children,

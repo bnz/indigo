@@ -41,6 +41,7 @@
     visibility: visible;
     transition-duration: var(--duration);
     transition-property: opacity, visibility;
+    backdrop-filter: blur(calc(var(--spacing) * 2));
 }
 
 .hidden .backdrop {

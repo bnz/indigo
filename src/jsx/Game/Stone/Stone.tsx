@@ -9,20 +9,39 @@ interface StoneProps {
     id: StoneId
 }
 
-export const StoneC: FC<StoneProps & { style?: CSSProperties | undefined }> = ({ id, style }) => {
+interface StoneCProps extends StoneProps {
+    className?: string | undefined;
+    style?: CSSProperties | undefined
+    index?: number
+}
+
+export const StoneC: FC<StoneCProps> = ({
+    id,
+    style,
+    className,
+    index,
+}) => {
     const [type] = useStoneStyles(id)
 
     return (
         <div
-            // data-id={id}
+            {...(
+                localStorage.getItem("DEBUG") === "true"
+                    ? index ? { "data-id": index } : { "data-id": id }
+                    : {}
+            )}
             style={style}
-            className={cx(styles.root, styles[StoneType[type]])}
+            className={cx(styles.root, styles[StoneType[type]], className)}
         />
     )
 }
 
 export const Stone: FC<StoneProps> = observer(({ id }) => {
-    const [, style] = useStoneStyles(id)
+    const [, style, isOut] = useStoneStyles(id)
+
+    if (isOut) {
+        return null
+    }
 
     return (
         <StoneC id={id} style={style} />

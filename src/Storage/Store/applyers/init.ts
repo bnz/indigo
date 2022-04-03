@@ -17,7 +17,6 @@ import { treasures } from "../defaults/Treasures"
 import { routes } from "../defaults/routes"
 import { stones } from "../defaults/stones"
 import { gateways } from "../constants/gateways"
-import { toJS } from "mobx"
 
 export const init = (store: Store) => {
     store.leftTiles = store.storage.getOrApply<TileName[]>("tiles-left", generateLeftTiles)
@@ -34,12 +33,8 @@ export const init = (store: Store) => {
 
     store.stones = store.storage.getOrApply<Stones>("stones", () => stones)
 
-    // console.log(gateways)
-    // console.log(toJS(store.playersStore.players))
-
     store.tiles = {
         ...generateTiles(gateways, HexType.gateway),
-
         ...generateTiles(
             store.storage.getOrApply<TileItems<TreasureTiles>>("treasure-tiles", () => treasures),
             HexType.treasure,

@@ -1,7 +1,7 @@
 import { makeAutoObservable } from "mobx"
 import { Layout } from "../../jsx/Game/Hexagons/Layout"
 import { Point } from "../../jsx/Game/Hexagons/Point"
-import { Keys, OrientationType, PlayerMove, Stones, TileName, Tiles, Values } from "../../types"
+import { Keys, OrientationType, Player, PlayerMove, Stones, TileName, Tiles, Values } from "../../types"
 import { debounce } from "../../helpers/debounce"
 import { LocalStorageMgmnt } from "../LocalStorageMgmnt"
 import { PlayersStore } from "../PlayersStore/PlayersStore"
@@ -53,6 +53,8 @@ export class Store {
     tiles: Tiles = {}
 
     layout: Layout = new Layout(this.orientation, new Point(0, 0), new Point(0, 0))
+
+    gameResultsOpen: boolean = true
 
     dispose = (): void => {
         try {
@@ -127,4 +129,10 @@ export class Store {
         return gates[this.playersStore.players.length]
     }
 
+    get winner(): Player | null {
+        if (Object.values(this.stones).filter(([, , , , isOut]) => !isOut).length) {
+            return null
+        }
+        return this.playersStore.leadingPlayer
+    }
 }

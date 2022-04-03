@@ -14,8 +14,12 @@
 
     --main-text-color-dark: #ccc;
 
+    --transparent-level: 0.85;
+
     --__main-background-color-light: rgba(247, 248, 251, 1);
+    --__main-background-color-light-transparent: rgba(247, 248, 251, var(--transparent-level));
     --__main-background-color-dark: #303030;
+    --__main-background-color-dark-transparent: rgba(48, 48, 48, var(--transparent-level));
     --__main-background-hover-light: rgba(0, 0, 0, 0.08);
     --__main-background-hover-dark: rgba(255, 255, 255, 0.08);
 }
@@ -24,6 +28,7 @@
     :root,
     :root.theme-light {
         --main-background-color: var(--__main-background-color-light);
+        --main-background-color-transparent: var(--__main-background-color-light-transparent);
         --main-background-hover: var(--__main-background-hover-light);
         --main-background-selected: rgba(0, 0, 0, 0.16);
         --main-text-color: rgba(0, 0, 0, 0.87);
@@ -50,6 +55,7 @@
 
     :root.theme-dark {
         --main-background-color: var(--__main-background-color-dark);
+        --main-background-color-transparent: var(--__main-background-color-dark-transparent);
         --main-background-hover: var(--__main-background-hover-dark);
         --main-background-selected: rgba(255, 255, 255, 0.16);
         --main-text-color: var(--main-text-color-dark);
@@ -79,6 +85,7 @@
     :root,
     :root.theme-dark {
         --main-background-color: var(--__main-background-color-dark);
+        --main-background-color-transparent: var(--__main-background-color-dark-transparent);
         --main-background-hover: var(--__main-background-hover-dark);
         --main-background-selected: rgba(255, 255, 255, 0.16);
         --main-text-color: var(--main-text-color-dark);
@@ -106,6 +113,7 @@
 
     :root.theme-light {
         --main-background-color: var(--__main-background-color-light);
+        --main-background-color-transparent: var(--__main-background-color-light-transparent);
         --main-background-hover: var(--__main-background-hover-light);
         --main-background-selected: rgba(0, 0, 0, 0.16);
         --main-text-color: rgba(0, 0, 0, 0.87);

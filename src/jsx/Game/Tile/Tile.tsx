@@ -19,30 +19,29 @@ const E: FC<{ style: CSSProperties }> = ({ style, children }) => (
     </div>
 )
 
-// const DEBUG = true
-const DEBUG = false
-
 export const Tile: FC<Data<TileProps>> = observer(({ data }) => (
     <div
         data-qr={data.qr}
         style={{ backgroundImage: `url(${svg}#${(data.tile !== undefined && AllTiles[data.tile]) || "_"})` }}
     >
-        {DEBUG && (
-            <>
-                <E style={{ top: "5%", left: "50%" }}>2</E>
-                <E style={{ top: "20%", left: "17%" }}>3</E>
-                <E style={{ top: "20%", right: "17%" }}>1</E>
-                <E style={{ bottom: "20%", right: "17%" }}>0</E>
-                <E style={{ bottom: "20%", left: "17%" }}>4</E>
-                <E style={{ bottom: "5%", left: "50%" }}>5</E>
-                <div style={{
-                    fontSize: "150%",
-                    backgroundColor: "#ccc", color: "#666", borderRadius: 2, padding: 2, lineHeight: 1,
-                    position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-                }}>
-                    {data.qr}
-                </div>
-            </>
-        )}
+        {
+            // @ts-ignore
+            localStorage.getItem("DEBUG") === "true" && (
+                <>
+                    <E style={{ top: "5%", left: "50%" }}>2</E>
+                    <E style={{ top: "20%", left: "17%" }}>3</E>
+                    <E style={{ top: "20%", right: "17%" }}>1</E>
+                    <E style={{ bottom: "20%", right: "17%" }}>0</E>
+                    <E style={{ bottom: "20%", left: "17%" }}>4</E>
+                    <E style={{ bottom: "5%", left: "50%" }}>5</E>
+                    <div style={{
+                        fontSize: "150%",
+                        backgroundColor: "#ccc", color: "#666", borderRadius: 2, padding: 2, lineHeight: 1,
+                        position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+                    }}>
+                        {data.qr}
+                    </div>
+                </>
+            )}
     </div>
 ))
