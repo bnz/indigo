@@ -69,7 +69,7 @@ class Klass {
 
                         runInAction(() => {
                             this.store.stones[this.stoneId][4] = true
-                            // this.store.storage.set("stones", this.store.stones)
+                            this.store.storage.set("stones", this.store.stones)
                         })
                     })()
                     break
@@ -89,7 +89,7 @@ class Klass {
                 this.store.stones[this.stoneId][1] = q
                 this.store.stones[this.stoneId][2] = r
                 this.store.stones[this.stoneId][3] = edge
-                // this.store.storage.set("stones", this.store.stones)
+                this.store.storage.set("stones", this.store.stones)
             })
             await sleep(500)
         }
