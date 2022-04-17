@@ -9,12 +9,19 @@
 
     --border-radius: calc(var(--spacing) * 0.5);
 
+    --drawer-width: calc(var(--spacing) * 40);
+
     --play-icon: url("./assets/icons.svg#play-light");
     --restart-button-icon: url("./assets/icons.svg#restart-light");
 
     --main-text-color-dark: #ccc;
 
     --transparent-level: 0.85;
+
+    --sphere-p-1-color: rgba(128, 0, 128, 1);
+    --sphere-p-2-color: rgba(75, 189, 216, 1);
+    --sphere-p-3-color: rgba(255, 127, 80, 1);
+    --sphere-p-4-color: rgba(255, 240, 181, 1);
 
     --__main-background-color-light: rgba(247, 248, 251, 1);
     --__main-background-color-light-transparent: rgba(247, 248, 251, var(--transparent-level));

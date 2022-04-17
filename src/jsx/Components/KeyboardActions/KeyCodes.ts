@@ -6,3 +6,4 @@ export type KeyCodes =
     | "Enter"
     | "NumpadEnter"
     | "KeyR"
+    | "KeyD"

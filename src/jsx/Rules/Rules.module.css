@@ -2,16 +2,80 @@
 
 }
 
+.root h2 {
+    font-weight: 400;
+    font-size: 7em;
+    height: calc(var(--spacing) * 30);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .root p {
-    margin-bottom: var(--spacing);
+    margin-bottom: calc(var(--spacing) * 2);
 }
 
 .root h3 {
     margin: calc(var(--spacing) * 2) 0 calc(var(--spacing) * 3);
 }
 
+.root p + h3 {
+    margin-top: calc(var(--spacing) * 5);
+}
+
 .players {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    margin-bottom: calc(var(--spacing) * 3);
+    margin-bottom: calc(var(--spacing) * 7);
+}
+
+.stonesGrid {
+    --s: calc(var(--spacing) * 10);
+    --R: calc(var(--s) / 2);
+
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    --zz: calc(var(--spacing) * 7);
+    grid-template-columns: var(--zz) 1fr var(--zz) 1fr var(--zz) 1fr;
+    align-items: center;
+    margin-bottom: calc(var(--spacing) * 7);
+}
+
+.stonesGrid :nth-of-type(1),
+.stonesGrid :nth-of-type(3),
+.stonesGrid :nth-of-type(5) {
+    position: relative;
+    left: auto;
+    transform: none !important;
+}
+
+.stonesGrid span {
+    display: block;
+}
+
+.stonesGrid span + span {
+    font-size: 1.25em;
+}
+
+.stonesGrid :nth-of-type(1)::before,
+.stonesGrid :nth-of-type(3)::before,
+.stonesGrid :nth-of-type(5)::before {
+    width: 100%;
+    height: 100%;
+}
+
+.tilesGrid {
+    --s: calc(var(--spacing) * 9);
+    --R: calc(var(--s) / 2);
+
+    display: grid;
+    gap: var(--spacing);
+    grid-template-columns: var(--s) 1fr var(--s) 1fr var(--s) 1fr var(--s) 1fr var(--s) 1fr;
+    align-items: center;
+    margin-bottom: calc(var(--spacing) * 7);
+}
+
+.tilesGrid [data-qr] {
+    position: relative;
+    left: auto;
 }

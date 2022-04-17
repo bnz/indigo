@@ -1,5 +1,5 @@
 .drawer {
-    --width: calc(var(--spacing) * 40);
+    --width: var(--drawer-width);
 
     position: fixed;
     top: 0;
@@ -44,11 +44,6 @@
     backdrop-filter: blur(calc(var(--spacing) * 2));
 }
 
-.hidden .backdrop {
-    opacity: 0;
-    visibility: hidden;
-}
-
 .content {
     flex: 1;
     overflow: auto;
@@ -64,4 +59,14 @@
 
 .actions {
     composes: box;
+}
+
+.rulesContainer {
+    position: absolute;
+    top: 0;
+    left: var(--drawer-width);
+    bottom: 0;
+    max-width: calc(var(--spacing) * 100);
+    padding: calc(var(--spacing) * 5);
+    overflow: auto;
 }

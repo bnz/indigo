@@ -17,6 +17,8 @@ export const rus: LanguageMap = {
     "button.system": "Как в системе",
     "button.apply": "Применить",
     "button.viewBoard": "Посмотреть игру",
+    "button.readRules": "Читать правила",
+    "button.close": "Закрыть",
 
     currentGameWillBeLost: "Текущая игра будет утеряна.",
     "result.text.h1": "Игра окончена!",

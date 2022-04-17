@@ -56,6 +56,10 @@ export class UIStore {
         this.storage.set("drawer", this.drawer)
     }
 
+    closeDrawer = () => {
+        this.drawer = false
+    }
+
     toggleDrawer = () => {
         this.drawer = !this.drawer
     }

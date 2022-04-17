@@ -15,6 +15,8 @@ export type i18nKeys =
     | "button.system"
     | "button.apply"
     | "button.viewBoard"
+    | "button.readRules"
+    | "button.close"
 
     | "currentGameWillBeLost"
     | "result.text.h1"
