@@ -7,6 +7,7 @@ import { useStoneStyles } from "./useStoneStyles"
 
 interface StoneProps {
     id: StoneId
+    isStatic?: true
 }
 
 interface StoneCProps extends StoneProps {
@@ -36,10 +37,10 @@ export const StoneC: FC<StoneCProps> = ({
     )
 }
 
-export const Stone: FC<StoneProps> = observer(({ id }) => {
+export const Stone: FC<StoneProps> = observer(({ id, isStatic }) => {
     const [, style, isOut] = useStoneStyles(id)
 
-    if (isOut) {
+    if (!isStatic && isOut) {
         return null
     }
 

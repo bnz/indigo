@@ -33,13 +33,13 @@ export const Intro: FC = () => (
         <StonesWrapper>
             <div />
             <div>
-                <Stone id={StoneId.emerald0} />
+                <Stone id={StoneId.emerald0} isStatic />
             </div>
             <div>
-                <Stone id={StoneId.sapphire} />
+                <Stone id={StoneId.sapphire} isStatic />
             </div>
             <div>
-                <Stone id={StoneId.amber0} />
+                <Stone id={StoneId.amber0} isStatic />
             </div>
         </StonesWrapper>
 

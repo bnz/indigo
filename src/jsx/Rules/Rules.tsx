@@ -20,17 +20,17 @@ export const Rules: FC = observer(() => {
         <div className={styles.root}>
 
             <div className={styles.stonesGrid}>
-                <Stone id={StoneId.sapphire} />
+                <Stone id={StoneId.sapphire} isStatic />
                 <div>
                     <span>Синий сапфир</span>
                     <span>приносит <b>3</b> очка</span>
                 </div>
-                <Stone id={StoneId.emerald0} />
+                <Stone id={StoneId.emerald0} isStatic />
                 <div>
                     <span>Зелёный изумруд</span>
                     <span>приносит <b>2</b> очка</span>
                 </div>
-                <Stone id={StoneId.amber0} />
+                <Stone id={StoneId.amber0} isStatic />
                 <div>
                     <span>жёлтый янтарь</span>
                     <span>приносит <b>1</b> очко</span>
