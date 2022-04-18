@@ -1,7 +1,7 @@
-import { makeAutoObservable } from "mobx"
+import { makeAutoObservable, reaction } from "mobx"
 import { Layout } from "../../jsx/Game/Hexagons/Layout"
 import { Point } from "../../jsx/Game/Hexagons/Point"
-import { Keys, OrientationType, Player, PlayerMove, Stones, TileName, Tiles, Values } from "../../types"
+import { Keys, OrientationType, Player, PlayerMove, Stones, TileName, Tiles, UIPhase, Values } from "../../types"
 import { debounce } from "../../helpers/debounce"
 import { LocalStorageMgmnt } from "../LocalStorageMgmnt"
 import { PlayersStore } from "../PlayersStore/PlayersStore"
@@ -40,6 +40,9 @@ export class Store {
         // if (process.env.NODE_ENV === 'development') {
         //   new __DEV__appendStyles(this.smallSide, this.largeSide, this.ratio, this.tiles)
         // }
+
+        this.playerMoveReaction()
+        reaction(() => this._playerMove, this.playerMoveReaction)
     }
 
     storage = new LocalStorageMgmnt<Keys, Values>("game")
@@ -76,6 +79,27 @@ export class Store {
     set playerMove(move: PlayerMove) {
         this._playerMove = move
         this.storage.set("player-move", this.playerMove)
+    }
+
+    playerMoveReaction = () => {
+        /**
+         * TODO FIXME
+         */
+
+        try {
+            const str = localStorage.getItem("ui")
+            if (str) {
+                const ui = JSON.parse(str)
+
+                if (ui.phase === UIPhase.GAME) {
+                    document.body.classList.remove(...document.body.classList)
+                    document.body.classList.add(this.playerMove[0])
+                }
+            }
+
+        } catch (e) {
+
+        }
     }
 
     private _arenaElement: HTMLDivElement | null = null

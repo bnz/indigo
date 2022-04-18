@@ -9,6 +9,12 @@
     transform: translate(var(--X), var(--Y));
     transition-duration: var(--duration);
     transition-property: transform, width, height;
+    z-index: -1;
+}
+
+.item > div {
+    height: auto;
+    width: 95%;
 }
 
 :global(.flat) .item {

@@ -11,7 +11,7 @@ export const GatewaySeats: FC = () => {
     return (
         <>
             {Object.entries(store.gates).map(([i]) => (
-                <div key={i} className={cx(style.item, style[`g-${i}`])} style={{ zIndex: -1 }}>
+                <div key={i} className={cx(style.item, style[`g-${i}`])}>
                     <Sphere color={getGateway(store)(parseInt(i, 10))} alt />
                 </div>
             ))}

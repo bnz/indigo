@@ -19,14 +19,10 @@ export const Drawer: FC = observer(() => {
     return (
         <div className={cx({ [styles.hidden]: !store.drawer })}>
             <KeyboardActions actions={{ Escape: store.toggleDrawer }} />
-            {store.drawer && (
-                <>
-                    <div className={styles.backdrop} onClick={store.toggleDrawer} />
-                    <div className={styles.rulesContainer}>
-                        <Rules />
-                    </div>
-                </>
-            )}
+            <div className={styles.backdrop} onClick={store.toggleDrawer} />
+            <div className={styles.rulesContainer}>
+                <Rules />
+            </div>
             <div className={styles.drawer}>
                 <GamesSwitcher />
                 <div className={styles.content}>

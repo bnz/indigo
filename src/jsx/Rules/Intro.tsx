@@ -16,18 +16,10 @@ export const Intro: FC = () => (
         </h2>
 
         <div className={styles.players}>
-            <div>
-                <Sphere color={PlayerId.Player1} />
-            </div>
-            <div>
-                <Sphere color={PlayerId.Player2} />
-            </div>
-            <div>
-                <Sphere color={PlayerId.Player3} />
-            </div>
-            <div>
-                <Sphere color={PlayerId.Player4} />
-            </div>
+            <Sphere color={PlayerId.Player1} />
+            <Sphere color={PlayerId.Player2} />
+            <Sphere color={PlayerId.Player3} />
+            <Sphere color={PlayerId.Player4} />
         </div>
 
         <StonesWrapper>

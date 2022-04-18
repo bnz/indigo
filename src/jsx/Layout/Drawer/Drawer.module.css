@@ -33,13 +33,18 @@
     }
 }
 
+.hidden .backdrop {
+    opacity: 0;
+    visibility: hidden;
+}
+
 .backdrop {
     position: fixed;
     inset: 0;
     background-color: var(--main-backdrop-background-color);
     opacity: 1;
     visibility: visible;
-    transition-duration: var(--duration);
+    transition-duration: .2s;
     transition-property: opacity, visibility;
     backdrop-filter: blur(calc(var(--spacing) * 2));
 }
@@ -61,11 +66,21 @@
     composes: box;
 }
 
+.hidden .rulesContainer {
+    opacity: 0;
+    visibility: hidden;
+    top: 10%;
+}
+
 .rulesContainer {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: var(--drawer-width);
     bottom: 0;
+    opacity: 1;
+    visibility: visible;
+    transition-duration: .2s;
+    transition-property: opacity, visibility, top;
     max-width: calc(var(--spacing) * 100);
     padding: calc(var(--spacing) * 5);
     overflow: auto;

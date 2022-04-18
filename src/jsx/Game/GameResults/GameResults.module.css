@@ -12,7 +12,10 @@
 }
 
 .container {
+    border-radius: var(--border-radius);
     width: calc(var(--spacing) * 100);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 
     --R: 80px;
 
@@ -35,6 +38,26 @@
     font-size: 3em;
     text-align: center;
     margin-bottom: calc(var(--spacing) * 5);
+}
+
+.container.p-1 {
+    background-color: var(--main-background-color);
+    background-image: radial-gradient(at 0% 0%, var(--sphere-p-1-color) 0px, var(--dd) 50%);
+}
+
+.container.p-2 {
+    background-color: var(--main-background-color);
+    background-image: radial-gradient(at 0% 0%, var(--sphere-p-2-color) 0px, var(--dd) 50%);
+}
+
+.container.p-3 {
+    background-color: var(--main-background-color);
+    background-image: radial-gradient(at 0% 0%, var(--sphere-p-3-color) 0px, var(--dd) 50%);
+}
+
+.container.p-4 {
+    background-color: var(--main-background-color);
+    background-image: radial-gradient(at 0% 0%, var(--sphere-p-4-color) 0px, var(--dd) 50%);
 }
 
 .wrap {
@@ -82,7 +105,7 @@
 
 .othersWrap {
     width: var(--width);
-    margin: 0 auto calc(var(--R) * 0.25);
+    margin: 0 auto;
     display: flex;
     flex-direction: row;
     gap: 6%;

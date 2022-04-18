@@ -41,6 +41,7 @@ export class UIStore {
         this.gamePhase.goToPreGame()
         this.storeDispose()
         this.drawer = false
+        document.body.classList.remove(...document.body.classList)
     }
 
     // Drawer - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

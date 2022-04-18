@@ -18,10 +18,21 @@
 
     --transparent-level: 0.85;
 
-    --sphere-p-1-color: rgba(128, 0, 128, 1);
-    --sphere-p-2-color: rgba(75, 189, 216, 1);
-    --sphere-p-3-color: rgba(255, 127, 80, 1);
-    --sphere-p-4-color: rgba(255, 240, 181, 1);
+    --sphere-p-1-rgb: 128, 0, 128;
+    --sphere-p-1-color: rgba(var(--sphere-p-1-rgb), 1);
+    --__sphere-p-1-color: rgba(128, 0, 128, 1);
+
+    --sphere-p-2-rgb: 75, 189, 216;
+    --sphere-p-2-color: rgba(var(--sphere-p-2-rgb), 1);
+    --__sphere-p-2-color: rgba(75, 189, 216, 1);
+
+    --sphere-p-3-rgb: 255, 127, 80;
+    --sphere-p-3-color: rgba(var(--sphere-p-3-rgb), 1);
+    --__sphere-p-3-color: rgba(255, 127, 80, 1);
+
+    --sphere-p-4-rgb: 255, 215, 0;
+    --sphere-p-4-color: rgba(var(--sphere-p-4-rgb), 1);
+    --__sphere-p-4-color: rgba(255, 215, 0, 1);
 
     --__main-background-color-light: rgba(247, 248, 251, 1);
     --__main-background-color-light-transparent: rgba(247, 248, 251, var(--transparent-level));
@@ -29,6 +40,9 @@
     --__main-background-color-dark-transparent: rgba(48, 48, 48, var(--transparent-level));
     --__main-background-hover-light: rgba(0, 0, 0, 0.08);
     --__main-background-hover-dark: rgba(255, 255, 255, 0.08);
+
+    --__backdrop-light: rgba(255, 255, 255, 0.5);
+    --__backdrop-dark: rgba(0, 0, 0, 0.5);
 }
 
 @media (prefers-color-scheme: light) {
@@ -40,7 +54,7 @@
         --main-background-selected: rgba(0, 0, 0, 0.16);
         --main-text-color: rgba(0, 0, 0, 0.87);
         --main-text-color-disabled: rgba(0, 0, 0, 0.35);
-        --main-backdrop-background-color: rgba(0, 0, 0, 0.2);
+        --main-backdrop-background-color: var(--__backdrop-light);
         --button-background-color: #ccc;
         --player-mgmnt-clear-hover-background: rgba(255, 255, 255, 0.9);
 
@@ -67,7 +81,7 @@
         --main-background-selected: rgba(255, 255, 255, 0.16);
         --main-text-color: var(--main-text-color-dark);
         --main-text-color-disabled: #666;
-        --main-backdrop-background-color: rgba(0, 0, 0, 0.5);
+        --main-backdrop-background-color: var(--__backdrop-dark);
         --button-background-color: #000;
         --player-mgmnt-clear-hover-background: rgba(48, 48, 48, 0.9);
 
@@ -97,7 +111,7 @@
         --main-background-selected: rgba(255, 255, 255, 0.16);
         --main-text-color: var(--main-text-color-dark);
         --main-text-color-disabled: #666;
-        --main-backdrop-background-color: rgba(0, 0, 0, 0.5);
+        --main-backdrop-background-color: var(--__backdrop-dark);
         --button-background-color: #000;
         --player-mgmnt-clear-hover-background: rgba(48, 48, 48, 0.9);
 
@@ -125,7 +139,7 @@
         --main-background-selected: rgba(0, 0, 0, 0.16);
         --main-text-color: rgba(0, 0, 0, 0.87);
         --main-text-color-disabled: rgba(0, 0, 0, 0.35);
-        --main-backdrop-background-color: rgba(0, 0, 0, 0.2);
+        --main-backdrop-background-color: var(--__backdrop-light);
         --button-background-color: #ccc;
         --player-mgmnt-clear-hover-background: rgba(255, 255, 255, 0.9);
 

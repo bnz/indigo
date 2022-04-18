@@ -37,7 +37,10 @@ export const PlayerManager: FC = observer(() => {
                 <button className={styles.cancelButton} onClick={uiStore.gamePhase.goToPreGame}>
                     {i18n("button.cancel")}
                 </button>
-                <button className={styles.startGameButton} onClick={uiStore.gamePhase.startGame}>
+                <button className={styles.startGameButton} onClick={() => {
+                    uiStore.gamePhase.startGame()
+                    store.playerMoveReaction()
+                }}>
                     {i18n("button.startGame")}
                 </button>
             </div>

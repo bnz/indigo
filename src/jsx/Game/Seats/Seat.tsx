@@ -21,14 +21,11 @@ export const Seat: FC<SeatProps> = observer(({ playerId, playerClass, stones }) 
     return (
         <>
             {playerId === store.playerMove[0] && (
-                <>
-                    <div className={cx(styles.highlight, playerClass)} />
-                    <div
-                        className={cx(styles.hex, playerClass)}
-                        style={playerMoveRouteTile(store)}
-                        onClick={rotateRight(store)}
-                    />
-                </>
+                <div
+                    className={cx(styles.hex, playerClass)}
+                    style={playerMoveRouteTile(store)}
+                    onClick={rotateRight(store)}
+                />
             )}
             {stones.length > 0 && (
                 <>

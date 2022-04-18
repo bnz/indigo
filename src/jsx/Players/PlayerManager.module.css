@@ -1,6 +1,7 @@
 .playersWrapper {
     margin: calc(var(--spacing) * 30) auto calc(var(--spacing) * 10);
     display: grid;
+    gap: calc(var(--spacing) * 3);
     grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 

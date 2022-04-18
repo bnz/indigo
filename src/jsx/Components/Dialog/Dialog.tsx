@@ -7,6 +7,7 @@ interface DialogProps {
     heading?: string
     close?(): void
     footer?: ReactNode
+    noPadding?: true
 }
 
 export const Dialog: FC<DialogProps> = ({
@@ -14,6 +15,7 @@ export const Dialog: FC<DialogProps> = ({
     close,
     children,
     footer,
+    noPadding,
 }) => (
     <Modal>
         <KeyboardActions actions={{ Escape: close }} />
@@ -27,7 +29,7 @@ export const Dialog: FC<DialogProps> = ({
                     )}
                 </h2>
             )}
-            <section className={styles.content}>
+            <section {...!noPadding && { className: styles.content }}>
                 {children}
             </section>
             {footer !== undefined && (

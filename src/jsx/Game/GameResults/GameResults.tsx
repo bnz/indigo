@@ -23,57 +23,54 @@ export const GameResults: FC = observer(() => {
     const player = store.winner!
 
     return (
-        <>
-            <Dialog>
-                <div className={styles.container}>
-                    <h1>{i18n("result.text.h1")}</h1>
-                    <h2>{i18n("winner")}</h2>
+        <Dialog noPadding>
+            <div className={cx(styles.container, styles[player.id])}>
+                <h1>{i18n("result.text.h1")}</h1>
+                <h2>{i18n("winner")}</h2>
 
-                    <div className={styles.wrap}>
-                        <div className={styles.sphereWrap}>
-                            <Sphere color={player.id} />
-                        </div>
-                        <div className={cx(seatsStyles.score, styles.score)}>
-                            {calcScore(player.stones)}
-                        </div>
-                        <div className={styles.stonesWrap}>
-                            {player.stones.map((stone) => (
-                                <StoneC key={stone} id={stone} className={styles.stone} />
-                            ))}
-                        </div>
+                <div className={styles.wrap}>
+                    <div className={styles.sphereWrap}>
+                        <Sphere color={player.id} />
                     </div>
-
-                    <div className={styles.actions}>
-                        <button className={buttonStyles.text} onClick={() => {
-                            runInAction(() => {
-                                store.gameResultsOpen = false
-                            })
-                        }}>
-                            {i18n("button.viewBoard")}
-                        </button>
-                        <RestartGame />
+                    <div className={cx(seatsStyles.score, styles.score)}>
+                        {calcScore(player.stones)}
                     </div>
-
-                    <div className={styles.othersWrap}>
-                        {store.playersStore.players.filter(({ id }) => id !== player.id).map(({ id, stones }) => (
-                            <div key={id}>
-                                <div className={styles.otherSphere}>
-                                    <Sphere color={id} />
-                                </div>
-                                <div className={cx(seatsStyles.score, styles.score, styles.otherScore)}>
-                                    {calcScore(stones)}
-                                </div>
-                                <div className={styles.otherStones}>
-                                    {stones.map((stone) => (
-                                        <StoneC key={stone} id={stone} className={cx(styles.stone, styles.stoneAlt)} />
-                                    ))}
-                                </div>
-                            </div>
+                    <div className={styles.stonesWrap}>
+                        {player.stones.map((stone) => (
+                            <StoneC key={stone} id={stone} className={styles.stone} />
                         ))}
                     </div>
                 </div>
 
-            </Dialog>
-        </>
+                <div className={styles.actions}>
+                    <button className={buttonStyles.text} onClick={() => {
+                        runInAction(() => {
+                            store.gameResultsOpen = false
+                        })
+                    }}>
+                        {i18n("button.viewBoard")}
+                    </button>
+                    <RestartGame />
+                </div>
+
+                <div className={styles.othersWrap}>
+                    {store.playersStore.players.filter(({ id }) => id !== player.id).map(({ id, stones }) => (
+                        <div key={id}>
+                            <div className={styles.otherSphere}>
+                                <Sphere color={id} />
+                            </div>
+                            <div className={cx(seatsStyles.score, styles.score, styles.otherScore)}>
+                                {calcScore(stones)}
+                            </div>
+                            <div className={styles.otherStones}>
+                                {stones.map((stone) => (
+                                    <StoneC key={stone} id={stone} className={cx(styles.stone, styles.stoneAlt)} />
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </Dialog>
     )
 })

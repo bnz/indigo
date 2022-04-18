@@ -58,96 +58,6 @@
 
 /** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-.highlight {
-    --S: calc(var(--R) * 2);
-    --width: calc(var(--R) * 4.5);
-    --height: calc(var(--R) * 9 * var(--ratio));
-    --radius: calc(var(--R) * 1.5);
-    --x: 0;
-    --y: 0;
-    --bg-color: rgba(0, 0, 0, 0.3);
-
-    pointer-events: var(--pointer-events);
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transition-property: width, height, transform, background, border-radius;
-    transition-duration: var(--duration);
-    transform: translate(var(--x), var(--y));
-}
-
-:global(.flat) .highlight {
-    width: var(--width);
-    height: var(--height);
-}
-
-:global(.pointy) .highlight {
-    width: var(--height);
-    height: var(--width);
-}
-
-:global(.flat) .highlight.p-1 {
-    --x: calc(var(--width) * -2);
-    background: linear-gradient(120deg, var(--bg-color) 50%, transparent 50%);
-}
-
-:global(.pointy) .highlight.p-1 {
-    --x: calc(var(--width) * -2 * var(--ratio));
-    background: linear-gradient(150deg, var(--bg-color) 50%, transparent 50%);
-}
-
-:global(.flat) .highlight.p-2 {
-    --x: var(--width);
-    background: linear-gradient(60deg, transparent 50%, var(--bg-color) 50%);
-}
-
-:global(.pointy) .highlight.p-2 {
-    background: linear-gradient(30deg, transparent 50%, var(--bg-color) 50%);
-}
-
-:global(.flat) .highlight.p-3 {
-    --x: var(--width);
-    --y: var(--height);
-    background: linear-gradient(120deg, transparent 50%, var(--bg-color) 50%);
-}
-
-:global(.pointy) .highlight.p-3 {
-    --y: calc(var(--height) * 2 * var(--ratio));
-    background: linear-gradient(150deg, transparent 50%, var(--bg-color) 50%);
-}
-
-:global(.flat) .highlight.p-4 {
-    --x: calc(var(--width) * -2);
-    --y: var(--height);
-    background: linear-gradient(60deg, var(--bg-color) 50%, transparent 50%);
-}
-
-:global(.pointy) .highlight.p-4 {
-    --x: calc(var(--width) * -2 * var(--ratio));
-    --y: calc(var(--height) * 2 * var(--ratio));
-    background: linear-gradient(30deg, var(--bg-color) 50%, transparent 50%);
-}
-
-/* RADIUS */
-
-.highlight.p-1 {
-    border-top-left-radius: var(--radius);
-}
-
-.highlight.p-2 {
-    border-top-right-radius: var(--radius);
-}
-
-.highlight.p-3 {
-    border-bottom-right-radius: var(--radius);
-}
-
-.highlight.p-4 {
-    border-bottom-left-radius: var(--radius);
-}
-
-/** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
 .hex {
     --s: calc(var(--R) * 1.5);
     pointer-events: var(--pointer-events);
@@ -231,7 +141,6 @@
     height: calc(var(--R) * 0.7);
 
     background-color: rgba(0, 0, 0, 0.3);
-    /*color: var(--main-text-color-dark);*/
     box-shadow: 0 0 var(--spacing) rgba(0, 0, 0, 1);
     border-radius: 50%;
     display: flex;
@@ -303,20 +212,6 @@
 .stone.p-2 {
 
 }
-
-/**/
-/** p-1 */
-/**/
-
-
-/**/
-/** p-2 */
-/**/
-
-/*:global(.pointy) .stone.s-1 {*/
-/*    --x-ad: 3.25;*/
-/*    --y-ad: 2.45;*/
-/*}*/
 
 :global(.flat) .stone.s-1 {
     --x-ad: 1.75;

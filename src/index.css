@@ -9,11 +9,11 @@ b {
 }
 
 .theme-light body {
-    --op: 0.75;
+    --bg-opacity: 0.5;
 }
 
 .theme-dark body {
-    --op: 0.5;
+    --bg-opacity: 0.5;
 }
 
 body {
@@ -25,28 +25,44 @@ body {
     letter-spacing: 0.01071em;
     touch-action: manipulation;
 
-    /*background-image: radial-gradient(at 74% 41%, rgb(104, 217, 104) 0px, rgba(0, 0, 0, 0) 54%),*/
-    /*radial-gradient(at 100% 1%, rgb(245, 123, 78) 0px, rgba(0, 0, 0, 0) 50%),*/
-    /*radial-gradient(at 46% 97%, rgb(61, 239, 233) 0px, rgba(0, 0, 0, 0) 50%),*/
-    /*radial-gradient(at 74% 0%, rgb(254, 204, 27) 0px, rgba(0, 0, 0, 0) 50%),*/
-    /*radial-gradient(at 22% 89%, rgb(244, 66, 80) 0px, rgba(0, 0, 0, 0) 50%),*/
-    /*radial-gradient(at 0% 100%, rgb(249, 173, 146) 0px, rgba(0, 0, 0, 0) 50%),*/
-    /*radial-gradient(at 79% 99%, rgb(57, 146, 255) 0px, rgba(0, 0, 0, 0) 50%);*/
-
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     background-color: var(--main-background-color);
-
 
     --dd: transparent;
 
+    --top-left-bg-color: rgba(var(--sphere-p-1-rgb), var(--bg-opacity));
+    --top-right-bg-color: rgba(var(--sphere-p-2-rgb), var(--bg-opacity));
+    --bottom-right-bg-color: rgba(var(--sphere-p-3-rgb), var(--bg-opacity));
+    --bottom-left-bg-color: rgba(var(--sphere-p-4-rgb), var(--bg-opacity));
 
-    background-image:
-    radial-gradient(at 100% 0%, rgba(255, 215, 0, var(--op)) 0px, var(--dd) 50%),
-    radial-gradient(at 0% 0%, rgba(255, 127, 80, var(--op)) 0px, var(--dd) 50%),
-    radial-gradient(at 0% 100%, rgba(128, 0, 128, var(--op)) 0px, var(--dd) 50%),
-    radial-gradient(at 100% 100%, rgba(255, 240, 181, var(--op)) 0px, var(--dd) 50%);
+    background-image: radial-gradient(at 0% 0%, var(--top-left-bg-color) 0px, var(--dd) 50%),
+    radial-gradient(at 100% 0%, var(--top-right-bg-color) 0px, var(--dd) 50%),
+    radial-gradient(at 100% 100%, var(--bottom-right-bg-color) 0px, var(--dd) 50%),
+    radial-gradient(at 0% 100%, var(--bottom-left-bg-color) 0px, var(--dd) 50%);
 
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    transition-duration: 1s;
+    transition-property: background-image;
+}
+
+body.p-1 {
+    --top-left-bg-color: var(--sphere-p-1-color);
+    background-image: radial-gradient(at 0% 0%, var(--top-left-bg-color) 0px, var(--dd) 50%);
+}
+
+body.p-2 {
+    --top-right-bg-color: var(--sphere-p-2-color);
+    background-image: radial-gradient(at 100% 0%, var(--top-right-bg-color) 0px, var(--dd) 50%);
+}
+
+body.p-3 {
+    --bottom-right-bg-color: var(--sphere-p-3-color);
+    background-image: radial-gradient(at 100% 100%, var(--bottom-right-bg-color) 0px, var(--dd) 50%);
+}
+
+body.p-4 {
+    --bottom-left-bg-color: var(--sphere-p-4-color);
+    background-image: radial-gradient(at 0% 100%, var(--bottom-left-bg-color) 0px, var(--dd) 50%);
 }
 
 body::backdrop {
