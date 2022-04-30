@@ -8,13 +8,10 @@ import { useUIStore } from "../../Storage/UIStore/UIStoreProvider"
 import { Tile } from "../Game/Tile/Tile"
 import { observer } from "mobx-react"
 import { useStore } from "../../Storage/Store/StoreProvider"
-import { toJS } from "mobx"
 import { tileCountByName } from "../../Storage/Store/applyers/tileCountByName"
 
 export const Rules: FC = observer(() => {
     const store = useStore()
-
-    console.log(toJS(store.leftTiles))
 
     return (
         <div className={styles.root}>

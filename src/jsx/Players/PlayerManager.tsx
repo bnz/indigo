@@ -13,20 +13,25 @@ import { removePlayerById } from "../../Storage/PlayersStore/applyers/removePlay
 export const PlayerManager: FC = observer(() => {
     const uiStore = useUIStore()
     const store = useStore()
-    const hasButton = store.playersStore.entries.length > 2
 
     return (
         <>
             <div className={styles.playersWrapper}>
-                {store.playersStore.entries.map(([, { id }]) => (
-                    <button
-                        key={id}
-                        className={cx(playerStyles.root, { [playerStyles.clear]: hasButton })}
-                        {...(hasButton ? { onClick: removePlayerById(store.playersStore)(id) } : {})}
-                    >
-                        <Sphere color={id} />
-                    </button>
-                ))}
+                {store.playersStore.entries.map(([, { id }], index) => {
+                    const clear = store.playersStore.entries.length > 2 && index === store.playersStore.entries.length - 1
+
+                    return (
+                        <button
+                            key={id}
+                            className={cx(playerStyles.root, { [playerStyles.clear]: clear })}
+                            {...(clear && {
+                                onClick: removePlayerById(store.playersStore)(id),
+                            })}
+                        >
+                            <Sphere color={id} />
+                        </button>
+                    )
+                })}
                 {store.playersStore.entries.length < 4 && (
                     <button className={playerStyles.add} onClick={addPlayer(store.playersStore)}>
                         {i18n("button.addPlayer")}
