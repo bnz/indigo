@@ -48,11 +48,6 @@ class Klass {
                         const routeTile = RouteTiles[tile!] as keyof typeof RouteTiles
                         const edgeFrom = getOppositeCorner(edge)
                         const edgeTo = routeTileIdToEdgeMap[routeTile][edgeFrom]
-
-                        if (this.stoneId === StoneId.emerald1) {
-                            console.log(hex.q, hex.r, edgeTo)
-                        }
-
                         this.cacheAndRun(hex, edgeTo)
                     } else {
                         void this.move()
