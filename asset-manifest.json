@@ -1,28 +1,28 @@
 {
   "files": {
-    "main.css": "/indigo/static/css/main.91fba153.chunk.css",
-    "main.js": "/indigo/static/js/main.2e4269e3.chunk.js",
-    "main.js.map": "/indigo/static/js/main.2e4269e3.chunk.js.map",
-    "runtime-main.js": "/indigo/static/js/runtime-main.6e0bab96.js",
-    "runtime-main.js.map": "/indigo/static/js/runtime-main.6e0bab96.js.map",
-    "static/css/2.a715dcce.chunk.css": "/indigo/static/css/2.a715dcce.chunk.css",
-    "static/js/2.4cfa6b9f.chunk.js": "/indigo/static/js/2.4cfa6b9f.chunk.js",
-    "static/js/2.4cfa6b9f.chunk.js.map": "/indigo/static/js/2.4cfa6b9f.chunk.js.map",
-    "index.html": "/indigo/index.html",
-    "static/css/2.a715dcce.chunk.css.map": "/indigo/static/css/2.a715dcce.chunk.css.map",
-    "static/css/main.91fba153.chunk.css.map": "/indigo/static/css/main.91fba153.chunk.css.map",
-    "static/js/2.4cfa6b9f.chunk.js.LICENSE.txt": "/indigo/static/js/2.4cfa6b9f.chunk.js.LICENSE.txt",
-    "static/media/Stone.module.css": "/indigo/static/media/sapphire.e4c53747.svg",
-    "static/media/Sphere.module.css": "/indigo/static/media/white.de835116.svg",
-    "static/media/RotateLayout.module.css": "/indigo/static/media/hex.610f0d8a.svg",
-    "static/media/:root.css": "/indigo/static/media/icons.7330cb61.svg",
-    "static/media/index.css": "/indigo/static/media/roboto-vietnamese-400-normal.c0bec65d.woff2"
+    "main.css": "/static/css/main.f0bb9da6.chunk.css",
+    "main.js": "/static/js/main.2e4269e3.chunk.js",
+    "main.js.map": "/static/js/main.2e4269e3.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.c726eecc.js",
+    "runtime-main.js.map": "/static/js/runtime-main.c726eecc.js.map",
+    "static/css/2.da8b76e1.chunk.css": "/static/css/2.da8b76e1.chunk.css",
+    "static/js/2.4cfa6b9f.chunk.js": "/static/js/2.4cfa6b9f.chunk.js",
+    "static/js/2.4cfa6b9f.chunk.js.map": "/static/js/2.4cfa6b9f.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/2.da8b76e1.chunk.css.map": "/static/css/2.da8b76e1.chunk.css.map",
+    "static/css/main.f0bb9da6.chunk.css.map": "/static/css/main.f0bb9da6.chunk.css.map",
+    "static/js/2.4cfa6b9f.chunk.js.LICENSE.txt": "/static/js/2.4cfa6b9f.chunk.js.LICENSE.txt",
+    "static/media/Stone.module.css": "/static/media/sapphire.e4c53747.svg",
+    "static/media/Sphere.module.css": "/static/media/white.de835116.svg",
+    "static/media/RotateLayout.module.css": "/static/media/hex.610f0d8a.svg",
+    "static/media/:root.css": "/static/media/icons.7330cb61.svg",
+    "static/media/index.css": "/static/media/roboto-vietnamese-400-normal.c0bec65d.woff2"
   },
   "entrypoints": [
-    "static/js/runtime-main.6e0bab96.js",
-    "static/css/2.a715dcce.chunk.css",
+    "static/js/runtime-main.c726eecc.js",
+    "static/css/2.da8b76e1.chunk.css",
     "static/js/2.4cfa6b9f.chunk.js",
-    "static/css/main.91fba153.chunk.css",
+    "static/css/main.f0bb9da6.chunk.css",
     "static/js/main.2e4269e3.chunk.js"
   ]
 }
