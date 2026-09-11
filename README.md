@@ -42,6 +42,14 @@ npm run build
 Tests cover movement, collisions, center releases, scoring and ties, illegal placements,
 50 seeded complete games, atomic saving, reload during animation, input locking and restart.
 
+## Production deployment
+
+Every commit pushed to `main` is tested, built, and deployed to GitHub Pages by
+`.github/workflows/deploy.yml`. A failed test or build prevents deployment.
+
+GitHub Pages must use the `gh-pages` branch with the `/ (root)` folder as its source.
+The `public/CNAME` file preserves the `indigo.bonez.me` custom domain in every deployment.
+
 ## Next stages
 
 1. Three- and four-player gateway ownership and shared awards, backed by full-game tests.
