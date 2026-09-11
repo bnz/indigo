@@ -1,13 +1,22 @@
+.game {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    padding-top: 40px;
+}
+
 .pointy,
 .flat {
-    position: absolute;
-    inset: 1em;
+    position: relative;
+    /* Keep the board's animation layers below drawers and dialogs. */
+    isolation: isolate;
+    flex: 1;
+    min-height: 160px;
+    margin: 8px 12px;
     overflow: hidden;
 }
 
-@media (orientation: portrait) {
-    .pointy,
-    .flat {
-        /*background-color: #f00;*/
-    }
+.flat > div, .pointy > div {
+    top: var(--board-top);
 }

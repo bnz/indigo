@@ -1,7 +1,13 @@
 .show {
+    pointer-events: none;
     transition-property: transform, width, height, opacity;
     transition-duration: var(--duration);
     opacity: 1;
+}
+
+.invalid > div {
+    filter: drop-shadow(0 0 8px #c51162);
+    opacity: 0.55;
 }
 
 .show > div {

@@ -1,93 +1,91 @@
 .root {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    flex: none;
+    width: min(640px, calc(100% - 24px));
+    margin: 0 auto max(12px, env(safe-area-inset-bottom));
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: var(--main-background-color);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
 }
 
-.container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    --s: calc(var(--R) * 2);
-    transition-duration: var(--duration);
-    transition-property: transform, width, height;
-
-    --XX: 0;
-    --YY: 0;
-
-    transform: translate(-50%, -50%) translate(var(--XX), var(--YY));
-}
-
-:global(.flat) .container {
-    width: var(--s);
-    height: calc(var(--s) * var(--ratio));
-}
-
-:global(.pointy) .container {
-    width: calc(var(--s) * var(--ratio));
-    height: var(--s);
-}
-
-.inner {
+.summary {
     display: flex;
-    gap: calc(var(--R) * 0.1);
-    position: absolute;
-    left: 50%;
-    top: calc(100% + var(--R) * 0.1);
-    transform: translateX(-50%);
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.summary strong {
+    font-size: 18px;
+}
+
+.scores {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    font-size: 13px;
+}
+
+.scores i {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.preview {
+    flex: none;
+    width: 64px;
+    height: 56px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+}
+
+.hint {
+    font-size: 13px;
+    min-height: 2.6em;
+    line-height: 1.3;
+    margin: 8px 0;
+}
+
+.hint[role="alert"] {
+    color: #c51162;
+}
+
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .button {
     composes: button from "../../Components/Button/Button.module.css";
-    composes: buttonContained from "../../Components/Button/Button.module.css";
-    composes: withIcon from "../../Components/Button/Button.module.css";
-
-    --bg-icon: none;
-
-    --a: var(--R);
-    --p: calc(var(--a) * 0.1);
-
-    --m: calc(var(--R) * 0.1);
-    --top: calc(50% + var(--m));
-
-    padding: var(--p);
-    border-radius: calc(var(--a) * 0.15);
-    font-size: calc(var(--a) * 0.25);
-    display: flex;
-    flex-direction: column;
-}
-
-.button::after {
-    display: none;
-}
-
-.button::before {
-    margin: 0;
-}
-
-.button::before {
-    --size: var(--a);
-    background-image: var(--bg-icon);
-}
-
-.apply, .cancel, .left, .right {
-    composes: button;
+    flex: 1;
+    min-height: 44px;
+    font-size: 14px;
 }
 
 .apply {
-    --bg-icon: var(--apply-button-icon);
+    composes: button;
+    background: #67428c;
+    color: #fff;
+    font-weight: 700;
 }
 
-.cancel {
-    --bg-icon: var(--cancel-button-icon);
+.button:disabled, .apply:disabled {
+    cursor: default;
+    opacity: 0.4;
 }
 
-.left {
-    --bg-icon: var(--rotate-left-icon);
+.button:focus-visible, .apply:focus-visible {
+    outline: 3px solid var(--sphere-p-2-color);
+    outline-offset: 2px;
 }
 
-.right {
-    --bg-icon: var(--rotate-right-icon);
+@media (max-width: 420px) {
+    .root { padding: 10px; }
+    .buttons { gap: 6px; }
+    .button { padding: 0 6px !important; font-size: 12px; }
 }

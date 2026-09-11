@@ -19,6 +19,7 @@ import { stones } from "../defaults/stones"
 import { gateways } from "../constants/gateways"
 
 export const init = (store: Store) => {
+    store.isNewGame = store.storage.get("player-move") === null
     store.leftTiles = store.storage.getOrApply<TileName[]>("tiles-left", generateLeftTiles)
 
     store.playerMove = store.storage.getOrApply<PlayerMove>(
@@ -44,4 +45,5 @@ export const init = (store: Store) => {
             HexType.route,
         ),
     }
+    store.saveFailed = store.storage.failed
 }

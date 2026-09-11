@@ -1,14 +1,11 @@
 import type { FC } from "react"
 import { observer } from "mobx-react"
-import cx from "classnames"
 import { i18n } from "../../i18n/i18n"
 import { useUIStore } from "../../Storage/UIStore/UIStoreProvider"
 import { useStore } from "../../Storage/Store/StoreProvider"
 import { Sphere } from "../Game/Sphere/Sphere"
 import styles from "./PlayerManager.module.css"
 import playerStyles from "./Player.module.css"
-import { addPlayer } from "../../Storage/PlayersStore/applyers/addPlayer"
-import { removePlayerById } from "../../Storage/PlayersStore/applyers/removePlayerById"
 
 export const PlayerManager: FC = observer(() => {
     const uiStore = useUIStore()
@@ -16,27 +13,18 @@ export const PlayerManager: FC = observer(() => {
 
     return (
         <>
+            <p>{i18n("game.stageOne")}</p>
             <div className={styles.playersWrapper}>
-                {store.playersStore.entries.map(([, { id }], index) => {
-                    const clear = store.playersStore.entries.length > 2 && index === store.playersStore.entries.length - 1
-
+                {store.playersStore.entries.map(([, { id }]) => {
                     return (
-                        <button
+                        <div
                             key={id}
-                            className={cx(playerStyles.root, { [playerStyles.clear]: clear })}
-                            {...(clear && {
-                                onClick: removePlayerById(store.playersStore)(id),
-                            })}
+                            className={playerStyles.root}
                         >
                             <Sphere color={id} />
-                        </button>
+                        </div>
                     )
                 })}
-                {store.playersStore.entries.length < 4 && (
-                    <button className={playerStyles.add} onClick={addPlayer(store.playersStore)}>
-                        {i18n("button.addPlayer")}
-                    </button>
-                )}
             </div>
             <div className={styles.actionsWrapper}>
                 <button className={styles.cancelButton} onClick={uiStore.gamePhase.goToPreGame}>

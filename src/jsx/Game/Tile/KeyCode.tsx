@@ -4,6 +4,8 @@ import { useStore } from "../../../Storage/Store/StoreProvider"
 import { applySit } from "../../../Storage/Store/applyers/applySit"
 import { rotateLeft, rotateRight } from "../../../Storage/Store/applyers/rotate"
 import { cancelPreSit } from "../../../Storage/Store/applyers/cancelPreSit"
+import { observer } from "mobx-react"
+import { useUIStore } from "../../../Storage/UIStore/UIStoreProvider"
 
 const useActions = () => {
     const store = useStore()
@@ -16,10 +18,13 @@ const useActions = () => {
     ]
 }
 
-export const KeyCode: FC = () => {
+export const KeyCode: FC = observer(() => {
     const [Escape, ArrowLeft, ArrowRight, Enter] = useActions()
+    const store = useStore()
+    const ui = useUIStore()
+    if (!store.canPlay || ui.drawer) return null
 
     return (
         <KeyboardActions actions={{ Escape, ArrowLeft, ArrowRight, Space: ArrowRight, Enter, NumpadEnter: Enter }} />
     )
-}
+})

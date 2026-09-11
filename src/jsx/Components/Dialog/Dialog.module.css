@@ -1,9 +1,12 @@
 .root {
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    min-width: calc(var(--spacing) * 50);
+    min-width: min(400px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    overflow: auto;
     background-color: var(--main-background-color-transparent);
     border-radius: var(--border-radius);
     box-shadow: rgba(0, 0, 0, 0.2) 0 11px 15px -7px, rgba(0, 0, 0, 0.14) 0 24px 38px 3px, rgba(0, 0, 0, 0.12) 0 9px 46px 8px;

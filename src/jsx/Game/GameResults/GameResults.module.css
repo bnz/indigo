@@ -13,7 +13,7 @@
 
 .container {
     border-radius: var(--border-radius);
-    width: calc(var(--spacing) * 100);
+    width: min(800px, calc(100vw - 32px));
     background-repeat: no-repeat;
     background-attachment: fixed;
 
@@ -26,6 +26,7 @@
     .container {
         width: 100%;
         --width: 100%;
+        --R: 40px;
     }
 }
 
@@ -66,7 +67,7 @@
     gap: 0 calc(var(--spacing) * 3);
     grid-template-areas: "sphere score" "sphere stones";
     width: var(--width);
-    margin: 0 auto;
+    margin: 0 auto 24px;
 }
 
 .sphereWrap {

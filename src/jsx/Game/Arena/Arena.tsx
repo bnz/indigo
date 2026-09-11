@@ -10,14 +10,16 @@ import { Actions } from "./Actions"
 import { GameResults } from "../GameResults/GameResults"
 
 export const Arena: FC = () => (
-    <ArenaWrapper>
-        <Actions />
-        <Tiles />
-        <Seats />
-        <GatewaySeats />
-        <Stones />
-        <TileHovered />
+    <div className="game">
+        <ArenaWrapper>
+            <Actions />
+            <Tiles />
+            <Seats />
+            <GatewaySeats />
+            <Stones />
+            <TileHovered />
+        </ArenaWrapper>
         <TileActions />
         <GameResults />
-    </ArenaWrapper>
+    </div>
 )

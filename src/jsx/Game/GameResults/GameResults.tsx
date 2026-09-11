@@ -16,19 +16,19 @@ import { runInAction } from "mobx"
 export const GameResults: FC = observer(() => {
     const store = useStore()
 
-    if (store.winner === null || !store.gameResultsOpen) {
+    if (!store.finished || store.animatedStones !== null || !store.gameResultsOpen) {
         return null
     }
 
-    const player = store.winner!
+    const winners = store.winners
 
     return (
         <Dialog noPadding>
-            <div className={cx(styles.container, styles[player.id])}>
+            <div className={cx(styles.container, styles[winners[0].id])}>
                 <h1>{i18n("result.text.h1")}</h1>
-                <h2>{i18n("winner")}</h2>
+                <h2>{i18n(winners.length > 1 ? "winners" : "winner")}</h2>
 
-                <div className={styles.wrap}>
+                {winners.map(player => <div className={styles.wrap} key={player.id}>
                     <div className={styles.sphereWrap}>
                         <Sphere color={player.id} />
                     </div>
@@ -40,7 +40,7 @@ export const GameResults: FC = observer(() => {
                             <StoneC key={stone} id={stone} className={styles.stone} />
                         ))}
                     </div>
-                </div>
+                </div>)}
 
                 <div className={styles.actions}>
                     <button className={buttonStyles.text} onClick={() => {
@@ -54,7 +54,7 @@ export const GameResults: FC = observer(() => {
                 </div>
 
                 <div className={styles.othersWrap}>
-                    {store.playersStore.players.filter(({ id }) => id !== player.id).map(({ id, stones }) => (
+                    {store.playersStore.players.filter(({ id }) => !winners.some(player => player.id === id)).map(({ id, stones }) => (
                         <div key={id}>
                             <div className={styles.otherSphere}>
                                 <Sphere color={id} />

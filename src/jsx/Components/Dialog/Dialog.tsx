@@ -20,7 +20,7 @@ export const Dialog: FC<DialogProps> = ({
     <Modal>
         <KeyboardActions actions={{ Escape: close }} />
         <div className={styles.backdrop} onClick={close} />
-        <div className={styles.root}>
+        <div className={styles.root} role="dialog" aria-modal="true" aria-label={heading}>
             {heading !== undefined && (
                 <h2 className={styles.header}>
                     {heading}

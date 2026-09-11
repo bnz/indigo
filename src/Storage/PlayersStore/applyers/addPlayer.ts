@@ -8,6 +8,7 @@ import { playerInitData } from "./generateFirstTwoPlayers"
 type AddPlayer = (store: PlayersStore) => () => void
 
 export const addPlayer: AddPlayer = (store) => () => {
+    if (store.players.length >= PlayersStore.maxPlayersCount) return
     runInAction(() => {
         const ids = store.players.map(({ id }) => parseInt(id.split("-")[1], 10))
         const diff = arrayDiff(PlayersStore.ids, ids)

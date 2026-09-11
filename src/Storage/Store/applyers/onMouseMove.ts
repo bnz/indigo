@@ -6,12 +6,12 @@ import { runInAction } from "mobx"
 type OnMouseMove = (store: Store) => (e: MouseEvent<HTMLDivElement>) => void
 
 export const onMouseMove: OnMouseMove = (store) => (e) => {
-    if (store.preSit) {
+    if (store.preSit || !store.canPlay) {
         return
     }
 
     const rect = e.currentTarget.getBoundingClientRect() as DOMRect
-    const hex = store.layout.pixelToHex({ x: e.pageX - rect.x, y: e.pageY - rect.y }).round()
+    const hex = store.layout.pixelToHex({ x: e.clientX - rect.x, y: e.clientY - rect.y }).round()
 
     if (store.tiles[hex.id] && store.tiles[hex.id].type === HexType.route && store.tiles[hex.id].tile === undefined) {
         runInAction(() => {

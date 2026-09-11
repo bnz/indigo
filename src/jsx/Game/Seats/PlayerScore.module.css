@@ -1,0 +1,32 @@
+.counter.counter {
+    background: none;
+    box-shadow: none;
+    pointer-events: none;
+    z-index: 6;
+}
+
+.bubble {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 var(--spacing) rgba(0, 0, 0, 1);
+    overflow: hidden;
+    perspective: 100px;
+    transform-origin: center;
+}
+
+.number {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    backface-visibility: hidden;
+}
+
+.previous {
+    opacity: 0;
+}

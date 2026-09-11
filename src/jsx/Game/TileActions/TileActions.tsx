@@ -1,37 +1,68 @@
 import type { FC } from "react"
 import { observer } from "mobx-react"
+import { runInAction } from "mobx"
 import { useStore } from "../../../Storage/Store/StoreProvider"
-import { cancelPreSitButton } from "../../../Storage/Store/applyers/cancelPreSit"
-import { tileActionsPositionCSS } from "../../../Storage/Store/applyers/tileActionsPositionCSS"
+import { cancelPreSit } from "../../../Storage/Store/applyers/cancelPreSit"
+import { applySit } from "../../../Storage/Store/applyers/applySit"
+import { rotateLeft, rotateRight } from "../../../Storage/Store/applyers/rotate"
+import { tileHoveredCSS } from "../../../Storage/Store/applyers/tileHoveredCSS"
+import { calcScore } from "../../../helpers/calcScore"
+import { i18n } from "../../../i18n/i18n"
 import styles from "./TileActions.module.css"
-import { applySitButton } from "../../../Storage/Store/applyers/applySit"
-import { rotateLeftButton, rotateRightButton } from "../../../Storage/Store/applyers/rotate"
 
 export const TileActions: FC = observer(() => {
     const store = useStore()
-
-    if (!store.preSit) {
-        return null
-    }
-
-    const isCrossroad = store.isRouteCrossroad
-
-    // window.matchMedia("")
+    const error = store.error ?? (store.placementError === "gateBlocked" ? "gateBlocked" : null)
+    const moving = store.animatedStones !== null
+    const movementLabel = store.scoreChanges.length ? "game.scoring" : store.collecting ? "game.collecting" : "game.moving"
 
     return (
-        <div className={styles.root} onClick={cancelPreSitButton(store)}>
-            <div className={styles.container} style={tileActionsPositionCSS(store)}>
-                <div className={styles.inner}>
-                    {!isCrossroad && (
-                        <button className={styles.left} onClick={rotateRightButton(store)} />
-                    )}
-                    <button className={styles.apply} onClick={applySitButton(store)} />
-                    <button className={styles.cancel} />
-                    {!isCrossroad && (
-                        <button className={styles.right} onClick={rotateLeftButton(store)} />
-                    )}
+        <section className={styles.root} aria-label={i18n("game.controls")}>
+            <div className={styles.summary}>
+                <div>
+                    <strong role="status">
+                        {moving ? i18n(movementLabel) : store.finished ? i18n("result.text.h1") : `${i18n("game.turn")}: ${i18n(`player.${store.playerMove[0]}`)}`}
+                    </strong>
+                    <div className={styles.scores}>
+                        {store.playersStore.players.map(player => (
+                            <span key={player.id}>
+                                <i style={{ backgroundColor: `var(--sphere-${player.id}-color)` }} />
+                                {i18n(`player.${player.id}`)}: {calcScore(store.visiblePlayerStones(player.id))}
+                            </span>
+                        ))}
+                    </div>
+                    <small>{i18n("game.tilesLeft")}: {store.leftTiles.length}</small>
                 </div>
+                {store.currentTileName && !moving && (
+                    <div className={styles.preview} style={tileHoveredCSS(store)} role="img" aria-label={i18n("game.currentTile")} />
+                )}
             </div>
-        </div>
+            <p className={styles.hint} role={error ? "alert" : undefined}>
+                {error ? i18n(`game.${error}`) : moving ? i18n("game.wait") : store.finished ? i18n("game.finishedHint") : i18n("game.selectHint")}
+            </p>
+            {store.saveFailed && <p role="alert">{i18n("game.saveFailed")}</p>}
+            <div className={styles.buttons}>
+                {store.finished ? (
+                    <button className={styles.apply} disabled={moving} onClick={() => runInAction(() => { store.gameResultsOpen = true })}>
+                        {i18n("game.results")}
+                    </button>
+                ) : (
+                    <>
+                        <button className={styles.button} disabled={!store.canPlay || store.isRouteCrossroad} onClick={rotateRight(store)} aria-label={i18n("game.rotateLeft")}>
+                            {i18n("game.rotateLeft")}
+                        </button>
+                        <button className={styles.button} disabled={!store.canPlay || store.isRouteCrossroad} onClick={rotateLeft(store)} aria-label={i18n("game.rotateRight")}>
+                            {i18n("game.rotateRight")}
+                        </button>
+                        <button className={styles.button} disabled={!store.preSit || !store.canPlay} onClick={cancelPreSit(store)}>
+                            {i18n("button.cancel")}
+                        </button>
+                        <button className={styles.apply} disabled={!store.preSit || !store.canPlay || !!store.placementError} onClick={applySit(store)}>
+                            {i18n("game.place")}
+                        </button>
+                    </>
+                )}
+            </div>
+        </section>
     )
 })

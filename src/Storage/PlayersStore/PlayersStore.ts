@@ -1,6 +1,7 @@
 import { makeAutoObservable } from "mobx"
 import { iLocalStorageMgmnt } from "../LocalStorageMgmnt"
-import { Edge, Keys, Player, PlayerId, Players, PlayersGateways, StoneId, Values } from "../../types"
+import { Edge, Keys, PlayerId, Players, PlayersGateways, StoneId, Values } from "../../types"
+import { leadingPlayers } from "../../game/rules"
 import { generateFirstTwoPlayers } from "./applyers/generateFirstTwoPlayers"
 
 import purple from "../../jsx/Game/Sphere/assets/purple.svg"
@@ -21,7 +22,7 @@ export class PlayersStore {
 
     static storageKey: Keys = "players"
 
-    static maxPlayersCount: number = Object.keys(playerIdToSVGMap).length
+    static maxPlayersCount = 2
 
     players: Players = []
 
@@ -46,11 +47,8 @@ export class PlayersStore {
             ),
         )!.id
 
-    get leadingPlayer(): Player {
-        const stonesCount = this.players.map(({ stones }) => stones.length)
-        const index = stonesCount.indexOf(Math.max(...stonesCount))
-
-        return this.players[index]
+    get leadingPlayers(): Players {
+        return leadingPlayers(this.players)
     }
 
     addStoneToPlayer = (tileId: string, edgeFrom: Edge, stoneId: StoneId) => {
@@ -61,6 +59,7 @@ export class PlayersStore {
     }
 
     generatePlayersGateways = () => {
+        this.gateways = {}
         switch (this.players.length) {
             case 2:
                 this.gateways[this.players[0].id] = [

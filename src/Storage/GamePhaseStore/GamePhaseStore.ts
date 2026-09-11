@@ -24,7 +24,6 @@ export class GamePhaseStore {
 
     goToPreGame = () => {
         this.phase = UIPhase.PRE_GAME
-        this.storage.destroy()
     }
 
     goToPlayersSelection = () => {

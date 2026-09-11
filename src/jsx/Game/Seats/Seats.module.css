@@ -154,7 +154,7 @@
 }
 
 :global(.pointy) .score.p-1 {
-    --x: calc(var(--R) * -7.25);
+    --x: calc(var(--R) * -7);
     --y: calc(var(--R) * 3.25);
 }
 
@@ -164,13 +164,14 @@
 }
 
 :global(.pointy) .score.p-2 {
-    --x: calc(var(--R) * 7.25);
+    --x: calc(var(--R) * 7);
     --y: calc(var(--R) * 3.25);
 }
 
 /** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 .stone {
+    pointer-events: none;
     position: absolute;
     top: 0;
     left: 50%;
@@ -185,6 +186,19 @@
     transform: translate(var(--x), var(--y)) translate(-50%, 0);
     width: var(--size);
     height: var(--size);
+}
+
+.pending {
+    visibility: hidden;
+}
+
+.receiving {
+    z-index: 5;
+}
+
+.receiving > div {
+    transition: none;
+    will-change: transform;
 }
 
 .stone > div {
@@ -202,6 +216,16 @@
 :global(.flat) .stone > div[class*="emerald"]::before {
     --s: 0.5;
     transform: rotate(60deg);
+}
+
+:global(.pointy) .stone {
+    --x-shift: 3.4;
+    --x-ad: var(--collection-column);
+    --y: calc(var(--R) * -0.5 + var(--size) * var(--collection-row));
+}
+
+:global(.pointy) .stone > div::before {
+    --s: 0.5;
 }
 
 

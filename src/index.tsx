@@ -14,10 +14,12 @@ import { Drawer } from "./jsx/Layout/Drawer/Drawer"
 import { MenuButton } from "./jsx/Layout/MenuButton/MenuButton"
 
 const store = new Store()
+const uiStore = new UIStore(store.reset)
+if (store.isNewGame) uiStore.gamePhase.goToPreGame()
 
 render(
     <StrictMode>
-        <UIStoreProvider store={new UIStore(store.dispose)}>
+        <UIStoreProvider store={uiStore}>
             <StoreProvider store={store}>
                 <LayoutWrapper>
                     <Indigo />

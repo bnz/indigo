@@ -1,7 +1,7 @@
-import { makeAutoObservable, reaction } from "mobx"
+import { makeAutoObservable, reaction, runInAction } from "mobx"
 import { Layout } from "../../jsx/Game/Hexagons/Layout"
 import { Point } from "../../jsx/Game/Hexagons/Point"
-import { Keys, OrientationType, Player, PlayerMove, Stones, TileName, Tiles, UIPhase, Values } from "../../types"
+import { GemAward, Keys, OrientationType, PlayerId, PlayerMove, RouteTiles, Stones, TileName, Tiles, UIPhase, Values } from "../../types"
 import { debounce } from "../../helpers/debounce"
 import { LocalStorageMgmnt } from "../LocalStorageMgmnt"
 import { PlayersStore } from "../PlayersStore/PlayersStore"
@@ -10,6 +10,12 @@ import { onWindowResize } from "./applyers/onWindowResize"
 import { init } from "./applyers/init"
 import { stones } from "./defaults/stones"
 import { gates } from "./constants/gates"
+import { placementError } from "../../game/rules"
+import { recalc } from "./applyers/recalc"
+import { calcScore } from "../../helpers/calcScore"
+
+export const COLLECTION_ANIMATION_MS = 1100
+export const SCORE_ANIMATION_MS = 2000
 
 export class Store {
 
@@ -29,23 +35,44 @@ export class Store {
 
     hoveredId: string | null = null
 
+    isNewGame = false
+
+    error: "gateBlocked" | "invalidState" | null = null
+
+    saveFailed = false
+
+    animatedStones: Stones | null = null
+
+    collecting = false
+
+    pendingAwards: GemAward[] = []
+
+    scoreChanges: { playerId: PlayerId, from: number, to: number }[] = []
+
+    private animationTimer: number | undefined
+
+    private stopPlayerReaction: (() => void) | undefined
+
     constructor() {
         init(this)
         makeAutoObservable<Store,
             | "ratio"
             | "largeSide"
             | "smallSide"
-            | "storage">(this, { ratio: false, largeSide: false, smallSide: false, storage: false })
+            | "storage"
+            | "animationTimer"
+            | "stopPlayerReaction">(this, { ratio: false, largeSide: false, smallSide: false, storage: false, animationTimer: false, stopPlayerReaction: false })
 
         // if (process.env.NODE_ENV === 'development') {
         //   new __DEV__appendStyles(this.smallSide, this.largeSide, this.ratio, this.tiles)
         // }
 
         this.playerMoveReaction()
-        reaction(() => this._playerMove, this.playerMoveReaction)
+        this.stopPlayerReaction = reaction(() => this._playerMove, this.playerMoveReaction)
     }
 
-    storage = new LocalStorageMgmnt<Keys, Values>("game")
+    // Old saves may already contain invalid moves. Leave them intact in the old "game" key.
+    storage = new LocalStorageMgmnt<Keys, Values>("game-v2")
 
     playersStore: PlayersStore = new PlayersStore(this.storage)
 
@@ -60,15 +87,72 @@ export class Store {
     gameResultsOpen: boolean = true
 
     dispose = (): void => {
-        try {
-            window.removeEventListener("resize", this.debounce)
-            this.storage.destroy()
-            this.playersStore.dispose()
-            init(this)
-        } catch (e) {
-            console.warn("%cTODO", "font-size:50px;", e)
-        }
+        window.removeEventListener("resize", this.debounce)
+        this.stopPlayerReaction?.()
+        this.stopAnimation()
     }
+
+    reset = (): void => {
+        this.stopAnimation()
+        this.playersStore.dispose()
+        this.preSit = false
+        this.hoveredId = null
+        this.error = null
+        this.gameResultsOpen = true
+        init(this)
+        recalc(this)
+    }
+
+    stopAnimation = () => {
+        window.clearTimeout(this.animationTimer)
+        this.animatedStones = null
+        this.collecting = false
+        this.pendingAwards = []
+        this.scoreChanges = []
+    }
+
+    animate = (frames: Stones[], awards: GemAward[] = []) => {
+        this.stopAnimation()
+        if (!frames.length || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return
+        let frame = 0
+        this.pendingAwards = awards
+        this.animatedStones = frames[frame]
+        const advance = () => runInAction(() => {
+            frame++
+            if (frames[frame]) {
+                this.animatedStones = frames[frame]
+                this.animationTimer = window.setTimeout(advance, 250)
+            } else if (this.pendingAwards.length) {
+                this.collecting = true
+                this.animatedStones = { ...this.stones }
+                // Keep invisible gateway gems mounted so the view can measure the flight origins.
+                for (const { stoneId } of this.pendingAwards) {
+                    this.animatedStones[stoneId] = [...this.stones[stoneId]]
+                    this.animatedStones[stoneId][4] = false
+                }
+                this.animationTimer = window.setTimeout(() => runInAction(() => {
+                    this.scoreChanges = this.playersStore.players
+                        .filter(player => this.pendingAwards.some(award => award.playerId === player.id))
+                        .map(player => ({
+                            playerId: player.id,
+                            from: calcScore(this.visiblePlayerStones(player.id)),
+                            to: calcScore(player.stones),
+                        }))
+                    this.collecting = false
+                    this.pendingAwards = []
+                    this.animatedStones = this.stones
+                    this.animationTimer = window.setTimeout(this.stopAnimation, SCORE_ANIMATION_MS)
+                }), COLLECTION_ANIMATION_MS)
+            } else {
+                this.stopAnimation()
+            }
+        })
+        this.animationTimer = window.setTimeout(advance, 250)
+    }
+
+    visiblePlayerStones = (playerId: PlayerId) => this.playersStore.players.find(player => player.id === playerId)!.stones.filter(
+        stoneId => !this.pendingAwards.some(award => award.playerId === playerId && award.stoneId === stoneId),
+    )
 
     private _playerMove: PlayerMove = [this.playersStore.players[0].id]
 
@@ -79,6 +163,7 @@ export class Store {
     set playerMove(move: PlayerMove) {
         this._playerMove = move
         this.storage.set("player-move", this.playerMove)
+        this.saveFailed = this.storage.failed
     }
 
     playerMoveReaction = () => {
@@ -109,9 +194,12 @@ export class Store {
     }
 
     set arenaElement(el) {
+        window.removeEventListener("resize", this.debounce)
         this._arenaElement = el
-        onWindowResize(this)()
-        window.addEventListener("resize", this.debounce, false)
+        if (el) {
+            onWindowResize(this)()
+            window.addEventListener("resize", this.debounce, false)
+        }
     }
 
     get elSizes() {
@@ -145,18 +233,44 @@ export class Store {
         return this.orientation.start_angle === 0.5
     }
 
+    get boardTop() {
+        return Math.max(0, (this.height - this.R * (this.isPointy ? this.largeSide : this.smallSide) * 2) / 2)
+    }
+
     get isRouteCrossroad() {
-        return this.playerMove[1] === "c"
+        return this.currentTileName === "c"
     }
 
     get gates(): Record<number, number> {
         return gates[this.playersStore.players.length]
     }
 
-    get winner(): Player | null {
-        if (Object.values(this.stones).filter(([, , , , isOut]) => !isOut).length) {
-            return null
-        }
-        return this.playersStore.leadingPlayer
+    get finished() {
+        return Object.values(this.stones).every(([, , , , out]) => out)
+    }
+
+    get winners() {
+        return this.finished ? this.playersStore.leadingPlayers : []
+    }
+
+    get canPlay() {
+        return !this.finished && this.animatedStones === null && this.currentTileName !== undefined
+    }
+
+    get currentTileName() {
+        const [, name] = this.playerMove
+        return name
+    }
+
+    get currentRoute(): RouteTiles | undefined {
+        const [, name, angle, , nextAngle] = this.playerMove
+        if (!name) return undefined
+        return name === "c" ? RouteTiles.c : RouteTiles[`${name}-${nextAngle ?? angle ?? 0}` as keyof typeof RouteTiles]
+    }
+
+    get placementError() {
+        return this.hoveredId !== null && this.currentRoute !== undefined
+            ? placementError(this.tiles, this.hoveredId, this.currentRoute)
+            : null
     }
 }

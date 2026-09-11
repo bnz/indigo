@@ -5,12 +5,13 @@ import { getPlayerMoveTile } from "./playerMoveTile"
 import { Store } from "../Store"
 
 export const tileHoveredCSS = (store: Store): CSSProperties => {
-    const playerMove = store.playerMove
+    const [, name, , rotation] = store.playerMove
+    if (!name) return {}
 
     return {
         ...cssBgUrl([svg, "#", getPlayerMoveTile(store)].join("")),
-        ...(playerMove.length >= 4 && playerMove[3] !== undefined ? {
-            transform: `rotate(${playerMove[3]}deg)`,
+        ...(rotation !== undefined ? {
+            transform: `rotate(${rotation}deg)`,
         } : {}),
         // transitionProperty: "transform",
         // transitionDuration: "calc(var(--duration) * 5)",

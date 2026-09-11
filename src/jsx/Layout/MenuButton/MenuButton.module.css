@@ -21,15 +21,6 @@
     background-color: transparent;
 }
 
-@media (max-width: 599px) {
-    .root {
-        top: auto;
-        left: auto;
-        bottom: var(--margin);
-        right: var(--margin);
-    }
-}
-
 .openMenu {
     composes: root;
     background-image: var(--menu-button-open);

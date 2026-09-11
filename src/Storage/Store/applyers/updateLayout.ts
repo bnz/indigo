@@ -10,7 +10,7 @@ export const updateLayout = (store: Store): void => {
             new Point(store.R, store.R),
             new Point(
                 store.width / 2,
-                store.R * (store.isPointy ? store.largeSide : store.smallSide),
+                store.R * (store.isPointy ? store.largeSide : store.smallSide) + store.boardTop,
             ),
         )
     })

@@ -33,6 +33,11 @@ export interface Player {
 
 export type Players = Player[]
 
+export interface GemAward {
+    playerId: PlayerId
+    stoneId: StoneId
+}
+
 type Dictionary<K extends string, T> = { [P in K]?: T }
 
 export type PlayersGateways = Dictionary<PlayerId, [tileID: string, edge: Edge][]>
