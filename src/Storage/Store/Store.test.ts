@@ -48,6 +48,16 @@ test.each([
     expect(store.playerMove[0]).toBe(next)
 })
 
+test("player names are normalized, persisted, and can return to their color fallback", () => {
+    const store = createStore()
+    store.playersStore.setPlayerName(PlayerId.Player1, "  Ada   Lovelace  ")
+    expect(store.playersStore.players[0].name).toBe("Ada Lovelace")
+    const restored = createStore()
+    expect(restored.playersStore.players[0].name).toBe("Ada Lovelace")
+    restored.playersStore.setPlayerName(PlayerId.Player1, "")
+    expect(restored.playersStore.players[0].name).toBeUndefined()
+})
+
 test("a collision holds the impact frame before removing both gems", () => {
     const store = createStore()
     runInAction(() => {

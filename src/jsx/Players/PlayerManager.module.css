@@ -5,6 +5,42 @@
     grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
+.player {
+    min-width: 0;
+    display: grid;
+    gap: calc(var(--spacing) * .75);
+    align-content: start;
+}
+
+.player > button {
+    width: 100%;
+}
+
+.player > button[class*="add"] {
+    aspect-ratio: 1;
+}
+
+.name {
+    width: 100%;
+    min-width: 0;
+    padding: calc(var(--spacing) * .75) var(--spacing);
+    border: 1px solid var(--main-background-hover);
+    border-radius: var(--border-radius);
+    background: var(--main-background-color);
+    color: var(--main-text-color);
+    text-align: center;
+    font: inherit;
+}
+
+.name:focus-visible {
+    outline: 3px solid var(--sphere-p-2-color);
+    outline-offset: 2px;
+}
+
+.nameSpacer {
+    height: calc(1em + var(--spacing) * 1.5 + 2px);
+}
+
 .playersWrapper >:last-child {
     /*plus-light*/
 }

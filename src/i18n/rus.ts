@@ -48,5 +48,6 @@ export const rus: LanguageMap = {
     "player.p-2": "Бирюзовый",
     "player.p-3": "Коралловый",
     "player.p-4": "Белый",
+    "player.name": "Имя",
 
 }

@@ -46,3 +46,4 @@ export type i18nKeys =
     | "player.p-2"
     | "player.p-3"
     | "player.p-4"
+    | "player.name"

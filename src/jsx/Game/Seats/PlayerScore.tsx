@@ -5,7 +5,7 @@ import { PlayerId } from "../../../types"
 import { useStore } from "../../../Storage/Store/StoreProvider"
 import { SCORE_ANIMATION_MS } from "../../../Storage/Store/Store"
 import { calcScore } from "../../../helpers/calcScore"
-import { i18n } from "../../../i18n/i18n"
+import { playerName } from "../../../helpers/playerName"
 import seatsStyles from "./Seats.module.css"
 import styles from "./PlayerScore.module.css"
 
@@ -53,7 +53,7 @@ export const PlayerScore: FC<{ playerId: PlayerId, playerClass: string }> = obse
             data-player-score={playerId}
             data-score-changing={!!change || undefined}
             role="status"
-            aria-label={`${i18n(`player.${playerId}`)}: ${score}`}
+            aria-label={`${playerName(store.playersStore.players.find(player => player.id === playerId)!)}: ${score}`}
         >
             <div ref={bubbleRef} className={styles.bubble} aria-hidden="true">
                 {change && <span ref={previousRef} className={cx(styles.number, styles.previous)}>{change.from}</span>}

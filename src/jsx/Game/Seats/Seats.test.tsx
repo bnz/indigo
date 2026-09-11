@@ -57,3 +57,15 @@ test("renders a visible collision effect at the resolved impact", () => {
     )
     expect(screen.getByTestId("collision-effect").getAttribute("data-collision")).toBe("a0,a1")
 })
+
+test("shows configured names in the active turn and score summary", () => {
+    localStorage.clear()
+    const store = new Store()
+    store.playersStore.setPlayerName(PlayerId.Player1, "Ada")
+    render(
+        <StoreProvider store={store}>
+            <TileActions />
+        </StoreProvider>,
+    )
+    expect(screen.getAllByText(/Ada/).length).toBeGreaterThan(0)
+})

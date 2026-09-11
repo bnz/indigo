@@ -76,6 +76,15 @@ export class PlayersStore {
         this.storage.set(PlayersStore.storageKey, this.players)
     }
 
+    setPlayerName = (playerId: PlayerId, name: string) => {
+        const player = this.players.find(({ id }) => id === playerId)
+        if (!player) return
+        const trimmed = name.trim().replace(/\s+/g, " ").slice(0, 24)
+        if (trimmed) player.name = trimmed
+        else delete player.name
+        this.storage.set(PlayersStore.storageKey, this.players)
+    }
+
     setPlayerCount = (count: PlayerCount) => {
         this.players = Array.from({ length: count }, (_, index) => playerInitData(index + 1))
         this.generatePlayersGateways()

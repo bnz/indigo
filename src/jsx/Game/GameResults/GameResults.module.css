@@ -65,7 +65,7 @@
     display: grid;
     grid-template-columns: calc(3 * var(--R)) 1fr;
     gap: 0 calc(var(--spacing) * 3);
-    grid-template-areas: "sphere score" "sphere stones";
+    grid-template-areas: "sphere name" "sphere score" "sphere stones";
     width: var(--width);
     margin: 0 auto 24px;
 }
@@ -112,17 +112,33 @@
     gap: calc(var(--spacing) * 2);
 }
 
+.name {
+    grid-area: name;
+    margin: 0;
+    align-self: end;
+    font-size: calc(var(--R) * .38);
+}
+
 .othersWrap > div {
     min-height: calc(var(--R) * 4);
     display: grid;
     align-content: flex-start;
     gap: 0 var(--spacing);
-    grid-template-areas: "otherSphere otherScore" "otherSphere otherStones";
+    grid-template-areas: "otherSphere otherName" "otherSphere otherScore" "otherSphere otherStones";
 }
 
 .otherSphere {
     width: var(--R);
     grid-area: otherSphere;
+}
+
+.otherName {
+    grid-area: otherName;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: calc(var(--R) * .22);
 }
 
 .otherScore {

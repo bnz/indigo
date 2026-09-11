@@ -8,6 +8,7 @@ import { rotateLeft, rotateRight } from "../../../Storage/Store/applyers/rotate"
 import { tileHoveredCSS } from "../../../Storage/Store/applyers/tileHoveredCSS"
 import { calcScore } from "../../../helpers/calcScore"
 import { i18n } from "../../../i18n/i18n"
+import { playerName } from "../../../helpers/playerName"
 import styles from "./TileActions.module.css"
 
 export const TileActions: FC = observer(() => {
@@ -15,19 +16,20 @@ export const TileActions: FC = observer(() => {
     const error = store.error ?? (store.placementError === "gateBlocked" ? "gateBlocked" : null)
     const moving = store.animatedStones !== null
     const movementLabel = store.scoreChanges.length ? "game.scoring" : store.collecting ? "game.collecting" : "game.moving"
+    const currentPlayer = store.playersStore.players.find(player => player.id === store.playerMove[0])
 
     return (
         <section className={styles.root} aria-label={i18n("game.controls")}>
             <div className={styles.summary}>
                 <div>
                     <strong role="status">
-                        {moving ? i18n(movementLabel) : store.finished ? i18n("result.text.h1") : `${i18n("game.turn")}: ${i18n(`player.${store.playerMove[0]}`)}`}
+                        {moving ? i18n(movementLabel) : store.finished ? i18n("result.text.h1") : `${i18n("game.turn")}: ${currentPlayer ? playerName(currentPlayer) : ""}`}
                     </strong>
                     <div className={styles.scores}>
                         {store.playersStore.players.map(player => (
                             <span key={player.id}>
                                 <i style={{ backgroundColor: `var(--sphere-${player.id}-color)` }} />
-                                {i18n(`player.${player.id}`)}: {calcScore(store.visiblePlayerStones(player.id))}
+                                {playerName(player)}: {calcScore(store.visiblePlayerStones(player.id))}
                             </span>
                         ))}
                     </div>

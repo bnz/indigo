@@ -48,4 +48,5 @@ export const eng: LanguageMap = {
     "player.p-2": "Turquoise",
     "player.p-3": "Coral",
     "player.p-4": "White",
+    "player.name": "Name",
 }

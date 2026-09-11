@@ -18,8 +18,8 @@ and open the host computer's address on port 9876.
 ## Stage 1
 
 - Two to four people take turns on one device. Three-player games have two shared gateways per player; four-player games use shared gateways throughout.
-- Click or tap an empty cell, rotate the tile, then confirm with **Place tile**.
-- Arrow keys rotate, Enter places, Escape cancels selection, and R changes board orientation.
+- Click or tap an empty cell, rotate the tile, then confirm with **Place tile**. On desktop, double-clicking a selected cell also places the tile.
+- Arrow keys or the mouse wheel rotate, Enter places, Escape cancels selection, and R changes board orientation.
 - The engine resolves a complete turn before animation starts. Input is locked during animation.
 - Emeralds leave the center first, the sapphire leaves last, and colliding gems are removed.
 - Gate-to-gate paths are rejected. Scores and tie-breakers determine all winners.

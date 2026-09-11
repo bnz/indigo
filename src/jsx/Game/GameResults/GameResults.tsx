@@ -8,6 +8,7 @@ import { calcScore } from "../../../helpers/calcScore"
 import styles from "./GameResults.module.css"
 import seatsStyles from "../Seats/Seats.module.css"
 import { i18n } from "../../../i18n/i18n"
+import { playerName } from "../../../helpers/playerName"
 import { Dialog } from "../../Components/Dialog/Dialog"
 import buttonStyles from "../../Components/Button/Button.module.css"
 import { RestartGame } from "../../Layout/Drawer/RestartGame/RestartGame"
@@ -32,6 +33,7 @@ export const GameResults: FC = observer(() => {
                     <div className={styles.sphereWrap}>
                         <Sphere color={player.id} />
                     </div>
+                    <h3 className={styles.name}>{playerName(player)}</h3>
                     <div className={cx(seatsStyles.score, styles.score)}>
                         {calcScore(player.stones)}
                     </div>
@@ -54,16 +56,17 @@ export const GameResults: FC = observer(() => {
                 </div>
 
                 <div className={styles.othersWrap}>
-                    {store.playersStore.players.filter(({ id }) => !winners.some(player => player.id === id)).map(({ id, stones }) => (
-                        <div key={id}>
+                    {store.playersStore.players.filter(({ id }) => !winners.some(player => player.id === id)).map(player => (
+                        <div key={player.id}>
                             <div className={styles.otherSphere}>
-                                <Sphere color={id} />
+                                <Sphere color={player.id} />
                             </div>
+                            <h3 className={styles.otherName}>{playerName(player)}</h3>
                             <div className={cx(seatsStyles.score, styles.score, styles.otherScore)}>
-                                {calcScore(stones)}
+                                {calcScore(player.stones)}
                             </div>
                             <div className={styles.otherStones}>
-                                {stones.map((stone) => (
+                                {player.stones.map((stone) => (
                                     <StoneC key={stone} id={stone} className={cx(styles.stone, styles.stoneAlt)} />
                                 ))}
                             </div>

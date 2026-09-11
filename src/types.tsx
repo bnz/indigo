@@ -29,6 +29,7 @@ export enum PlayerId {
 export interface Player {
     id: PlayerId
     stones: StoneId[]
+    name?: string
 }
 
 export type Players = Player[]
