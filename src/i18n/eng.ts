@@ -10,6 +10,7 @@ export const eng: LanguageMap = {
     "button.cancel": "Cancel",
     "button.startGame": "Start game",
     "button.addPlayer": "Add player",
+    "button.removePlayer": "Remove player",
     "button.restart": "Restart",
     "button.rotate": "Rotate",
     "button.light": "Light",
@@ -25,7 +26,7 @@ export const eng: LanguageMap = {
     "result.text.h1": "Game is finished!",
     winner: "Winner",
     winners: "Shared victory",
-    "game.stageOne": "Stage 1: two players taking turns on one device. Three- and four-player games will follow in the next stage.",
+    "game.stageOne": "Add up to four players for a local game on one device.",
     "game.controls": "Turn controls",
     "game.turn": "Turn",
     "game.moving": "Gems are moving",
@@ -45,4 +46,6 @@ export const eng: LanguageMap = {
     "game.results": "Results",
     "player.p-1": "Purple",
     "player.p-2": "Turquoise",
+    "player.p-3": "Coral",
+    "player.p-4": "White",
 }

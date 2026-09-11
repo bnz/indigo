@@ -49,3 +49,36 @@
 .amber::before {
     background-image: url("assets/amber.svg");
 }
+
+.colliding {
+    z-index: 6;
+}
+
+.colliding::before {
+    animation: gem-impact 900ms cubic-bezier(.2, .7, .2, 1) both;
+}
+
+@keyframes gem-impact {
+    0%, 12% {
+        filter: brightness(1) drop-shadow(0 0 0 transparent);
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+
+    28% {
+        filter: brightness(2.8) drop-shadow(0 0 calc(var(--R) * .35) #fff);
+        transform: scale(1.8) rotate(45deg);
+    }
+
+    58% {
+        filter: brightness(2) drop-shadow(0 0 calc(var(--R) * .65) #ffb300);
+        opacity: .9;
+        transform: scale(.35) rotate(190deg);
+    }
+
+    100% {
+        filter: brightness(1) drop-shadow(0 0 0 transparent);
+        opacity: 0;
+        transform: scale(0) rotate(300deg);
+    }
+}

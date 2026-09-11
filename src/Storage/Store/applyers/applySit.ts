@@ -30,7 +30,7 @@ export const applySit = (store: Store) => () => {
             store.hoveredId = null
             store.gameResultsOpen = true
             store.error = null
-            store.animate(result.frames, result.awards)
+            store.animate(result.frames, result.awards, result.collisions)
         }))
         runInAction(() => { store.saveFailed = store.storage.failed })
     } catch (error) {

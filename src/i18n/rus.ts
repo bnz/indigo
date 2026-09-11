@@ -10,6 +10,7 @@ export const rus: LanguageMap = {
     "button.startGame": "Начать игру",
     "button.cancel": "Отмена",
     "button.addPlayer": "Добавить игрока",
+    "button.removePlayer": "Удалить игрока",
     "button.restart": "Начать заново",
     "button.rotate": "Повернуть",
     "button.light": "Светлая",
@@ -25,7 +26,7 @@ export const rus: LanguageMap = {
     "result.text.h1": "Игра окончена!",
     winner: "Победитель",
     winners: "Общая победа",
-    "game.stageOne": "Этап 1: партия на двоих на одном устройстве. Ходите по очереди. Режим на 3–4 игроков добавим следующим этапом.",
+    "game.stageOne": "Добавьте до четырёх игроков для локальной партии на одном устройстве.",
     "game.controls": "Управление ходом",
     "game.turn": "Ход",
     "game.moving": "Камни движутся",
@@ -45,5 +46,7 @@ export const rus: LanguageMap = {
     "game.results": "Результаты",
     "player.p-1": "Фиолетовый",
     "player.p-2": "Бирюзовый",
+    "player.p-3": "Коралловый",
+    "player.p-4": "Белый",
 
 }

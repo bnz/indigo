@@ -8,6 +8,7 @@ export type i18nKeys =
     | "button.cancel"
     | "button.startGame"
     | "button.addPlayer"
+    | "button.removePlayer"
     | "button.restart"
     | "button.rotate"
     | "button.light"
@@ -43,3 +44,5 @@ export type i18nKeys =
     | "game.results"
     | "player.p-1"
     | "player.p-2"
+    | "player.p-3"
+    | "player.p-4"

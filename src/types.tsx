@@ -38,6 +38,12 @@ export interface GemAward {
     stoneId: StoneId
 }
 
+export interface GemCollision {
+    stoneIds: [StoneId, StoneId]
+    q: number
+    r: number
+}
+
 type Dictionary<K extends string, T> = { [P in K]?: T }
 
 export type PlayersGateways = Dictionary<PlayerId, [tileID: string, edge: Edge][]>

@@ -168,6 +168,26 @@
     --y: calc(var(--R) * 3.25);
 }
 
+:global(.flat) .score.p-3 {
+    --x: calc(var(--R) * 5.4);
+    --y: calc(var(--R) * 15.4);
+}
+
+:global(.pointy) .score.p-3 {
+    --x: calc(var(--R) * 7);
+    --y: calc(var(--R) * 17.25);
+}
+
+:global(.flat) .score.p-4 {
+    --x: calc(var(--R) * -5.4);
+    --y: calc(var(--R) * 15.4);
+}
+
+:global(.pointy) .score.p-4 {
+    --x: calc(var(--R) * -7);
+    --y: calc(var(--R) * 17.25);
+}
+
 /** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 .stone {
@@ -235,6 +255,20 @@
 
 .stone.p-2 {
 
+}
+
+.stone.p-3 {
+    --y: calc(var(--R) * 15 + var(--size) * var(--y-ad));
+}
+
+.stone.p-4 {
+    --x-reverse: -1;
+    --y: calc(var(--R) * 15 + var(--size) * var(--y-ad));
+}
+
+:global(.pointy) .stone.p-3,
+:global(.pointy) .stone.p-4 {
+    --y: calc(var(--R) * 13.5 + var(--size) * var(--collection-row));
 }
 
 :global(.flat) .stone.s-1 {

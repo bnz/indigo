@@ -3,9 +3,10 @@ import { runInAction } from "mobx"
 import { COLLECTION_ANIMATION_MS, SCORE_ANIMATION_MS, Store } from "../../../Storage/Store/Store"
 import { StoreProvider } from "../../../Storage/Store/StoreProvider"
 import { applySit } from "../../../Storage/Store/applyers/applySit"
-import { PlayerId, StoneType } from "../../../types"
+import { PlayerId, StoneId, StoneType } from "../../../types"
 import { Seats } from "./Seats"
 import { TileActions } from "../TileActions/TileActions"
+import { CollisionEffects } from "../Stones/CollisionEffects"
 
 afterEach(() => {
     cleanup()
@@ -41,4 +42,18 @@ test("the last move and all award animations render without reading beyond the m
     act(() => { jest.advanceTimersByTime(SCORE_ANIMATION_MS) })
     expect(store.animatedStones).toBeNull()
     expect(warnings).not.toHaveBeenCalled()
+})
+
+test("renders a visible collision effect at the resolved impact", () => {
+    localStorage.clear()
+    const store = new Store()
+    runInAction(() => {
+        store.collisions = [{ stoneIds: [StoneId.amber0, StoneId.amber1], q: -2, r: 1 }]
+    })
+    render(
+        <StoreProvider store={store}>
+            <CollisionEffects />
+        </StoreProvider>,
+    )
+    expect(screen.getByTestId("collision-effect").getAttribute("data-collision")).toBe("a0,a1")
 })

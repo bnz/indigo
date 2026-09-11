@@ -1,4 +1,4 @@
-import { Edge, GemAward, HexType, PlayerId, Players, PlayersGateways, RouteTiles, Stone, StoneId, Stones, StoneType, Tiles, TreasureTiles } from "../types"
+import { Edge, GemAward, GemCollision, HexType, PlayerId, Players, PlayersGateways, RouteTiles, Stone, StoneId, Stones, StoneType, Tiles, TreasureTiles } from "../types"
 import { routeTileIdToEdgeMap } from "../Storage/Store/maps/routeTileIdToEdgeMap"
 import { treasureTileIdToEdgeMap } from "../Storage/Store/maps/treasureTileIdToEdgeMap"
 import { toHex } from "../Storage/Store/applyers/toHex"
@@ -26,7 +26,8 @@ export const resolveMove = (tiles: Tiles, stones: Stones, id: string, route: Rou
     const board = { ...tiles, [id]: { ...tiles[id], tile: route } }
     const origins: Partial<Record<StoneId, Stone>> = {}
     const paths: Partial<Record<StoneId, Stone[]>> = {}
-    const collisions = new Set<StoneId>()
+    const collidedStones = new Set<StoneId>()
+    const collisionPairs = new Map<string, [StoneId, StoneId]>()
     const awards: GemAward[] = []
     const result = Object.fromEntries(Object.entries(stones).map(([key, stone]) => [key, [...stone]])) as Stones
     const ids = Object.keys(stones) as StoneId[]
@@ -65,8 +66,10 @@ export const resolveMove = (tiles: Tiles, stones: Stones, id: string, route: Rou
             })
             if (other) {
                 path.push([type, neighbor.hex.q, neighbor.hex.r, entry])
-                collisions.add(key)
-                collisions.add(other)
+                collidedStones.add(key)
+                collidedStones.add(other)
+                const stoneIds = [key, other].sort() as [StoneId, StoneId]
+                collisionPairs.set(stoneIds.join(":"), stoneIds)
                 break
             }
             if (neighbor.type === HexType.gateway) {
@@ -95,13 +98,18 @@ export const resolveMove = (tiles: Tiles, stones: Stones, id: string, route: Rou
         }
     }
 
-    for (const key of Array.from(collisions)) {
+    for (const key of Array.from(collidedStones)) {
         // Both gems disappear near their meeting point, not at each other's starting positions.
         paths[key] = paths[key]!.slice(0, Math.ceil((paths[key]!.length + 1) / 2))
         const last = paths[key]![paths[key]!.length - 1]
         result[key] = [...last]
         result[key][4] = true
     }
+    const collisions: GemCollision[] = Array.from(collisionPairs.values()).map(stoneIds => {
+        const path = paths[stoneIds[0]]!
+        const [, q, r] = path[path.length - 1]
+        return { stoneIds, q, r }
+    })
     const frames: Stones[] = []
     const length = Math.max(0, ...Object.values(paths).map(path => path!.length))
     for (let step = 0; step < length; step++) {
@@ -112,5 +120,5 @@ export const resolveMove = (tiles: Tiles, stones: Stones, id: string, route: Rou
         }
         frames.push(frame)
     }
-    return { stones: result, awards, frames }
+    return { stones: result, awards, collisions, frames }
 }

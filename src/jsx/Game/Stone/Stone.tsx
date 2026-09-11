@@ -50,7 +50,9 @@ export const Stone: FC<StoneProps> = observer(({ id, isStatic }) => {
     }
 
     return (
-        <StoneC id={id} board={!isStatic} style={{
+        <StoneC id={id} board={!isStatic} className={cx({
+            [styles.colliding]: !isStatic && store.collisions.some(collision => collision.stoneIds.includes(id)),
+        })} style={{
             ...style,
             ...(!isStatic && store.collecting && store.pendingAwards.some(award => award.stoneId === id)
                 ? { visibility: "hidden", transition: "none" } : {}),

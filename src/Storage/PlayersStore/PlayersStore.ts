@@ -2,12 +2,30 @@ import { makeAutoObservable } from "mobx"
 import { iLocalStorageMgmnt } from "../LocalStorageMgmnt"
 import { Edge, Keys, PlayerId, Players, PlayersGateways, StoneId, Values } from "../../types"
 import { leadingPlayers } from "../../game/rules"
-import { generateFirstTwoPlayers } from "./applyers/generateFirstTwoPlayers"
+import { generateFirstTwoPlayers, playerInitData } from "./applyers/generateFirstTwoPlayers"
 
 import purple from "../../jsx/Game/Sphere/assets/purple.svg"
 import turquoise from "../../jsx/Game/Sphere/assets/turquoise.svg"
 import coral from "../../jsx/Game/Sphere/assets/coral.svg"
 import white from "../../jsx/Game/Sphere/assets/white.svg"
+
+type PlayerCount = 2 | 3 | 4
+
+const gatewayExits: [string, Edge][][] = [
+    [["-4,-1", 0], ["-3,-2", 0], ["-3,-2", 5], ["-2,-3", 5], ["-2,-3", 0], ["-1,-4", 5]],
+    [["1,-5", 5], ["2,-5", 4], ["2,-5", 5], ["3,-5", 4], ["3,-5", 5], ["4,-5", 4]],
+    [["5,-4", 4], ["5,-3", 3], ["5,-3", 4], ["5,-2", 3], ["5,-2", 4], ["5,-1", 3]],
+    [["4,1", 3], ["3,2", 2], ["3,2", 3], ["2,3", 2], ["2,3", 3], ["1,4", 2]],
+    [["-1,5", 2], ["-2,5", 1], ["-2,5", 2], ["-3,5", 1], ["-3,5", 2], ["-4,5", 1]],
+    [["-5,4", 1], ["-5,3", 0], ["-5,3", 1], ["-5,2", 0], ["-5,2", 1], ["-5,1", 0]],
+]
+
+// Each row is one physical gateway and lists the player slots sharing it.
+const gatewayOwnerSlots: Record<PlayerCount, number[][]> = {
+    2: [[0], [1], [0], [1], [0], [1]],
+    3: [[0], [0, 1], [2], [2, 0], [1], [1, 2]],
+    4: [[0, 1], [1, 2], [0, 3], [3, 1], [2, 0], [2, 3]],
+}
 
 const playerIdToSVGMap: Record<PlayerId, string> = {
     [PlayerId.Player1]: purple,
@@ -22,7 +40,7 @@ export class PlayersStore {
 
     static storageKey: Keys = "players"
 
-    static maxPlayersCount = 2
+    static maxPlayersCount = 4
 
     players: Players = []
 
@@ -58,62 +76,21 @@ export class PlayersStore {
         this.storage.set(PlayersStore.storageKey, this.players)
     }
 
+    setPlayerCount = (count: PlayerCount) => {
+        this.players = Array.from({ length: count }, (_, index) => playerInitData(index + 1))
+        this.generatePlayersGateways()
+        this.storage.set(PlayersStore.storageKey, this.players)
+    }
+
     generatePlayersGateways = () => {
-        this.gateways = {}
-        switch (this.players.length) {
-            case 2:
-                this.gateways[this.players[0].id] = [
-                    ["-4,-1", 0],
-                    ["-3,-2", 0],
-                    ["-3,-2", 5],
-                    ["-2,-3", 5],
-                    ["-2,-3", 0],
-                    ["-1,-4", 5],
-
-                    ["5,-4", 4],
-                    ["5,-3", 3],
-                    ["5,-3", 4],
-                    ["5,-2", 3],
-                    ["5,-2", 4],
-                    ["5,-1", 3],
-
-                    ["-1,5", 2],
-                    ["-2,5", 1],
-                    ["-2,5", 2],
-                    ["-3,5", 1],
-                    ["-3,5", 2],
-                    ["-4,5", 1],
-                ]
-
-                this.gateways[this.players[1].id] = [
-                    ["1,-5", 5],
-                    ["2,-5", 4],
-                    ["2,-5", 5],
-                    ["3,-5", 4],
-                    ["3,-5", 5],
-                    ["4,-5", 4],
-
-                    ["4,1", 3],
-                    ["3,2", 2],
-                    ["3,2", 3],
-                    ["2,3", 2],
-                    ["2,3", 3],
-                    ["1,4", 2],
-
-                    ["-5,4", 1],
-                    ["-5,3", 0],
-                    ["-5,3", 1],
-                    ["-5,2", 0],
-                    ["-5,2", 1],
-                    ["-5,1", 0],
-                ]
-                this.storage.set("players-gateways", this.gateways)
-                break
-            case 3:
-            case 4:
-                console.error("not implemented")
-                break
-        }
+        const count = this.players.length as PlayerCount
+        this.gateways = Object.fromEntries(this.players.map(player => [player.id, []])) as PlayersGateways
+        gatewayOwnerSlots[count]?.forEach((owners, gatewayIndex) => {
+            owners.forEach(playerIndex => {
+                this.gateways[this.players[playerIndex].id]!.push(...gatewayExits[gatewayIndex])
+            })
+        })
+        this.storage.set("players-gateways", this.gateways)
     }
 
     get entries() {

@@ -6,11 +6,12 @@ import { PlayersStore } from "../PlayersStore"
 type RemovePlayerById = (store: PlayersStore) => (playerId: PlayerId) => () => void
 
 export const removePlayerById: RemovePlayerById = (store) => (playerId) => () => {
+    if (store.players.length <= 2) return
     runInAction(() => {
-        store.players.splice(
-            store.players.findIndex(({ id }) => id === playerId),
-            1,
-        )
+        const index = store.players.findIndex(({ id }) => id === playerId)
+        if (index === -1) return
+        store.players.splice(index, 1)
+        store.generatePlayersGateways()
         savePlayers(store)
     })
 }

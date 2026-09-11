@@ -107,13 +107,12 @@
 .othersWrap {
     width: var(--width);
     margin: 0 auto;
-    display: flex;
-    flex-direction: row;
-    gap: 6%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(calc(var(--R) * 2), 1fr));
+    gap: calc(var(--spacing) * 2);
 }
 
 .othersWrap > div {
-    width: 33%;
     min-height: calc(var(--R) * 4);
     display: grid;
     align-content: flex-start;

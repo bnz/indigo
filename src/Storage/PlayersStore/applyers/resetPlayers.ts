@@ -4,5 +4,6 @@ import { savePlayers } from "./savePlayers"
 
 export const resetPlayers = (store: PlayersStore) => {
     store.players = generateFirstTwoPlayers()
+    store.generatePlayersGateways()
     savePlayers(store)
 }

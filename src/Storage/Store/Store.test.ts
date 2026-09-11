@@ -1,6 +1,7 @@
-import { COLLECTION_ANIMATION_MS, SCORE_ANIMATION_MS, Store } from "./Store"
+import { COLLECTION_ANIMATION_MS, COLLISION_ANIMATION_MS, SCORE_ANIMATION_MS, Store } from "./Store"
 import { applySit } from "./applyers/applySit"
 import { rotateLeft } from "./applyers/rotate"
+import { nextMove } from "./applyers/nextMove"
 import { PlayerId, RouteTiles, StoneId, StoneType } from "../../types"
 import { runInAction } from "mobx"
 
@@ -33,6 +34,54 @@ test("a crossroad survives saving and reloading before placement", () => {
     expect(restored.playerMove[0]).toBe(PlayerId.Player2)
     expect(restored.stones.e0[1]).toBe(1)
     expect(restored.stones.s[1]).toBe(0)
+})
+
+test.each([
+    [3, PlayerId.Player2, PlayerId.Player3],
+    [4, PlayerId.Player4, PlayerId.Player1],
+] as const)("a %i-player game advances turns through every selected player", (count, current, next) => {
+    const store = createStore()
+    store.playersStore.setPlayerCount(count)
+    store.playerMove = [current, "c", 0]
+    nextMove(store)
+    expect(store.playersStore.players).toHaveLength(count)
+    expect(store.playerMove[0]).toBe(next)
+})
+
+test("a collision holds the impact frame before removing both gems", () => {
+    const store = createStore()
+    runInAction(() => {
+        store.tiles["-3,1"].tile = RouteTiles.c
+        store.tiles["-1,1"].tile = RouteTiles.c
+        store.stones.a0 = [StoneType.amber, -3, 1, 0]
+        store.stones.a1 = [StoneType.amber, -1, 1, 3]
+        store.playerMove = [PlayerId.Player1, "c", 0]
+        store.hoveredId = "-2,1"
+    })
+    applySit(store)()
+    expect(store.collisions).toEqual([])
+    jest.advanceTimersByTime(250)
+    expect(store.collisions).toEqual([{ stoneIds: [StoneId.amber0, StoneId.amber1], q: -2, r: 1 }])
+    expect(store.animatedStones).not.toBeNull()
+    jest.advanceTimersByTime(COLLISION_ANIMATION_MS)
+    expect(store.collisions).toEqual([])
+    expect(store.animatedStones).toBeNull()
+})
+
+test.each([
+    [3, [PlayerId.Player2, PlayerId.Player3]],
+    [4, [PlayerId.Player3, PlayerId.Player4]],
+] as const)("a shared gateway awards both owners in a %i-player game", (count, expectedOwners) => {
+    const store = createStore()
+    store.playersStore.setPlayerCount(count)
+    runInAction(() => {
+        store.stones.a0 = [StoneType.amber, -3, 1, 3]
+        store.playerMove = [PlayerId.Player1, "c", 0]
+        store.hoveredId = "-4,1"
+    })
+    applySit(store)()
+    expect(store.pendingAwards).toEqual(expectedOwners.map(playerId => ({ playerId, stoneId: StoneId.amber0 })))
+    expect(store.playersStore.players.filter(player => player.stones.includes(StoneId.amber0)).map(player => player.id)).toEqual(expectedOwners)
 })
 
 test("a move saves one complete snapshot and reload during animation resumes its final state", () => {

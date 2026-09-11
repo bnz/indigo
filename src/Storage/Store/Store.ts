@@ -1,7 +1,7 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx"
 import { Layout } from "../../jsx/Game/Hexagons/Layout"
 import { Point } from "../../jsx/Game/Hexagons/Point"
-import { GemAward, Keys, OrientationType, PlayerId, PlayerMove, RouteTiles, Stones, TileName, Tiles, UIPhase, Values } from "../../types"
+import { GemAward, GemCollision, Keys, OrientationType, PlayerId, PlayerMove, RouteTiles, Stones, TileName, Tiles, UIPhase, Values } from "../../types"
 import { debounce } from "../../helpers/debounce"
 import { LocalStorageMgmnt } from "../LocalStorageMgmnt"
 import { PlayersStore } from "../PlayersStore/PlayersStore"
@@ -16,6 +16,7 @@ import { calcScore } from "../../helpers/calcScore"
 
 export const COLLECTION_ANIMATION_MS = 1100
 export const SCORE_ANIMATION_MS = 2000
+export const COLLISION_ANIMATION_MS = 900
 
 export class Store {
 
@@ -46,6 +47,8 @@ export class Store {
     collecting = false
 
     pendingAwards: GemAward[] = []
+
+    collisions: GemCollision[] = []
 
     scoreChanges: { playerId: PlayerId, from: number, to: number }[] = []
 
@@ -108,10 +111,11 @@ export class Store {
         this.animatedStones = null
         this.collecting = false
         this.pendingAwards = []
+        this.collisions = []
         this.scoreChanges = []
     }
 
-    animate = (frames: Stones[], awards: GemAward[] = []) => {
+    animate = (frames: Stones[], awards: GemAward[] = [], collisionEvents: GemCollision[] = []) => {
         this.stopAnimation()
         if (!frames.length || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return
         let frame = 0
@@ -121,7 +125,12 @@ export class Store {
             frame++
             if (frames[frame]) {
                 this.animatedStones = frames[frame]
-                this.animationTimer = window.setTimeout(advance, 250)
+                if (frame === frames.length - 1 && collisionEvents.length) {
+                    this.collisions = collisionEvents
+                    this.animationTimer = window.setTimeout(advance, COLLISION_ANIMATION_MS)
+                } else {
+                    this.animationTimer = window.setTimeout(advance, 250)
+                }
             } else if (this.pendingAwards.length) {
                 this.collecting = true
                 this.animatedStones = { ...this.stones }
@@ -147,7 +156,8 @@ export class Store {
                 this.stopAnimation()
             }
         })
-        this.animationTimer = window.setTimeout(advance, 250)
+        if (frames.length === 1 && collisionEvents.length) this.collisions = collisionEvents
+        this.animationTimer = window.setTimeout(advance, collisionEvents.length && frames.length === 1 ? COLLISION_ANIMATION_MS : 250)
     }
 
     visiblePlayerStones = (playerId: PlayerId) => this.playersStore.players.find(player => player.id === playerId)!.stones.filter(

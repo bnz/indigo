@@ -18,7 +18,11 @@ const board = (): Tiles => ({
 const stones = (empty = false): Stones => Object.fromEntries(
     Object.entries(initialStones).map(([id, stone]) => [id, [stone[0], stone[1], stone[2], stone[3], empty] as Stone]),
 ) as Stones
-const owners = () => new PlayersStore(new LocalStorageMgmnt<Keys, Values>("rules-test")).gateways
+const owners = (count: 2 | 3 | 4 = 2) => {
+    const players = new PlayersStore(new LocalStorageMgmnt<Keys, Values>("rules-test"))
+    players.setPlayerCount(count)
+    return players.gateways
+}
 
 beforeEach(() => localStorage.clear())
 
@@ -58,6 +62,7 @@ test("removes both colliding gems without awarding either and without mutating i
     expect(result.stones.a0[4]).toBe(true)
     expect(result.stones.a1[4]).toBe(true)
     expect(result.awards).toEqual([])
+    expect(result.collisions).toEqual([{ stoneIds: [StoneId.amber0, StoneId.amber1], q: -2, r: 1 }])
     expect(JSON.stringify({ tiles, gems })).toBe(before)
 })
 
@@ -78,6 +83,22 @@ test("awards a gem to the owner of its exit, not the current player", () => {
     expect(result.stones.a0[4]).toBe(true)
 })
 
+test("three and four player games assign every exit and share gateway awards", () => {
+    expect(Object.values(owners(3)).map(exits => exits!.length)).toEqual([18, 18, 18])
+    expect(Object.values(owners(4)).map(exits => exits!.length)).toEqual([18, 18, 18, 18])
+
+    const gems = stones(true)
+    gems.a0 = [StoneType.amber, -3, 1, 3]
+    expect(resolveMove(board(), gems, "-4,1", RouteTiles.c, owners(3)).awards).toEqual([
+        { playerId: PlayerId.Player2, stoneId: StoneId.amber0 },
+        { playerId: PlayerId.Player3, stoneId: StoneId.amber0 },
+    ])
+    expect(resolveMove(board(), gems, "-4,1", RouteTiles.c, owners(4)).awards).toEqual([
+        { playerId: PlayerId.Player3, stoneId: StoneId.amber0 },
+        { playerId: PlayerId.Player4, stoneId: StoneId.amber0 },
+    ])
+})
+
 test("ranks by points, then gem count, and preserves shared victories", () => {
     const players = [{ id: PlayerId.Player1, stones: [StoneId.amber0, StoneId.amber1] }, { id: PlayerId.Player2, stones: [StoneId.sapphire] }]
     expect(leadingPlayers(players).map(player => player.id)).toEqual([PlayerId.Player2])
@@ -88,7 +109,7 @@ test("ranks by points, then gem count, and preserves shared victories", () => {
     expect(leadingPlayers(players)).toEqual(players)
 })
 
-test.each(Array.from({ length: 50 }, (_, i) => i + 1))("a complete legal game terminates without losing or duplicating gems (seed %i)", seed => {
+test.each(([2, 3, 4] as const).flatMap(count => Array.from({ length: 50 }, (_, i) => [count, i + 1] as const)))("a complete legal game terminates without losing gems (players %i, seed %i)", (count, seed) => {
     const random = () => {
         seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
         return seed / 4294967296
@@ -96,6 +117,7 @@ test.each(Array.from({ length: 50 }, (_, i) => i + 1))("a complete legal game te
     const tiles = board()
     let gems = stones()
     const awarded = new Set<StoneId>()
+    const gatewayOwners = owners(count)
     const deck: TileName[] = ["s", "c", "t", "l", "h"].flatMap(name => Array(name === "s" || name === "c" ? 6 : 14).fill(name))
     for (let i = deck.length - 1; i > 0; i--) {
         const j = Math.floor(random() * (i + 1))
@@ -112,11 +134,13 @@ test.each(Array.from({ length: 50 }, (_, i) => i + 1))("a complete legal game te
         }
         expect(options.length).toBeGreaterThan(0)
         const [id, route] = options[Math.floor(random() * options.length)]
-        const result = resolveMove(tiles, gems, id, route, owners())
-        result.awards.forEach(({ stoneId }) => {
+        const result = resolveMove(tiles, gems, id, route, gatewayOwners)
+        const exits = new Set(result.awards.map(({ stoneId }) => stoneId))
+        exits.forEach(stoneId => {
             expect(awarded.has(stoneId)).toBe(false)
             awarded.add(stoneId)
         })
+        expect(new Set(result.awards.map(({ playerId, stoneId }) => `${playerId}:${stoneId}`)).size).toBe(result.awards.length)
         tiles[id].tile = route
         gems = result.stones
         for (const gem of Object.values(gems)) {

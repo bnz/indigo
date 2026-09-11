@@ -15,6 +15,7 @@ export const addPlayer: AddPlayer = (store) => () => {
         const index = diff[0]
         // const index = diff[getRandomInt(0, diff.length - 1)]
         store.players.push(playerInitData(index))
+        store.generatePlayersGateways()
         savePlayers(store)
     })
 }

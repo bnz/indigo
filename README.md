@@ -17,7 +17,7 @@ and open the host computer's address on port 9876.
 
 ## Stage 1
 
-- Two people take turns on one device. Three- and four-player selection is temporarily disabled.
+- Two to four people take turns on one device. Three-player games have two shared gateways per player; four-player games use shared gateways throughout.
 - Click or tap an empty cell, rotate the tile, then confirm with **Place tile**.
 - Arrow keys rotate, Enter places, Escape cancels selection, and R changes board orientation.
 - The engine resolves a complete turn before animation starts. Input is locked during animation.
@@ -40,7 +40,7 @@ npm run build
 ```
 
 Tests cover movement, collisions, center releases, scoring and ties, illegal placements,
-50 seeded complete games, atomic saving, reload during animation, input locking and restart.
+50 seeded complete games for each player count, atomic saving, reload during animation, input locking and restart.
 
 ## Production deployment
 
@@ -52,6 +52,5 @@ The `public/CNAME` file preserves the `indigo.bonez.me` custom domain in every d
 
 ## Next stages
 
-1. Three- and four-player gateway ownership and shared awards, backed by full-game tests.
-2. Local player setup, optional hand privacy, and further mobile/accessibility improvements.
-3. Complete rules localization and tooling updates, without changing verified gameplay.
+1. Local player setup, optional hand privacy, and further mobile/accessibility improvements.
+2. Complete rules localization and tooling updates, without changing verified gameplay.
