@@ -5,7 +5,9 @@ import { getPlayerMoveTile } from "./playerMoveTile"
 import { Store } from "../Store"
 
 export const playerMoveRouteTile = (store: Store): CSSProperties => {
-    const [, name, , rotation] = store.playerMove
+    const { playerMove } = store
+    const name = playerMove.length > 1 ? playerMove[1] : undefined
+    const rotation = playerMove.length > 3 ? playerMove[3] : undefined
     if (name) {
         return {
             ...cssBgUrl([svg, "#", getPlayerMoveTile(store)].join("")),

@@ -4,7 +4,12 @@ import { MouseEvent } from "react"
 import { runInAction } from "mobx"
 
 const rotate = (store: Store) => (rotateBack: boolean): void => {
-    const [playerId, tile, angle = 0, rotateAngle = 0, savedNextAngle] = store.playerMove
+    const { playerMove } = store
+    const playerId = playerMove[0]
+    const tile = playerMove.length > 1 ? playerMove[1] : undefined
+    const angle = playerMove.length > 2 ? playerMove[2] ?? 0 : 0
+    const rotateAngle = playerMove.length > 3 ? playerMove[3] ?? 0 : 0
+    const savedNextAngle = playerMove.length > 4 ? playerMove[4] : undefined
     if (store.canPlay && tile && tile !== "c") {
         const angles = tileNameToAngle[tile]
         const direction = rotateBack ? -1 : 1

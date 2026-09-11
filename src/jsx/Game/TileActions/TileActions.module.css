@@ -1,91 +1,156 @@
 .root {
-    flex: none;
-    width: min(640px, calc(100% - 24px));
-    margin: 0 auto max(12px, env(safe-area-inset-bottom));
-    padding: 12px 16px;
-    border-radius: 12px;
-    background: var(--main-background-color);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    position: absolute;
+    z-index: 6;
+    top: var(--board-top);
+    left: 50%;
+    --S: calc(var(--R) * 2.5);
+    --x: calc(var(--S) * 0.5);
+    --X: calc(var(--x) * -1);
+    --Y: var(--S);
+    --y-margin: 0.1;
+    --button-size: 80px;
+    --panel-padding: 8px;
+    --panel-gap: 8px;
+    --panel-height: calc(var(--button-size) + calc(var(--panel-padding) * 2));
+    --panel-x: calc(var(--X) + calc(var(--S) * .5));
+    --panel-y: calc(var(--Y) + calc(var(--S) * .5));
+    --panel-anchor-x: -50%;
+    transform: translate(var(--panel-x), var(--panel-y)) translate(var(--panel-anchor-x), -50%);
+    transition: transform 220ms cubic-bezier(.2, .8, .2, 1);
+    padding: var(--panel-padding);
+    border-radius: calc(var(--panel-height) * .5);
+    background: color-mix(in srgb, var(--main-background-color) 42%, transparent);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, .38), 0 3px 10px rgba(0, 0, 0, .28);
+    backdrop-filter: blur(8px);
 }
 
-.summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
+:global(.flat) .root.p-1 {
+    --X: calc(var(--x) * -7);
+    --Y: calc(var(--S) * var(--y-margin));
 }
 
-.summary strong {
-    font-size: 18px;
+:global(.pointy) .root.p-1 {
+    --X: calc(var(--x) * -6);
+    --Y: calc(var(--S) * var(--y-margin));
 }
 
-.scores {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 16px;
-    font-size: 13px;
+:global(.flat) .root.p-2 {
+    --X: calc(var(--x) * 5);
+    --Y: calc(var(--S) * var(--y-margin));
 }
 
-.scores i {
-    display: inline-block;
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    margin-right: 5px;
+:global(.pointy) .root.p-2 {
+    --X: calc(var(--x) * 4);
+    --Y: calc(var(--S) * var(--y-margin));
 }
 
-.preview {
-    flex: none;
-    width: 64px;
-    height: 56px;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
+:global(.flat) .root.p-3 {
+    --X: calc(var(--x) * 5);
+    --Y: calc(var(--S) * (5 + var(--y-margin)));
 }
 
-.hint {
-    font-size: 13px;
-    min-height: 2.6em;
-    line-height: 1.3;
-    margin: 8px 0;
+:global(.pointy) .root.p-3 {
+    --X: calc(var(--x) * 4);
+    --Y: calc(var(--S) * 6);
 }
 
-.hint[role="alert"] {
-    color: #c51162;
+:global(.flat) .root.p-4 {
+    --X: calc(var(--x) * -7);
+    --Y: calc(var(--S) * (5 + var(--y-margin)));
+}
+
+:global(.pointy) .root.p-4 {
+    --X: calc(var(--x) * -6);
+    --Y: calc(var(--S) * 6);
 }
 
 .buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(3, var(--button-size));
+    gap: var(--panel-gap);
 }
 
-.button {
+.rotateLeft,
+.rotateRight,
+.apply {
     composes: button from "../../Components/Button/Button.module.css";
-    flex: 1;
-    min-height: 44px;
-    font-size: 14px;
+    width: var(--button-size);
+    height: var(--button-size);
+    padding: 0;
+    border-radius: 50%;
+}
+
+.rotateLeft::before,
+.rotateRight::before,
+.apply::before {
+    --size: calc(var(--button-size) * .875);
+    content: "";
+    width: var(--size);
+    height: var(--size);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+.rotateLeft::before {
+    background-image: var(--rotate-left-icon);
+}
+
+.rotateRight::before {
+    background-image: var(--rotate-right-icon);
 }
 
 .apply {
-    composes: button;
-    background: #67428c;
-    color: #fff;
-    font-weight: 700;
+    background-color: #67428c;
 }
 
-.button:disabled, .apply:disabled {
+.apply::before {
+    background-image: var(--apply-button-icon);
+}
+
+@media (max-width: 599px) {
+    .root {
+        --button-size: 56px;
+        --panel-padding: 6px;
+        --panel-edge-inset: 24px;
+    }
+
+    .root.p-1,
+    .root.p-2 {
+        --panel-y: calc(var(--Y) - calc(var(--panel-height) * .5) - var(--panel-gap));
+    }
+
+    .root.p-3,
+    .root.p-4 {
+        --panel-y: calc(var(--Y) + var(--S) + calc(var(--panel-height) * .5) + var(--panel-gap));
+    }
+
+    .root.p-1,
+    .root.p-4 {
+        left: var(--panel-edge-inset);
+        --panel-x: 0px;
+        --panel-anchor-x: 0px;
+    }
+
+    .root.p-2,
+    .root.p-3 {
+        right: var(--panel-edge-inset);
+        left: auto;
+        --panel-x: 0px;
+        --panel-anchor-x: 0px;
+    }
+}
+
+.rotateLeft:disabled,
+.rotateRight:disabled,
+.apply:disabled {
     cursor: default;
-    opacity: 0.4;
+    opacity: .35;
 }
 
-.button:focus-visible, .apply:focus-visible {
+.rotateLeft:focus-visible,
+.rotateRight:focus-visible,
+.apply:focus-visible {
     outline: 3px solid var(--sphere-p-2-color);
     outline-offset: 2px;
-}
-
-@media (max-width: 420px) {
-    .root { padding: 10px; }
-    .buttons { gap: 6px; }
-    .button { padding: 0 6px !important; font-size: 12px; }
 }

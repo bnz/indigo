@@ -170,22 +170,22 @@
 
 :global(.flat) .score.p-3 {
     --x: calc(var(--R) * 5.4);
-    --y: calc(var(--R) * 15.4);
+    --y: calc(var(--R) * 12.65);
 }
 
 :global(.pointy) .score.p-3 {
     --x: calc(var(--R) * 7);
-    --y: calc(var(--R) * 17.25);
+    --y: calc(var(--R) * 18);
 }
 
 :global(.flat) .score.p-4 {
     --x: calc(var(--R) * -5.4);
-    --y: calc(var(--R) * 15.4);
+    --y: calc(var(--R) * 12.65);
 }
 
 :global(.pointy) .score.p-4 {
     --x: calc(var(--R) * -7);
-    --y: calc(var(--R) * 17.25);
+    --y: calc(var(--R) * 18);
 }
 
 /** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -258,17 +258,17 @@
 }
 
 .stone.p-3 {
-    --y: calc(var(--R) * 15 + var(--size) * var(--y-ad));
+    --y: calc(var(--R) * 13.5 + var(--size) * var(--y-ad));
 }
 
 .stone.p-4 {
     --x-reverse: -1;
-    --y: calc(var(--R) * 15 + var(--size) * var(--y-ad));
+    --y: calc(var(--R) * 13.5 + var(--size) * var(--y-ad));
 }
 
 :global(.pointy) .stone.p-3,
 :global(.pointy) .stone.p-4 {
-    --y: calc(var(--R) * 13.5 + var(--size) * var(--collection-row));
+    --y: calc(var(--R) * 14.25 + var(--size) * var(--collection-row));
 }
 
 :global(.flat) .stone.s-1 {
@@ -329,4 +329,10 @@
 :global(.flat) .stone.s-12 {
     --x-ad: 3.5;
     --y-ad: 4.6;
+}
+
+:global(.flat) .stone.p-3.s-12,
+:global(.flat) .stone.p-4.s-12 {
+    --x-ad: 6;
+    --y-ad: 3.25;
 }

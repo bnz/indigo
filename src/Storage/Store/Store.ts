@@ -256,7 +256,7 @@ export class Store {
     }
 
     get finished() {
-        return Object.values(this.stones).every(([, , , , out]) => out)
+        return Object.values(this.stones).every(stone => stone.length > 4 && stone[4])
     }
 
     get winners() {
@@ -268,12 +268,14 @@ export class Store {
     }
 
     get currentTileName() {
-        const [, name] = this.playerMove
-        return name
+        return this.playerMove.length > 1 ? this.playerMove[1] : undefined
     }
 
     get currentRoute(): RouteTiles | undefined {
-        const [, name, angle, , nextAngle] = this.playerMove
+        const { playerMove } = this
+        const name = playerMove.length > 1 ? playerMove[1] : undefined
+        const angle = playerMove.length > 2 ? playerMove[2] : undefined
+        const nextAngle = playerMove.length > 4 ? playerMove[4] : undefined
         if (!name) return undefined
         return name === "c" ? RouteTiles.c : RouteTiles[`${name}-${nextAngle ?? angle ?? 0}` as keyof typeof RouteTiles]
     }

@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen } from "@testing-library/react"
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { runInAction } from "mobx"
 import { COLLECTION_ANIMATION_MS, SCORE_ANIMATION_MS, Store } from "../../../Storage/Store/Store"
 import { StoreProvider } from "../../../Storage/Store/StoreProvider"
@@ -7,6 +7,7 @@ import { PlayerId, StoneId, StoneType } from "../../../types"
 import { Seats } from "./Seats"
 import { TileActions } from "../TileActions/TileActions"
 import { CollisionEffects } from "../Stones/CollisionEffects"
+import { Stones } from "../Stones/Stones"
 
 afterEach(() => {
     cleanup()
@@ -58,14 +59,54 @@ test("renders a visible collision effect at the resolved impact", () => {
     expect(screen.getByTestId("collision-effect").getAttribute("data-collision")).toBe("a0,a1")
 })
 
-test("shows configured names in the active turn and score summary", () => {
+test("renders only three icon controls without the former turn summary", () => {
     localStorage.clear()
     const store = new Store()
-    store.playersStore.setPlayerName(PlayerId.Player1, "Ada")
     render(
         <StoreProvider store={store}>
             <TileActions />
         </StoreProvider>,
     )
-    expect(screen.getAllByText(/Ada/).length).toBeGreaterThan(0)
+    expect(screen.getAllByRole("button")).toHaveLength(3)
+    expect(screen.getByLabelText("Влево")).toBeTruthy()
+    expect(screen.getByLabelText("Вправо")).toBeTruthy()
+    expect(screen.getByLabelText("Поставить")).toBeTruthy()
+    expect(screen.queryByText(/Плиток в запасе/)).toBeNull()
+})
+
+test("rotation controls work without bubbling to the board", () => {
+    localStorage.clear()
+    const store = new Store()
+    runInAction(() => {
+        store.stones.a0 = [StoneType.amber, -3, 1, 3, false]
+        store.playerMove = [PlayerId.Player1, "h", 0]
+    })
+    render(
+        <StoreProvider store={store}>
+            <TileActions />
+        </StoreProvider>,
+    )
+    const rotate = screen.getByLabelText("Влево") as HTMLButtonElement
+    expect(rotate.disabled).toBe(false)
+    fireEvent.click(rotate)
+    expect(store.playerMove[3]).toBe(-60)
+})
+
+test("renders legacy move and stone tuples without MobX out-of-bounds reads", () => {
+    localStorage.clear()
+    const warnings = jest.spyOn(console, "warn").mockImplementation(() => {})
+    const store = new Store()
+    runInAction(() => {
+        store.playerMove = [PlayerId.Player1, "h", 0]
+        store.stones.a0 = [StoneType.amber, -3, 1, 3]
+    })
+    render(
+        <StoreProvider store={store}>
+            <Seats />
+            <Stones />
+            <TileActions />
+        </StoreProvider>,
+    )
+    expect(store.finished).toBe(false)
+    expect(warnings).not.toHaveBeenCalled()
 })

@@ -6,7 +6,9 @@ import { edgeToShiftMap } from "../../../Storage/Store/applyers/edgeToShiftMap"
 
 export const useStoneStyles = (id: StoneId): [type: StoneType, style: CSSProperties, isOut: boolean] => {
     const store = useStore()
-    const [type, q, r, edge, isOut = false] = (store.animatedStones ?? store.stones)[id]
+    const stone = (store.animatedStones ?? store.stones)[id]
+    const [type, q, r, edge] = stone
+    const isOut = stone.length > 4 && !!stone[4]
 
     return [
         type,

@@ -20,8 +20,8 @@ export const Arena: FC = () => (
             <Stones />
             <CollisionEffects />
             <TileHovered />
+            <TileActions />
         </ArenaWrapper>
-        <TileActions />
         <GameResults />
     </div>
 )

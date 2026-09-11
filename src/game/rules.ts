@@ -35,14 +35,19 @@ export const resolveMove = (tiles: Tiles, stones: Stones, id: string, route: Rou
 
     if (centerEdge !== undefined) {
         const reserve = ids.filter(key => {
-            const [, q, r, , out] = stones[key]
+            const stone = stones[key]
+            const q = stone[1]
+            const r = stone[2]
+            const out = stone.length > 4 && stone[4]
             return !out && q === 0 && r === 0
         })
         const released = reserve.find(key => stones[key][0] === StoneType.emerald) ?? reserve[0]
         if (released) origins[released] = [stones[released][0], 0, 0, centerEdge as Edge]
     }
     for (const key of ids) {
-        const [type, q, r, edge, out] = stones[key]
+        const stone = stones[key]
+        const [type, q, r, edge] = stone
+        const out = stone.length > 4 && stone[4]
         if (!out && (q !== 0 || r !== 0) && toHex(q, r).neighbor(edge).id === id) {
             origins[key] = [type, q, r, edge]
         }
