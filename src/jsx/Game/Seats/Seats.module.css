@@ -170,22 +170,22 @@
 
 :global(.flat) .score.p-3 {
     --x: calc(var(--R) * 5.4);
-    --y: calc(var(--R) * 12.65);
+    --y: calc(var(--R) * 15.4);
 }
 
 :global(.pointy) .score.p-3 {
     --x: calc(var(--R) * 7);
-    --y: calc(var(--R) * 18);
+    --y: calc(var(--R) * 17.25);
 }
 
 :global(.flat) .score.p-4 {
     --x: calc(var(--R) * -5.4);
-    --y: calc(var(--R) * 12.65);
+    --y: calc(var(--R) * 15.4);
 }
 
 :global(.pointy) .score.p-4 {
     --x: calc(var(--R) * -7);
-    --y: calc(var(--R) * 18);
+    --y: calc(var(--R) * 17.25);
 }
 
 /** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */

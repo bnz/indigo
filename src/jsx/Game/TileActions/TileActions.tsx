@@ -12,7 +12,7 @@ export const TileActions: FC = observer(() => {
     if (store.finished) return null
 
     return (
-        <section className={cx(styles.root, styles[store.playerMove[0]])} aria-label={i18n("game.controls")}>
+        <section className={cx(styles.root, styles[store.playerMove[0]])} aria-label={i18n("game.controls")} onDoubleClick={event => event.stopPropagation()}>
             <div className={styles.buttons}>
                 <button className={styles.rotateLeft} disabled={!store.canPlay || store.isRouteCrossroad} onClick={rotateRightButton(store)} aria-label={i18n("game.rotateLeft")} title={i18n("game.rotateLeft")} />
                 <button className={styles.rotateRight} disabled={!store.canPlay || store.isRouteCrossroad} onClick={rotateLeftButton(store)} aria-label={i18n("game.rotateRight")} title={i18n("game.rotateRight")} />

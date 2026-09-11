@@ -8,17 +8,16 @@
     --X: calc(var(--x) * -1);
     --Y: var(--S);
     --y-margin: 0.1;
-    --button-size: 80px;
-    --panel-padding: 8px;
+    --panel-padding: calc(var(--S) * .12);
     --panel-gap: 8px;
-    --panel-height: calc(var(--button-size) + calc(var(--panel-padding) * 2));
-    --panel-x: calc(var(--X) + calc(var(--S) * .5));
-    --panel-y: calc(var(--Y) + calc(var(--S) * .5));
-    --panel-anchor-x: -50%;
-    transform: translate(var(--panel-x), var(--panel-y)) translate(var(--panel-anchor-x), -50%);
+    --button-icon-size: calc(var(--S) * .4);
+    transform: translate(var(--X), var(--Y));
     transition: transform 220ms cubic-bezier(.2, .8, .2, 1);
+    width: var(--S);
+    height: var(--S);
+    box-sizing: border-box;
     padding: var(--panel-padding);
-    border-radius: calc(var(--panel-height) * .5);
+    border-radius: 50%;
     background: color-mix(in srgb, var(--main-background-color) 42%, transparent);
     box-shadow: 0 14px 32px rgba(0, 0, 0, .38), 0 3px 10px rgba(0, 0, 0, .28);
     backdrop-filter: blur(8px);
@@ -66,24 +65,24 @@
 
 .buttons {
     display: grid;
-    grid-template-columns: repeat(3, var(--button-size));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
     gap: var(--panel-gap);
+    height: 100%;
 }
 
 .rotateLeft,
 .rotateRight,
 .apply {
     composes: button from "../../Components/Button/Button.module.css";
-    width: var(--button-size);
-    height: var(--button-size);
     padding: 0;
-    border-radius: 50%;
+    border-radius: calc(var(--S) * .12);
 }
 
 .rotateLeft::before,
 .rotateRight::before,
 .apply::before {
-    --size: calc(var(--button-size) * .875);
+    --size: var(--button-icon-size);
     content: "";
     width: var(--size);
     height: var(--size);
@@ -101,6 +100,7 @@
 }
 
 .apply {
+    grid-column: 1 / -1;
     background-color: #67428c;
 }
 
@@ -108,11 +108,65 @@
     background-image: var(--apply-button-icon);
 }
 
+@media (min-width: 600px) {
+    .root {
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .buttons {
+        gap: 4px;
+    }
+
+    .rotateLeft,
+    .rotateRight,
+    .apply {
+        border-radius: 0;
+    }
+
+    .rotateLeft::before {
+        transform: translate(16%, 8%);
+    }
+
+    .rotateRight::before {
+        transform: translate(-16%, 8%);
+    }
+}
+
 @media (max-width: 599px) {
     .root {
         --button-size: 56px;
         --panel-padding: 6px;
-        --panel-edge-inset: 24px;
+        --button-icon-size: calc(var(--button-size) * 1.05);
+        --panel-height: calc(var(--button-size) + calc(var(--panel-padding) * 2));
+        --panel-width: calc(var(--button-size) * 3 + var(--panel-gap) * 2 + var(--panel-padding) * 2);
+        --panel-edge-inset: 32px;
+        --panel-x: 0px;
+        --panel-y: calc(var(--Y) + calc(var(--S) * .5));
+        --panel-anchor-x: 0px;
+        transform: translate(var(--panel-x), var(--panel-y)) translate(var(--panel-anchor-x), -50%);
+        transition: left 220ms cubic-bezier(.2, .8, .2, 1), transform 220ms cubic-bezier(.2, .8, .2, 1);
+        width: auto;
+        height: auto;
+        border-radius: calc(var(--panel-height) * .5);
+    }
+
+    .buttons {
+        grid-template-columns: repeat(3, var(--button-size));
+        grid-template-rows: none;
+        height: auto;
+    }
+
+    .rotateLeft,
+    .rotateRight,
+    .apply {
+        width: var(--button-size);
+        height: var(--button-size);
+        border-radius: 50%;
+    }
+
+    .apply {
+        grid-column: auto;
     }
 
     .root.p-1,
@@ -128,17 +182,13 @@
     .root.p-1,
     .root.p-4 {
         left: var(--panel-edge-inset);
-        --panel-x: 0px;
-        --panel-anchor-x: 0px;
     }
 
     .root.p-2,
     .root.p-3 {
-        right: var(--panel-edge-inset);
-        left: auto;
-        --panel-x: 0px;
-        --panel-anchor-x: 0px;
+        left: calc(100% - var(--panel-width) - var(--panel-edge-inset));
     }
+
 }
 
 .rotateLeft:disabled,

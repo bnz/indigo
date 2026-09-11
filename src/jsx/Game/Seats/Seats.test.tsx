@@ -77,19 +77,24 @@ test("renders only three icon controls without the former turn summary", () => {
 test("rotation controls work without bubbling to the board", () => {
     localStorage.clear()
     const store = new Store()
+    const onBoardDoubleClick = jest.fn()
     runInAction(() => {
         store.stones.a0 = [StoneType.amber, -3, 1, 3, false]
         store.playerMove = [PlayerId.Player1, "h", 0]
     })
     render(
-        <StoreProvider store={store}>
-            <TileActions />
-        </StoreProvider>,
+        <div onDoubleClick={onBoardDoubleClick}>
+            <StoreProvider store={store}>
+                <TileActions />
+            </StoreProvider>
+        </div>,
     )
     const rotate = screen.getByLabelText("Влево") as HTMLButtonElement
     expect(rotate.disabled).toBe(false)
     fireEvent.click(rotate)
     expect(store.playerMove[3]).toBe(-60)
+    fireEvent.doubleClick(rotate)
+    expect(onBoardDoubleClick).not.toHaveBeenCalled()
 })
 
 test("renders legacy move and stone tuples without MobX out-of-bounds reads", () => {
