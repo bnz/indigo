@@ -14,7 +14,7 @@ export const StartButton: FC = () => (
             className={buttonStyles.main}
             onClick={useUIStore().gamePhase.goToPlayersSelection}
         >
-            {i18n("button.startNewGame")}
+            {i18n("button.startNewGame")} · {i18n("game.localMode")}
         </button>
     </div>
 )

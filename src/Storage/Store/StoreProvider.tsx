@@ -5,7 +5,7 @@ import { Store } from "./Store"
 const HexContext = createContext<Store | null>(null)
 
 export const StoreProvider: FC<{ store: Store }> = ({ children, store }) => {
-    useEffect(() => store.dispose, [])
+    useEffect(() => store.dispose, [store])
     return (
         <HexContext.Provider value={store}>
             {children}

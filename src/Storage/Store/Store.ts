@@ -1,4 +1,4 @@
-import { makeAutoObservable, reaction, runInAction } from "mobx"
+import { makeAutoObservable, observable, reaction, runInAction } from "mobx"
 import { Layout } from "../../jsx/Game/Hexagons/Layout"
 import { Point } from "../../jsx/Game/Hexagons/Point"
 import { GemAward, GemCollision, Keys, OrientationType, PlayerId, PlayerMove, RouteTiles, Stones, TileName, Tiles, UIPhase, Values } from "../../types"
@@ -56,7 +56,9 @@ export class Store {
 
     private stopPlayerReaction: (() => void) | undefined
 
-    constructor() {
+    constructor(storageName = "game-v2") {
+        this.storage = new LocalStorageMgmnt<Keys, Values>(storageName)
+        this.playersStore = new PlayersStore(this.storage)
         init(this)
         makeAutoObservable<Store,
             | "ratio"
@@ -64,7 +66,7 @@ export class Store {
             | "smallSide"
             | "storage"
             | "animationTimer"
-            | "stopPlayerReaction">(this, { ratio: false, largeSide: false, smallSide: false, storage: false, animationTimer: false, stopPlayerReaction: false })
+            | "stopPlayerReaction">(this, { ratio: false, largeSide: false, smallSide: false, storage: false, animationTimer: false, stopPlayerReaction: false, online: observable.ref })
 
         // if (process.env.NODE_ENV === 'development') {
         //   new __DEV__appendStyles(this.smallSide, this.largeSide, this.ratio, this.tiles)
@@ -75,9 +77,11 @@ export class Store {
     }
 
     // Old saves may already contain invalid moves. Leave them intact in the old "game" key.
-    storage = new LocalStorageMgmnt<Keys, Values>("game-v2")
+    storage: LocalStorageMgmnt<Keys, Values>
 
-    playersStore: PlayersStore = new PlayersStore(this.storage)
+    playersStore: PlayersStore
+
+    online: { readonly canPlay: boolean, submit: (id: string, route: RouteTiles) => void } | null = null
 
     leftTiles: TileName[] = []
 
@@ -164,7 +168,7 @@ export class Store {
         stoneId => !this.pendingAwards.some(award => award.playerId === playerId && award.stoneId === stoneId),
     )
 
-    private _playerMove: PlayerMove = [this.playersStore.players[0].id]
+    private _playerMove: PlayerMove = [PlayerId.Player1]
 
     get playerMove() {
         return this._playerMove
@@ -264,7 +268,7 @@ export class Store {
     }
 
     get canPlay() {
-        return !this.finished && this.animatedStones === null && this.currentTileName !== undefined
+        return !this.finished && this.animatedStones === null && this.currentTileName !== undefined && (!this.online || this.online.canPlay)
     }
 
     get currentTileName() {

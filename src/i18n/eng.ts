@@ -1,6 +1,9 @@
 import { LanguageMap } from "./i18n"
+import { onlineEng } from "./online"
 
 export const eng: LanguageMap = {
+    ...onlineEng,
+    "game.localMode": "On one device",
     yacht: "Yacht",
     indigo: "Indigo",
     systemTheme: "System theme",

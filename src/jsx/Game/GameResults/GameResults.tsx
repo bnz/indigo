@@ -13,9 +13,11 @@ import { Dialog } from "../../Components/Dialog/Dialog"
 import buttonStyles from "../../Components/Button/Button.module.css"
 import { RestartGame } from "../../Layout/Drawer/RestartGame/RestartGame"
 import { runInAction } from "mobx"
+import { useOnline } from "../../../online/OnlineProvider"
 
 export const GameResults: FC = observer(() => {
     const store = useStore()
+    const online = useOnline()
 
     if (!store.finished || store.animatedStones !== null || !store.gameResultsOpen) {
         return null
@@ -52,7 +54,7 @@ export const GameResults: FC = observer(() => {
                     }}>
                         {i18n("button.viewBoard")}
                     </button>
-                    <RestartGame />
+                    {online?.room ? <button className={buttonStyles.text} onClick={online.leave}>{i18n("online.leave")}</button> : <RestartGame />}
                 </div>
 
                 <div className={styles.othersWrap}>

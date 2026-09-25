@@ -5,6 +5,8 @@ import { Intro } from "../Rules/Intro"
 import { useUIStore } from "../../Storage/UIStore/UIStoreProvider"
 import { PlayerManager } from "../Players/PlayerManager"
 import { Arena } from "./Arena/Arena"
+import { useOnline } from "../../online/OnlineProvider"
+import { OnlineScreen } from "../../online/OnlineScreen"
 
 const Wrapper: FC = ({ children }) => {
     return (
@@ -19,7 +21,10 @@ const Wrapper: FC = ({ children }) => {
 }
 
 export const Indigo: FC = observer(() => {
-    switch (useUIStore().gamePhase.phase) {
+    const ui = useUIStore()
+    const online = useOnline()
+    if (online?.active) return <OnlineScreen />
+    switch (ui.gamePhase.phase) {
         case UIPhase.PRE_GAME:
             return (
                 <Wrapper>

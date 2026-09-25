@@ -8,6 +8,7 @@ import { StartButton } from "./StartButton"
 import { i18n } from "../../i18n/i18n"
 import buttonStyles from "../Components/Button/Button.module.css"
 import { useUIStore } from "../../Storage/UIStore/UIStoreProvider"
+import { OnlineEntry } from "../../online/OnlineScreen"
 
 export const Intro: FC = () => (
     <div className={styles.root}>
@@ -36,6 +37,7 @@ export const Intro: FC = () => (
         </StonesWrapper>
 
         <StartButton />
+        <OnlineEntry />
 
         <p style={{ fontStyle: "italic", textAlign: "center" }}>
             Извилистые дорожки – удивительные повороты – настоящее волшебство!

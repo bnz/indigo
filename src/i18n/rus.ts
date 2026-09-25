@@ -1,6 +1,9 @@
 import { LanguageMap } from "./i18n"
+import { onlineRus } from "./online"
 
 export const rus: LanguageMap = {
+    ...onlineRus,
+    "game.localMode": "На одном устройстве",
     yacht: "Яхта",
     indigo: "Индиго",
     systemTheme: "Из системы",

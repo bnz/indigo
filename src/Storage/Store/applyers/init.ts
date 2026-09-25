@@ -32,7 +32,7 @@ export const init = (store: Store) => {
 
     store.orientation = Layout[store.storage.getOrApply<OrientationType>("orientation", () => "flat")]
 
-    store.stones = store.storage.getOrApply<Stones>("stones", () => stones)
+    store.stones = store.storage.getOrApply<Stones>("stones", () => JSON.parse(JSON.stringify(stones)))
 
     store.tiles = {
         ...generateTiles(gateways, HexType.gateway),

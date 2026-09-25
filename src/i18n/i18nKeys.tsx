@@ -1,4 +1,7 @@
-export type i18nKeys =
+import type { onlineRus } from "./online"
+
+export type i18nKeys = keyof typeof onlineRus
+    | "game.localMode"
     | "yacht"
     | "indigo"
     | "systemTheme"

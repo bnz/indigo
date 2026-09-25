@@ -12,9 +12,12 @@ import { RestartGame } from "./RestartGame/RestartGame"
 import { RotateLayout } from "./RotateLayout/RotateLayout"
 import { KeyboardActions } from "../../Components/KeyboardActions/KeyboardActions"
 import { Rules } from "../../Rules/Rules"
+import { useOnline } from "../../../online/OnlineProvider"
+import { OnlineEntry } from "../../../online/OnlineScreen"
 
 export const Drawer: FC = observer(() => {
     const store = useUIStore()
+    const online = useOnline()
 
     return (
         <div className={cx({ [styles.hidden]: !store.drawer })}>
@@ -28,11 +31,12 @@ export const Drawer: FC = observer(() => {
                 <div className={styles.content}>
                     <LanguageSwitcher />
                     <ThemeSwitcher />
-                    {store.gamePhase.phase === UIPhase.GAME && (
+                    {!online?.active && <OnlineEntry />}
+                    {((online?.started && online.room) || (!online?.active && store.gamePhase.phase === UIPhase.GAME)) && (
                         <>
-                            <div className={styles.actions}>
+                            {!online?.active && <div className={styles.actions}>
                                 <RestartGame />
-                            </div>
+                            </div>}
                             <RotateLayout />
                         </>
                     )}

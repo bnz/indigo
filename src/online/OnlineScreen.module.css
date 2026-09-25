@@ -1,0 +1,111 @@
+.entry {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin: 12px 0 24px;
+}
+
+.entry button,
+.lobby button,
+.details button {
+    border: 0;
+    border-radius: 8px;
+    padding: 12px 18px;
+    background: #67428c;
+    color: #fff;
+    cursor: pointer;
+    min-height: 44px;
+}
+
+.lobby button:disabled {
+    opacity: .45;
+    cursor: default;
+}
+
+.lobby {
+    max-width: 620px;
+    margin: 48px auto;
+    padding: 24px;
+    display: grid;
+    gap: 18px;
+}
+
+.lobby label,
+.details label {
+    display: grid;
+    gap: 6px;
+}
+
+.lobby input,
+.details input {
+    width: 100%;
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid #888;
+    border-radius: 6px;
+    background: var(--main-background-color);
+    color: var(--main-text-color);
+}
+
+.lobby form,
+.details {
+    display: grid;
+    gap: 12px;
+}
+
+.members {
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 12px;
+}
+
+.members li {
+    display: grid;
+    grid-template-columns: 12px 1fr auto;
+    gap: 8px;
+    align-items: center;
+    overflow-wrap: anywhere;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.roomBar {
+    position: fixed;
+    z-index: 7;
+    top: 0;
+    left: 72px;
+    width: min(520px, calc(100% - 84px));
+    background: var(--main-background-color);
+    border-radius: 0 0 12px 12px;
+}
+
+.roomBar summary {
+    cursor: pointer;
+    min-height: 40px;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.roomBar .details {
+    padding: 16px;
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+    box-shadow: 0 12px 24px #0004;
+}
+
+.entry button:focus-visible,
+.lobby button:focus-visible,
+.details button:focus-visible {
+    outline: 3px solid var(--sphere-p-2-color);
+    outline-offset: 2px;
+}
