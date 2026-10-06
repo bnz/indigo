@@ -1,4 +1,14 @@
 export const onlineRus = {
+    "online.qrLabel": "QR-код приглашения в комнату",
+    "online.qrHint": "Сканируйте камерой телефона, чтобы присоединиться к игре",
+    "online.closeRoom": "Закрыть комнату для всех",
+    "online.forget": "Забыть комнату",
+    "online.forgetHint": "Удалить сохранение комнаты только на этом устройстве",
+    "online.forgetFailed": "Не удалось удалить сохранение комнаты из браузера. Проверьте доступ к хранилищу и повторите попытку.",
+    "online.roomClosed": "Комната закрыта",
+    "online.roomClosedHint": "Ведущий завершил комнату. Продолжить эту партию нельзя — можно создать новую игру.",
+    "online.privateTile": "Ваша закрытая плитка",
+    "online.hiddenTilesHint": "У каждого одна закрытая плитка. Вы видите свою заранее; соперники увидят её только после постановки. После хода вы сразу получаете следующую.",
     "online.entry": "Играть по ссылке",
     "online.resume": "Вернуться в сетевую комнату",
     "online.title": "Игра по ссылке",
@@ -47,6 +57,16 @@ export const onlineRus = {
 }
 
 export const onlineEng: Record<keyof typeof onlineRus, string> = {
+    "online.qrLabel": "Room invitation QR code",
+    "online.qrHint": "Scan with your phone camera to join the game",
+    "online.closeRoom": "Close room for everyone",
+    "online.forget": "Forget room",
+    "online.forgetHint": "Delete the room save on this device only",
+    "online.forgetFailed": "Could not delete the room save. Check browser storage access and try again.",
+    "online.roomClosed": "Room closed",
+    "online.roomClosedHint": "The host has closed the room. This game cannot be resumed — you can start a new one.",
+    "online.privateTile": "Your private tile",
+    "online.hiddenTilesHint": "Each player holds one private tile. You can see yours in advance; opponents see it only after placement. Draw a replacement immediately after your turn.",
     "online.entry": "Play by invitation",
     "online.resume": "Return to online room",
     "online.title": "Play by invitation",

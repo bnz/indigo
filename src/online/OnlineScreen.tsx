@@ -1,5 +1,6 @@
 import { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react"
+import { QRCodeSVG } from "qrcode.react"
 import { useStore } from "../Storage/Store/StoreProvider"
 import { useUIStore } from "../Storage/UIStore/UIStoreProvider"
 import { Arena } from "../jsx/Game/Arena/Arena"
@@ -14,7 +15,10 @@ export const OnlineEntry: FC = observer(() => {
     return (
         <div className={styles.entry}>
             <button onClick={() => { ui.closeDrawer(); session.openSetup() }}>{i18n("online.entry")}</button>
-            {session.resumeRoom && <button onClick={() => { ui.closeDrawer(); session.resume() }}>{i18n("online.resume")}</button>}
+            {session.resumeRoom && <>
+                <button onClick={() => { ui.closeDrawer(); session.resume() }}>{i18n("online.resume")}</button>
+                <button className={styles.secondary} title={i18n("online.forgetHint")} onClick={() => session.forgetRoom()}>{i18n("online.forget")}</button>
+            </>}
         </div>
     )
 })
@@ -53,6 +57,19 @@ const RoomDetails: FC = observer(() => {
         <div className={styles.details}>
             <label>{i18n("online.invitation")}<input readOnly value={session.invitation} onFocus={event => event.target.select()} /></label>
             <button onClick={copy}>{i18n(copied ? "online.copied" : "online.copy")}</button>
+            <figure className={styles.invitationQr}>
+                <QRCodeSVG
+                    value={session.invitation}
+                    size={208}
+                    level="M"
+                    includeMargin
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                    role="img"
+                    aria-label={i18n("online.qrLabel")}
+                />
+                <figcaption>{i18n("online.qrHint")}</figcaption>
+            </figure>
             <ul className={styles.members}>
                 {session.members.map(member => (
                     <li key={member.id}>
@@ -66,7 +83,10 @@ const RoomDetails: FC = observer(() => {
             {(session.saveFailed || session.game?.saveFailed) && <p role="alert">{i18n("game.saveFailed")}</p>}
             {session.status !== "connected" && <button onClick={() => { void session.connect() }}>{i18n("online.reconnect")}</button>}
             <button onClick={session.leave}>{i18n("online.leave")}</button>
+            {session.role === "host" && <button className={styles.destructive} onClick={session.closeRoom}>{i18n("online.closeRoom")}</button>}
+            <button className={styles.secondary} title={i18n("online.forgetHint")} onClick={() => session.forgetRoom()}>{i18n("online.forget")}</button>
             <small>{i18n("online.savedHint")}</small>
+            <small>{i18n("online.hiddenTilesHint")}</small>
         </div>
     )
 })
@@ -77,11 +97,19 @@ export const OnlineScreen: FC = observer(() => {
     const activePlayer = store.playerMove[0]
     useEffect(() => {
         document.body.classList.remove("p-1", "p-2", "p-3", "p-4")
-        if (session.started && session.room) document.body.classList.add(activePlayer)
+        if (session.started && session.room && session.status !== "closed") document.body.classList.add(activePlayer)
         return () => {
             document.body.classList.remove("p-1", "p-2", "p-3", "p-4")
         }
-    }, [activePlayer, session.started, session.room])
+    }, [activePlayer, session.started, session.room, session.status])
+    if (session.status === "closed") return (
+        <main className={styles.lobby}>
+            <h1>{i18n("online.roomClosed")}</h1>
+            <p role="status">{i18n("online.roomClosedHint")}</p>
+            {session.saveFailed && <p role="alert">{i18n("online.forgetFailed")}</p>}
+            <button onClick={session.leave}>{i18n("online.localBack")}</button>
+        </main>
+    )
     if (!session.room) return <Setup />
 
     const turn = session.members.find(member => member.id === activePlayer)?.name || ""

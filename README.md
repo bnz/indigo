@@ -41,6 +41,11 @@ Rules reference: https://www.ultraboardgames.com/indigo/game-rules.php
 
 The existing local game remains available. Joining or leaving an online room does not reset its `game-v2` save or its screen, theme, and language preferences.
 
+Each online player is dealt **one private tile at the start** and sees it next to their own avatar,
+including during another player's turn. After placing it, they immediately draw a replacement.
+Opponents see the route only after placement; selection and rotation previews are not broadcast.
+This uses the standard one-tile hand, not the proposed two-tile tactical/shared-screen mode.
+
 ### Connection and hosting
 
 - The site is still a static application: there is no application server or central game database.
@@ -52,13 +57,22 @@ The existing local game remains available. Joining or leaving an online room doe
 ### State and reconnection
 
 - The creator's browser is the host and authoritative writer. It validates the sender's reserved seat, turn, state revision, tile type, and placement using the same rules as local play.
-- Only confirmed placements are synchronized. Tile selection and rotation previews stay local; the host draws the next tile and broadcasts the resulting snapshot.
-- Every participant saves the confirmed room snapshot and their own rejoin token under `indigo-room-v1:<room>`. Per-device rendering state is saved separately under `game-online-v1:<room>:<token>`.
+- Only confirmed placements are synchronized. Each state message contains the public board and **only its recipient's private tile**. It never includes the deck, other hands, or the active opponent's unplaced tile. The host validates placements against the sender's reserved hand.
+- The host is the trusted dealer: its browser stores the deck and all hands for dealing and recovery. They are not rendered as opponent previews or sent to guest browsers. This is not cryptographic secrecy from a host inspecting its own storage.
+- Every participant saves the confirmed public snapshot, their own tile, and their rejoin token under `indigo-room-v2:<room>`. Only the host's room save also contains the dealer state. Per-device rendering state is saved separately under `game-online-v2:<room>:<token>` and has no draw pile or opponent tile.
+- Existing v1 rooms can be resumed after everyone updates. Seat tokens, placed tiles and scores are preserved. The host retains the previously active tile, shuffles the remaining formerly shared deck, and deals private tiles to the other players. Original v1 saves are left intact. Already revealed information cannot be made secret retroactively.
 - Move requests have an ID and a base revision. Duplicate/stale requests cannot apply a move twice. Missed acknowledgements trigger state resynchronization.
 - Heartbeats detect disconnected participants. The game pauses until everyone reconnects; the host never advances a missing player's turn automatically.
 - Reloading or returning through the same invitation restores the player's reserved seat from that browser's storage. The start screen also offers **Return to online room** for the most recent room.
 - The host must return using the same browser/profile. There is no host migration or server-side recovery if the host's local storage is lost. Clearing a guest's storage also loses that guest's rejoin token; new players cannot take seats after the game starts.
 - To test multiple players on one computer, use separate browser profiles/isolated contexts. Tabs sharing localStorage represent the same participant, not extra players.
+
+### Leaving, closing and forgetting a room
+
+- **Leave room / Выйти из комнаты** disconnects this browser and keeps the save and reserved seat for later. When the host leaves, play pauses until they return.
+- **Close room for everyone / Закрыть комнату для всех** is available to the host in the room panel and lobby. It ends the room, notifies connected participants, stops reconnection, and removes their room saves and resume shortcuts. A small `indigo-room-closed:<room>` marker prevents a known closed room from being restored from a stale or legacy save.
+- **Forget room / Забыть комнату** removes the selected room's saves on this device only, including legacy saves and rendering caches. It appears beside **Return to online room** and in the room panel. If connected, the browser leaves first. Local `game-v2`, UI preferences, and other rooms are preserved. Forgetting also removes this device's rejoin identity; use ordinary Leave when you intend to return.
+- Closure notifications need a live connection. A participant who was offline at closure cannot learn about it until notified; without a server there is no persistent room directory to query. They can use Forget to stop trying to return to an unavailable room.
 
 ## Verification
 
@@ -73,6 +87,10 @@ Tests cover movement, collisions, center releases, scoring and ties, illegal pla
 Online tests use an in-memory transport to cover a four-player round, turn/placement validation,
 stale and duplicate messages, capacity and protocol rejection, lost acknowledgements,
 heartbeat timeouts, guest/host reload, and isolation from local saves.
+They also verify private dealing/refill, per-recipient messages, hidden opponent previews,
+v1 save migration, and conservation of all 54 route tiles throughout full online games.
+Room lifecycle tests cover host-only closure and acknowledgement, stale messages, reconnect suppression,
+legacy-save cleanup, room-local deletion, and storage failures.
 
 ## Production deployment
 

@@ -7,7 +7,7 @@ import type { MouseEvent } from "react"
 import { RouteTiles } from "../../../types"
 
 // Both local play and the room host commit through the same rules and persistence path.
-export const commitMove = (store: Store, id: string, route: RouteTiles) => {
+export const commitMove = (store: Store, id: string, route: RouteTiles, advanceTurn?: () => void) => {
     const result = resolveMove(store.tiles, store.stones, id, route, store.playersStore.gateways)
     runInAction(() => store.storage.transaction(() => {
         store.tiles[id].tile = route
@@ -15,7 +15,8 @@ export const commitMove = (store: Store, id: string, route: RouteTiles) => {
         for (const { playerId, stoneId } of result.awards) {
             store.playersStore.players.find(player => player.id === playerId)!.stones.push(stoneId)
         }
-        if (store.finished) store.playerMove = [store.playerMove[0]]
+        if (advanceTurn) advanceTurn()
+        else if (store.finished) store.playerMove = [store.playerMove[0]]
         else nextMove(store)
         saveTiles(store)
         store.storage.set("stones", store.stones)

@@ -115,3 +115,30 @@ test("renders legacy move and stone tuples without MobX out-of-bounds reads", ()
     expect(store.finished).toBe(false)
     expect(warnings).not.toHaveBeenCalled()
 })
+
+test("online players see only their own tile while waiting and during their turn", () => {
+    localStorage.clear()
+    const store = new Store()
+    runInAction(() => {
+        store.playersStore.setPlayerCount(4)
+        store.online = {
+            me: PlayerId.Player3,
+            tile: "h",
+            get canPlay() { return store.playerMove[0] === PlayerId.Player3 },
+            submit: jest.fn(),
+        }
+        store.playerMove = [PlayerId.Player1, "c", 0]
+    })
+    render(<StoreProvider store={store}><Seats /></StoreProvider>)
+    const ownTile = screen.getByRole("img", { name: "Ваша закрытая плитка" })
+    expect(ownTile.getAttribute("data-player")).toBe(PlayerId.Player3)
+    expect(screen.getAllByTestId("private-tile")).toHaveLength(1)
+    expect(ownTile.getAttribute("style")).toContain("#h-0")
+    fireEvent.click(ownTile)
+    expect(store.playerMove).toEqual([PlayerId.Player1, "c", 0])
+    act(() => runInAction(() => { store.playerMove = [PlayerId.Player3, "h", 0] }))
+    expect(screen.getAllByTestId("private-tile")).toHaveLength(1)
+    expect(screen.getByTestId("private-tile").getAttribute("data-player")).toBe(PlayerId.Player3)
+    fireEvent.click(screen.getByTestId("private-tile"))
+    expect(store.playerMove[3]).toBe(-60)
+})

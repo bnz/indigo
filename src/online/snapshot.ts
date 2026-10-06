@@ -14,6 +14,12 @@ export interface GameSnapshot {
     treasures: TileItems<TreasureTiles>
 }
 
+// Only placed tiles, scores, turn ownership and the size of the draw pile are public.
+export interface PublicGameSnapshot extends Omit<GameSnapshot, "move" | "deck"> {
+    turn: PlayerId
+    remaining: number
+}
+
 export const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value))
 
 export const snapshot = (store: Store): GameSnapshot => clone({
@@ -25,6 +31,20 @@ export const snapshot = (store: Store): GameSnapshot => clone({
         tile.tile === undefined ? [tile.hex.q, tile.hex.r] : [tile.hex.q, tile.hex.r, tile.tile]) as TileItems<RouteTiles>,
     treasures: Object.values(store.tiles).filter(tile => tile.type === HexType.treasure).map(tile =>
         [tile.hex.q, tile.hex.r, tile.tile]) as TileItems<TreasureTiles>,
+})
+
+export const publicSnapshot = (store: Store, remaining: number): PublicGameSnapshot => {
+    const { move, deck, ...board } = snapshot(store)
+    return { ...board, turn: move[0], remaining }
+}
+
+export const privateView = (state: PublicGameSnapshot, player: PlayerId | null, tile: TileName | null): GameSnapshot => ({
+    players: state.players,
+    stones: state.stones,
+    routes: state.routes,
+    treasures: state.treasures,
+    move: state.turn === player && tile ? [state.turn, tile, 0] : [state.turn],
+    deck: [],
 })
 
 // Layout/orientation, language and theme belong to the device, not the room.
@@ -57,6 +77,7 @@ export const isRecord = (value: unknown): value is Record<string, any> =>
     value !== null && typeof value === "object" && !Array.isArray(value)
 
 const names = ["s", "c", "t", "l", "h"]
+export const isTileName = (value: unknown): value is TileName => typeof value === "string" && names.includes(value)
 const angles = [0, 60, 120, 180, 240, 300]
 const coord = (n: unknown) => typeof n === "number" && Number.isInteger(n) && Math.abs(n) <= 5
 
@@ -85,3 +106,8 @@ export const isSnapshot = (value: unknown): value is GameSnapshot => {
 }
 
 export const playerIds = Object.values(PlayerId)
+
+export const isPublicSnapshot = (value: unknown): value is PublicGameSnapshot =>
+    isRecord(value) && !["deck", "move", "hands"].some(key => key in value) &&
+    playerIds.includes(value.turn) && Number.isInteger(value.remaining) && value.remaining >= 0 && value.remaining <= 54 &&
+    isSnapshot({ ...value, move: [value.turn], deck: [] })

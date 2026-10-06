@@ -81,7 +81,12 @@ export class Store {
 
     playersStore: PlayersStore
 
-    online: { readonly canPlay: boolean, submit: (id: string, route: RouteTiles) => void } | null = null
+    online: {
+        readonly canPlay: boolean
+        readonly me: PlayerId | null
+        readonly tile: TileName | null
+        submit: (id: string, route: RouteTiles) => void
+    } | null = null
 
     leftTiles: TileName[] = []
 

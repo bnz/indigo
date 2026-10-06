@@ -23,6 +23,16 @@
     cursor: default;
 }
 
+.entry button.secondary,
+.details button.secondary {
+    background: var(--button-background-color);
+    color: var(--main-text-color);
+}
+
+.details button.destructive {
+    background: #a52a40;
+}
+
 .lobby {
     max-width: 620px;
     margin: 48px auto;
@@ -52,6 +62,27 @@
 .details {
     display: grid;
     gap: 12px;
+}
+
+.invitationQr {
+    margin: 0;
+    min-width: 0;
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    text-align: center;
+}
+
+.invitationQr svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    background: #fff;
+    border-radius: 8px;
+}
+
+.invitationQr figcaption {
+    font-size: 14px;
 }
 
 .members {

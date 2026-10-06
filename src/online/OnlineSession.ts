@@ -3,48 +3,29 @@ import { Store } from "../Storage/Store/Store"
 import { commitMove } from "../Storage/Store/applyers/applySit"
 import { tileNameToAngle } from "../Storage/Store/maps/TileNameToAngle"
 import { resolveMove } from "../game/rules"
-import { PlayerId, RouteTiles } from "../types"
+import { PlayerId, RouteTiles, TileName } from "../types"
 import { Channel, createPeer, PeerEndpoint, PeerFactory } from "./transport"
-import { clone, GameSnapshot, isRecord, isSnapshot, playerIds, restoreSnapshot, snapshot } from "./snapshot"
+import { clone, isRecord, playerIds, privateView, PublicGameSnapshot, publicSnapshot, restoreSnapshot, snapshot } from "./snapshot"
 import { i18n } from "../i18n/i18n"
+import { DealerState, dealHands, isPacket, isSavedRoom, Member, migrateSavedRoom, Packet, PROTOCOL, SavedRoom, Seat, validRoom } from "./protocol"
 
-const PROTOCOL = 1
 const HEARTBEAT_MS = 3000
 const TIMEOUT_MS = 15000
-const key = (room: string) => `indigo-room-v1:${room}`
+const CLOSE_TIMEOUT_MS = 2500
+const key = (room: string) => `indigo-room-v2:${room}`
+const closedKey = (room: string) => `indigo-room-closed:${room}`
 const browserStorage = {
     getItem: (name: string) => localStorage.getItem(name),
     setItem: (name: string, value: string) => localStorage.setItem(name, value),
+    removeItem: (name: string) => localStorage.removeItem(name),
+    key: (index: number) => localStorage.key(index),
+    get length() { return localStorage.length },
 }
-export const validRoom = (room: string) => /^[a-f0-9]{32}$/.test(room)
 const uid = () => Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, "0")).join("")
 const cleanName = (name: string) => name.trim().replace(/\s+/g, " ").slice(0, 24) || i18n("online.player")
 
-export interface Member { id: PlayerId, name: string, online: boolean }
-interface Seat { id: PlayerId, token: string }
 interface Move { type: "move", revision: number, moveId: string, cell: string, route: RouteTiles }
-interface Packet {
-    type: "state"
-    protocol: number
-    room: string
-    revision: number
-    started: boolean
-    members: Member[]
-    game: GameSnapshot | null
-    lastMove?: { cell: string, route: RouteTiles, moveId: string }
-}
-interface SavedRoom { role: "host" | "guest", token: string, name: string, seats: Seat[], packet: Packet }
 interface Link { channel: Channel, seen: number, player: PlayerId | null }
-
-const isPacket = (data: unknown, room: string): data is Packet => {
-    if (!isRecord(data)) return false
-    return data.type === "state" && data.protocol === PROTOCOL && data.room === room &&
-        Number.isSafeInteger(data.revision) && data.revision >= 0 && typeof data.started === "boolean" &&
-        Array.isArray(data.members) && data.members.length >= 1 && data.members.length <= 4 &&
-        data.members.every((m, i) => isRecord(m) && m.id === playerIds[i] && typeof m.name === "string" &&
-            m.name.length <= 24 && typeof m.online === "boolean") &&
-        (data.started ? isSnapshot(data.game) && data.game.players.length === data.members.length : data.game === null)
-}
 
 export class OnlineSession {
     setup = false
@@ -52,10 +33,11 @@ export class OnlineSession {
     room = ""
     role: "host" | "guest" = "guest"
     me: PlayerId | null = null
+    tile: TileName | null = null
     game: Store | null = null
     members: Member[] = []
     started = false
-    status: "connecting" | "connected" | "disconnected" | "error" = "disconnected"
+    status: "connecting" | "connected" | "disconnected" | "error" | "closed" = "disconnected"
     error = ""
     saveFailed = false
     pending = false
@@ -65,37 +47,43 @@ export class OnlineSession {
     private token = ""
     private name = ""
     private seats: Seat[] = []
-    private state: GameSnapshot | null = null
+    private state: PublicGameSnapshot | null = null
+    private dealer: DealerState | null = null
     private lastMove: Packet["lastMove"]
     private peer: PeerEndpoint | null = null
     private links = new Map<Channel, Link>()
     private host: Channel | null = null
     private timer: ReturnType<typeof setInterval> | undefined
     private retry: ReturnType<typeof setTimeout> | undefined
+    private closeTimer: ReturnType<typeof setTimeout> | undefined
     private generation = 0
     private openedAt = 0
     private pendingAt = 0
 
-    constructor(private factory: PeerFactory = createPeer, private persistence: Pick<Storage, "getItem" | "setItem"> = browserStorage) {
-        makeAutoObservable<this, "factory" | "persistence" | "peer" | "links" | "host" | "timer" | "retry" | "generation" | "openedAt" | "pendingAt" | "state" | "seats" | "token" | "name" | "lastMove">(this, {
+    constructor(private factory: PeerFactory = createPeer, private persistence: Pick<Storage, "getItem" | "setItem" | "removeItem" | "key" | "length"> = browserStorage) {
+        makeAutoObservable<this, "factory" | "persistence" | "peer" | "links" | "host" | "timer" | "retry" | "closeTimer" | "generation" | "openedAt" | "pendingAt" | "state" | "dealer" | "seats" | "token" | "name" | "lastMove">(this, {
             game: observable.ref, factory: false, persistence: false, peer: false, links: false, host: false, timer: false, retry: false,
-            generation: false, openedAt: false, pendingAt: false, state: false, seats: false, token: false, name: false, lastMove: false,
+            closeTimer: false,
+            generation: false, openedAt: false, pendingAt: false, state: observable.ref, dealer: false, seats: false, token: false, name: false, lastMove: false,
         }, { autoBind: true })
         try { this.resumeRoom = this.persistence.getItem("indigo-last-room") || "" } catch { /* Storage may be unavailable. */ }
+        if (this.wasClosed(this.resumeRoom)) this.eraseRoom(this.resumeRoom)
     }
 
     get active() { return this.setup || !!this.room }
     get invitation() { return `${window.location.origin}${window.location.pathname}#/room/${this.room}` }
     get allOnline() { return this.members.length >= 2 && this.members.every(member => member.online) }
+    get remaining() { return this.state?.remaining ?? 0 }
     get canPlay() {
         return this.status === "connected" && this.started && this.allOnline && !this.pending &&
-            this.me !== null && this.game?.playerMove[0] === this.me
+            this.me !== null && this.tile !== null && this.game?.playerMove[0] === this.me
     }
 
     boot() {
         const match = window.location.hash.match(/^#\/room\/([a-f0-9]{32})$/)
         if (!match) return
         this.inviteRoom = match[1]
+        if (this.wasClosed(match[1])) { this.showClosed(match[1]); return }
         const saved = this.readSaved(match[1])
         if (saved) this.enter(match[1], saved.role, saved.name, saved)
         else this.setup = true
@@ -110,24 +98,25 @@ export class OnlineSession {
     join(roomOrLink: string, name: string) {
         const room = roomOrLink.trim().split("/room/").pop() || ""
         if (!validRoom(room)) { this.error = i18n("online.invalidLink"); return }
+        if (this.wasClosed(room)) { this.showClosed(room); return }
         const saved = this.readSaved(room)
         this.enter(room, saved?.role || "guest", name, saved || undefined)
     }
 
     resume() {
+        if (this.wasClosed(this.resumeRoom)) { this.showClosed(this.resumeRoom); return }
         const saved = this.readSaved(this.resumeRoom)
         if (saved) this.enter(this.resumeRoom, saved.role, saved.name, saved)
         else this.error = i18n("online.noSaved")
     }
 
     private readSaved(room: string): SavedRoom | null {
+        if (this.wasClosed(room)) return null
         try {
             const saved = JSON.parse(this.persistence.getItem(key(room)) || "null")
-            if (!isRecord(saved) || !["host", "guest"].includes(saved.role) || typeof saved.token !== "string" ||
-                !validRoom(saved.token) || typeof saved.name !== "string" || !isPacket(saved.packet, room) ||
-                !Array.isArray(saved.seats) || !saved.seats.every(s => isRecord(s) && playerIds.includes(s.id) &&
-                    typeof s.token === "string" && validRoom(s.token))) return null
-            return saved as unknown as SavedRoom
+            if (isSavedRoom(saved, room)) return saved
+            if (saved !== null) return null
+            return migrateSavedRoom(JSON.parse(this.persistence.getItem(`indigo-room-v1:${room}`) || "null"), room)
         } catch { return null }
     }
 
@@ -138,35 +127,44 @@ export class OnlineSession {
         this.role = role
         this.token = saved?.token || uid()
         this.name = cleanName(name)
-        this.me = role === "host" ? PlayerId.Player1 : null
+        this.me = role === "host" ? PlayerId.Player1 : saved?.packet.player ?? null
+        this.tile = saved?.packet.tile ?? null
         this.setup = false
+        this.status = "connecting"
         this.error = ""
         this.pending = false
         this.started = saved?.packet.started || false
         this.revision = saved?.packet.revision ?? 0
         this.state = saved?.packet.game || null
+        this.dealer = role === "host" ? saved?.dealer ?? null : null
         this.lastMove = undefined
-        this.seats = saved?.seats || [{ id: PlayerId.Player1, token: this.token }]
+        this.seats = saved?.seats || (role === "host" ? [{ id: PlayerId.Player1, token: this.token }] : [])
         this.members = saved?.packet.members.map(member => ({ ...member, online: false })) ||
             [{ id: PlayerId.Player1, name: this.name, online: false }]
-        this.game = new Store(`game-online-v1:${room}:${this.token}`)
+        this.game = new Store(`game-online-v2:${room}:${this.token}`)
         this.game.online = this
-        if (this.state) restoreSnapshot(this.game, this.state)
+        // The rendering store never holds the draw pile or an opponent's unplayed tile.
+        this.game.leftTiles = []
+        this.game.storage.set("tiles-left", [])
+        if (this.state) restoreSnapshot(this.game, privateView(this.state, this.me, this.tile))
         this.resumeRoom = room
         window.history.replaceState(null, "", `#/room/${room}`)
         this.persist()
         void this.connect()
     }
 
-    private packet(): Packet {
+    private packet(player = this.me): Packet {
         return clone({ type: "state", protocol: PROTOCOL, room: this.room, revision: this.revision,
-            started: this.started, members: this.members, game: this.state, lastMove: this.lastMove })
+            started: this.started, members: this.members, game: this.state, lastMove: this.lastMove,
+            player, tile: this.role === "host" ? (player && this.dealer?.hands[player]) ?? null : this.tile })
     }
 
     private persist() {
+        if (this.status === "closed" || this.wasClosed(this.room)) return
         try {
             this.persistence.setItem(key(this.room), JSON.stringify({ role: this.role, token: this.token, name: this.name,
-                seats: this.role === "host" ? this.seats : [], packet: this.packet() }))
+                seats: this.role === "host" ? this.seats : [], packet: this.packet(),
+                ...(this.role === "host" ? { dealer: this.dealer } : {}) }))
             this.persistence.setItem("indigo-last-room", this.room)
             this.saveFailed = false
         } catch { this.saveFailed = true }
@@ -177,13 +175,15 @@ export class OnlineSession {
     }
 
     private publish() {
+        if (this.status === "closed") return
         this.revision++
         this.persist()
-        const packet = this.packet()
-        this.links.forEach(link => { if (link.player) this.send(link.channel, packet) })
+        this.links.forEach(link => { if (link.player) this.send(link.channel, this.packet(link.player)) })
     }
 
     async connect() {
+        if (this.status === "closed") return
+        if (this.wasClosed(this.room)) { this.showClosed(this.room); return }
         this.stopTransport()
         if (!this.room) return
         this.status = "connecting"
@@ -199,7 +199,7 @@ export class OnlineSession {
             runInAction(() => { this.peer = peer })
             const current = () => this.generation === generation
             peer.on("open", () => {
-                if (!current()) return
+                if (!current() || this.status === "closed") return
                 runInAction(() => {
                     if (this.role === "host") {
                         this.status = "connected"
@@ -230,7 +230,8 @@ export class OnlineSession {
         if (host) this.host = channel
         channel.on("open", () => {
             if (generation !== this.generation) return
-            if (host) this.send(channel, { type: "hello", protocol: PROTOCOL, token: this.token, name: this.name })
+            if (this.status === "closed") this.sendClosed(channel)
+            else if (host) this.send(channel, { type: "hello", protocol: PROTOCOL, token: this.token, name: this.name })
         })
         channel.on("data", data => {
             if (generation !== this.generation || !this.links.has(channel)) return
@@ -244,6 +245,18 @@ export class OnlineSession {
         const link = this.links.get(channel)
         if (!link || !isRecord(data)) return
         link.seen = Date.now()
+        if (this.role === "guest" && channel === this.host && data.type === "room-closed" &&
+            data.protocol === PROTOCOL && data.room === this.room) {
+            this.markClosed()
+            // Let the host close the channel after receiving the acknowledgement.
+            this.send(channel, { type: "room-closed-ack", protocol: PROTOCOL, room: this.room })
+            return
+        }
+        if (this.status === "closed") {
+            if (this.role === "host" && data.type === "room-closed-ack" && data.protocol === PROTOCOL && data.room === this.room) this.drop(channel)
+            else if (this.role === "host" && (data.type === "hello" || data.type === "sync")) this.sendClosed(channel)
+            return
+        }
         if (data.type === "ping") { this.send(channel, { type: "pong" }); return }
         if (data.type === "pong") return
         if (this.role === "host") {
@@ -272,7 +285,7 @@ export class OnlineSession {
                 if (!this.started) member.name = cleanName(data.name)
                 this.send(channel, { type: "welcome", player: seat.id })
                 this.publish()
-            } else if (link.player && data.type === "sync") this.send(channel, this.packet())
+            } else if (link.player && data.type === "sync") this.send(channel, this.packet(link.player))
             else if (link.player && data.type === "move") this.acceptMove(link.player, data, channel)
         } else if (channel === this.host) {
             if (data.type === "welcome" && playerIds.slice(1).includes(data.player)) this.me = data.player
@@ -281,7 +294,7 @@ export class OnlineSession {
                 this.pending = false
                 this.error = i18n("online.moveRejected")
                 this.send(channel, { type: "sync" })
-            } else if (isPacket(data, this.room) && this.me) this.applyPacket(data)
+            } else if (isPacket(data, this.room) && this.me && data.player === this.me) this.applyPacket(data)
         }
     }
 
@@ -292,11 +305,13 @@ export class OnlineSession {
         if (changedGame && this.state && packet.lastMove && packet.revision === this.revision + 1) {
             try { animation = resolveMove(this.game.tiles, this.game.stones, packet.lastMove.cell, packet.lastMove.route, this.game.playersStore.gateways) } catch { /* Reconnection uses a complete snapshot. */ }
         }
-        if (packet.game && (changedGame || this.pending || this.status !== "connected")) {
-            restoreSnapshot(this.game, packet.game)
+        if (packet.game && (changedGame || packet.tile !== this.tile || this.pending || this.status !== "connected")) {
+            restoreSnapshot(this.game, privateView(packet.game, this.me, packet.tile))
             if (animation) this.game.animate(animation.frames, animation.awards, animation.collisions)
         }
         this.state = clone(packet.game)
+        this.lastMove = packet.lastMove ? clone(packet.lastMove) : undefined
+        this.tile = packet.tile
         this.members = clone(packet.members)
         this.started = packet.started
         this.revision = packet.revision
@@ -310,7 +325,10 @@ export class OnlineSession {
         this.game.reset()
         this.game.playersStore.setPlayerCount(this.members.length as 2 | 3 | 4)
         this.members.forEach(member => this.game!.playersStore.setPlayerName(member.id, member.name))
-        this.state = snapshot(this.game)
+        this.dealer = dealHands(snapshot(this.game))
+        this.tile = this.dealer.hands[PlayerId.Player1] ?? null
+        this.state = publicSnapshot(this.game, this.dealer.deck.length)
+        restoreSnapshot(this.game, privateView(this.state, this.me, this.tile))
         this.started = true
         this.publish()
     }
@@ -329,22 +347,37 @@ export class OnlineSession {
 
     private acceptMove(player: PlayerId, data: Record<string, any>, channel?: Channel) {
         const reject = () => {
-            if (channel) { this.send(channel, { type: "move-error" }); this.send(channel, this.packet()) }
+            if (channel) { this.send(channel, { type: "move-error" }); this.send(channel, this.packet(player)) }
             else this.error = i18n("online.moveRejected")
         }
-        const tile = this.state?.move[1]
+        const tile = this.dealer?.hands[player]
         const allowed = tile ? tileNameToAngle[tile].map(angle => tile === "c" ? RouteTiles.c : RouteTiles[`${tile}-${angle}` as keyof typeof RouteTiles]) : []
         if (!this.game || !this.started || !this.allOnline || this.status !== "connected" ||
-            this.state?.move[0] !== player || data.revision !== this.revision || typeof data.moveId !== "string" ||
+            this.state?.turn !== player || data.revision !== this.revision || typeof data.moveId !== "string" ||
             !validRoom(data.moveId) || typeof data.cell !== "string" || !allowed.includes(data.route)) { reject(); return }
         try {
             // Discard local previews. Only confirmed state and the authenticated sender determine the move.
-            restoreSnapshot(this.game, this.state!)
-            commitMove(this.game, data.cell, data.route)
-            this.state = snapshot(this.game)
+            restoreSnapshot(this.game, privateView(this.state!, this.me, this.tile))
+            commitMove(this.game, data.cell, data.route, () => this.advanceHand(player))
+            this.state = publicSnapshot(this.game, this.dealer!.deck.length)
             this.lastMove = { cell: data.cell, route: data.route, moveId: data.moveId }
             this.publish()
         } catch { reject() }
+    }
+
+    private advanceHand(player: PlayerId) {
+        const game = this.game!
+        const dealer = this.dealer!
+        dealer.hands[player] = game.finished ? null : dealer.deck.pop() ?? null
+        this.tile = dealer.hands[this.me!] ?? null
+        if (game.finished) {
+            game.playerMove = [player]
+            return
+        }
+        const index = this.members.findIndex(member => member.id === player)
+        const next = [...this.members.slice(index + 1), ...this.members.slice(0, index + 1)]
+            .find(member => dealer.hands[member.id])?.id ?? player
+        game.playerMove = next === this.me && this.tile ? [next, this.tile, 0] : [next]
     }
 
     private drop(channel: Channel) {
@@ -352,7 +385,9 @@ export class OnlineSession {
         if (!link) return
         this.links.delete(channel)
         channel.close()
-        if (this.role === "guest" && channel === this.host) {
+        if (this.status === "closed") {
+            if (!this.links.size) this.stopTransport()
+        } else if (this.role === "guest" && channel === this.host) {
             this.disconnect(i18n("online.hostLost"), true)
         } else if (link.player) {
             const member = this.members.find(m => m.id === link.player)
@@ -362,6 +397,7 @@ export class OnlineSession {
     }
 
     private tick() {
+        if (this.status === "closed") return
         const now = Date.now()
         if (this.status === "connecting" && now - this.openedAt > TIMEOUT_MS) {
             this.disconnect(i18n("online.timeout"), true)
@@ -379,6 +415,7 @@ export class OnlineSession {
 
     private disconnect(message: string, retry: boolean) {
         this.stopTransport()
+        if (this.status === "closed") return
         this.status = retry ? "disconnected" : "error"
         this.error = message
         this.pending = false
@@ -390,6 +427,7 @@ export class OnlineSession {
         this.generation++
         clearInterval(this.timer)
         clearTimeout(this.retry)
+        clearTimeout(this.closeTimer)
         this.links.forEach(link => link.channel.close())
         this.links.clear()
         this.peer?.destroy()
@@ -397,10 +435,93 @@ export class OnlineSession {
         this.host = null
     }
 
+    private wasClosed(room: string) {
+        if (!validRoom(room)) return false
+        try { return this.persistence.getItem(closedKey(room)) !== null } catch { return false }
+    }
+
+    private eraseRoom(room: string) {
+        if (!validRoom(room)) return false
+        try {
+            const keys = Array.from({ length: this.persistence.length }, (_, index) => this.persistence.key(index))
+            keys.forEach(name => {
+                if (name && (name === key(room) || name === `indigo-room-v1:${room}` ||
+                    name.startsWith(`game-online-v1:${room}:`) || name.startsWith(`game-online-v2:${room}:`))) {
+                    this.persistence.removeItem(name)
+                }
+            })
+            if (this.persistence.getItem("indigo-last-room") === room) this.persistence.removeItem("indigo-last-room")
+            if (this.resumeRoom === room) this.resumeRoom = ""
+            return true
+        } catch {
+            this.error = i18n("online.forgetFailed")
+            this.saveFailed = true
+            return false
+        }
+    }
+
+    forgetRoom() {
+        const room = this.room || this.resumeRoom
+        if (!validRoom(room)) return
+        // Stop callbacks before deleting data so a late snapshot cannot recreate the save.
+        if (room === this.room) this.leave()
+        this.saveFailed = false
+        if (!this.eraseRoom(room)) this.setup = true
+    }
+
+    private sendClosed(channel: Channel) {
+        this.send(channel, { type: "room-closed", protocol: PROTOCOL, room: this.room })
+    }
+
+    private markClosed() {
+        this.status = "closed"
+        this.pending = false
+        this.error = ""
+        this.tile = null
+        this.dealer = null
+        this.state = null
+        this.game?.stopAnimation()
+        this.members = this.members.map(member => ({ ...member, online: false }))
+        clearInterval(this.timer)
+        clearTimeout(this.retry)
+        let marked = true
+        try { this.persistence.setItem(closedKey(this.room), "1") } catch { marked = false }
+        const erased = this.eraseRoom(this.room)
+        this.saveFailed = !marked || !erased
+        // Closing immediately after send() can discard the final WebRTC message.
+        clearTimeout(this.closeTimer)
+        this.closeTimer = setTimeout(this.stopTransport, CLOSE_TIMEOUT_MS)
+    }
+
+    closeRoom() {
+        if (this.role !== "host" || !this.room || this.status === "closed") return
+        this.markClosed()
+        this.links.forEach(link => this.sendClosed(link.channel))
+        if (!this.links.size) this.stopTransport()
+    }
+
+    private showClosed(room: string) {
+        this.leave()
+        this.room = room
+        this.status = "closed"
+        this.eraseRoom(room)
+    }
+
     leave() {
         this.stopTransport()
         this.game?.dispose()
         this.game = null
+        this.tile = null
+        this.dealer = null
+        this.state = null
+        this.seats = []
+        this.me = null
+        this.token = ""
+        this.name = ""
+        this.lastMove = undefined
+        this.members = []
+        this.started = false
+        this.pending = false
         this.room = ""
         this.inviteRoom = ""
         this.setup = false
