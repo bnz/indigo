@@ -44,7 +44,19 @@ The existing local game remains available. Joining or leaving an online room doe
 Each online player is dealt **one private tile at the start** and sees it next to their own avatar,
 including during another player's turn. After placing it, they immediately draw a replacement.
 Opponents see the route only after placement; selection and rotation previews are not broadcast.
-This uses the standard one-tile hand, not the proposed two-tile tactical/shared-screen mode.
+This uses the standard one-tile hand; Shared table uses the two-tile tactical variant.
+
+## Shared table (big screen + 2–4 phones)
+
+1. On the shared screen, choose **Shared table / Общий стол** and **Open shared table / Открыть общий стол**.
+2. Every player scans the invitation QR code on their own phone, enters a name, and joins. The shared screen is the host but does not occupy a player seat.
+3. Start on the shared screen once 2–4 phones are connected. The room panel also offers fullscreen mode.
+4. Each phone shows two private route tiles. The active player selects one, rotates it, and moves a neutral marker on the shared board with six directional buttons. **Place** reveals the tile and resolves the move.
+5. The player immediately draws a replacement while the deck lasts. Collected gems and points appear only on their owner's phone; all scores are revealed at the end.
+
+The host alone renders the board and validates controller commands against the current turn, hand, revision, animation state, and placement rules. Phones receive controller-only snapshots, with no board, deck, opponent hands, or opponent scores. The marker never previews a tile face. Its directional controls follow the host's board orientation.
+
+Table invitations use `#/table/<room>`. Reopening that link in the same browser restores the screen/controller role, hand and marker. Disconnections pause play until participants return; only the shared screen can close the room for everyone. Local games and ordinary `#/room/<room>` games remain separate modes. See [SHARED_TABLE_MODE.md](SHARED_TABLE_MODE.md) for the mode description and rules source.
 
 ### Connection and hosting
 
@@ -91,6 +103,8 @@ They also verify private dealing/refill, per-recipient messages, hidden opponent
 v1 save migration, and conservation of all 54 route tiles throughout full online games.
 Room lifecycle tests cover host-only closure and acknowledgement, stale messages, reconnect suppression,
 legacy-save cleanup, room-local deletion, and storage failures.
+Shared-table tests cover four phone seats plus a separate screen, controller-only messages, hidden scores,
+marker navigation, rotation and hand selection, animation locks, orientation changes, reconnection, and complete games for each player count.
 
 ## Production deployment
 

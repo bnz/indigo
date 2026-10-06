@@ -37,7 +37,7 @@ export const Drawer: FC = observer(() => {
                             {!online?.active && <div className={styles.actions}>
                                 <RestartGame />
                             </div>}
-                            <RotateLayout />
+                            {!online?.isController && <RotateLayout />}
                         </>
                     )}
                 </div>

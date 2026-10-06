@@ -85,6 +85,7 @@ export class Store {
         readonly canPlay: boolean
         readonly me: PlayerId | null
         readonly tile: TileName | null
+        readonly isSharedTable?: boolean
         submit: (id: string, route: RouteTiles) => void
     } | null = null
 
@@ -128,7 +129,7 @@ export class Store {
         this.stopAnimation()
         if (!frames.length || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return
         let frame = 0
-        this.pendingAwards = awards
+        this.pendingAwards = this.online?.isSharedTable ? [] : awards
         this.animatedStones = frames[frame]
         const advance = () => runInAction(() => {
             frame++

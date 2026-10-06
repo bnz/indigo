@@ -23,7 +23,7 @@ export const Seat: FC<SeatProps> = observer(({ playerId, playerClass, stones }) 
     const online = store.online
     const ownTile = online?.me === playerId ? online.tile : null
     const active = playerId === store.playerMove[0]
-    const showTile = !store.finished && (online ? !!ownTile : !!store.currentTileName && active)
+    const showTile = !store.finished && !online?.isSharedTable && (online ? !!ownTile : !!store.currentTileName && active)
     const previewStyle = online && !active && ownTile
         ? cssBgUrl(`${svg}#${ownTile === "c" ? "c" : `${ownTile}-0`}`)
         : playerMoveRouteTile(store)
@@ -45,7 +45,7 @@ export const Seat: FC<SeatProps> = observer(({ playerId, playerClass, stones }) 
                     }}
                 />
             )}
-            {stones.length > 0 && (
+            {stones.length > 0 && (!online?.isSharedTable || store.finished) && (
                 <>
                     <PlayerScore playerId={playerId} playerClass={playerClass} />
                     {stones.map((stone, index) => (

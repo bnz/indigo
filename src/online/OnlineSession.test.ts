@@ -4,7 +4,8 @@ import { applySit } from "../Storage/Store/applyers/applySit"
 import { tileNameToAngle } from "../Storage/Store/maps/TileNameToAngle"
 import { rotateRight } from "../Storage/Store/applyers/rotate"
 import { placementError } from "../game/rules"
-import { PlayerId, RouteTiles } from "../types"
+import { HexType, PlayerId, RouteTiles } from "../types"
+import { Layout } from "../jsx/Game/Hexagons/Layout"
 import { OnlineSession } from "./OnlineSession"
 import { clone, isSnapshot, publicSnapshot, restoreSnapshot, snapshot } from "./snapshot"
 import { Channel, PeerEndpoint, PeerFactory } from "./transport"
@@ -131,6 +132,204 @@ const setup = async (count = 2) => {
     await hub.flush()
     return { host, guests }
 }
+
+const setupTable = async (count = 2) => {
+    const host = session()
+    host.create("", "table")
+    await hub.flush()
+    const controllers: OnlineSession[] = []
+    for (let i = 0; i < count; i++) {
+        const controller = session()
+        controller.join(host.invitation, `Player ${i + 1}`)
+        controllers.push(controller)
+        await hub.flush()
+    }
+    host.start()
+    await hub.flush()
+    return { host, controllers }
+}
+
+const moveCursor = async (host: OnlineSession, controller: OnlineSession, target: string) => {
+    const queue: { cell: string, steps: number[] }[] = [{ cell: host.cursor!.cell, steps: [] }]
+    const visited = new Set<string>()
+    while (queue.length) {
+        const current = queue.shift()!
+        if (current.cell === target) {
+            for (const step of current.steps) { controller.control("step", step); await hub.flush() }
+            expect(host.cursor!.cell).toBe(target)
+            return
+        }
+        if (visited.has(current.cell)) continue
+        visited.add(current.cell)
+        for (let direction = 0; direction < 6; direction++) {
+            const next = host.game!.tiles[current.cell].hex.neighbor(direction).id
+            if ([HexType.route, HexType.treasure].includes(host.game!.tiles[next]?.type)) queue.push({ cell: next, steps: [...current.steps, direction] })
+        }
+    }
+    throw new Error("No cursor path")
+}
+
+test("shared table reserves all four seats for phones and sends no board or other hands", async () => {
+    const { host, controllers } = await setupTable(4)
+    expect(host.me).toBeNull()
+    expect(host.game!.canPlay).toBe(false)
+    expect(host.members).toHaveLength(4)
+    expect(host.remaining).toBe(46)
+    expect(host.invitation).toContain("#/table/")
+    controllers.forEach((controller, index) => {
+        expect(controller.me).toBe(`p-${index + 1}`)
+        expect(controller.table!.hand).toHaveLength(2)
+        expect(controller.canPlay).toBe(index === 0)
+        const packet = saved(controller).packet
+        expect(packet.mode).toBe("table")
+        expect(packet.game).toBeNull()
+        expect(packet.lastMove).toBeUndefined()
+        expect(packet.tile).toBeNull()
+        expect(packet.table.results).toBeNull()
+        expect(packet.table.stones).toEqual([])
+        expect(packet.table.cursor !== null).toBe(index === 0)
+        expect(saved(controller).dealer).toBeUndefined()
+    })
+    const fifth = session()
+    fifth.join(host.invitation, "Extra")
+    await hub.flush()
+    expect(fifth.status).toBe("error")
+    expect(host.members).toHaveLength(4)
+})
+
+test("table navigation changes only a neutral cursor; placement consumes the selected tile and refills the hand", async () => {
+    const { host, controllers: [first, second] } = await setupTable()
+    const original = board(host)
+    const hand = [...first.table!.hand]
+    const deck = saved(host).dealer.deck
+    first.control("select", 1)
+    await hub.flush()
+    first.control("rotate", 1)
+    await hub.flush()
+    first.control("step", 0)
+    await hub.flush()
+    expect(host.cursor!.cell).toBe("2,0")
+    expect(board(host)).toEqual(original)
+    expect(second.table!.cursor).toBeNull()
+    expect(host.game!.currentTileName).toBeUndefined()
+    const angle = host.cursor!.angle
+    first.control("place")
+    await hub.flush()
+    const expected = hand[1] === "c" ? RouteTiles.c : RouteTiles[`${hand[1]}-${angle}` as keyof typeof RouteTiles]
+    expect(host.game!.tiles["2,0"].tile).toBe(expected)
+    expect(first.table!.hand).toEqual([hand[0], deck[deck.length - 1]])
+    expect(host.remaining).toBe(49)
+    expect(first.canPlay).toBe(false)
+    expect(second.canPlay).toBe(true)
+})
+
+test("table rejects other-player controls, invalid slots, stale commands and direct board moves", async () => {
+    const { host, controllers } = await setupTable()
+    const original = board(host)
+    const revision = host.revision
+    const command = { type: "table-command", revision, moveId: "aa".repeat(16), action: "place", value: 0 }
+    hub.guestChannel(2).send(command)
+    hub.guestChannel(1).send({ ...command, action: "select", value: 4 })
+    hub.guestChannel(1).send({ type: "move", revision, moveId: "bb".repeat(16), cell: "1,0", route: RouteTiles.c })
+    await hub.flush()
+    expect(board(host)).toEqual(original)
+    expect(host.revision).toBe(revision)
+    controllers[0].control("place")
+    const sent = hub.guestChannel(1).sent.filter(data => data.type === "table-command").slice(-1)[0]
+    await hub.flush()
+    const accepted = board(host)
+    hub.guestChannel(1).send(sent)
+    await hub.flush()
+    expect(board(host)).toEqual(accepted)
+})
+
+test("table propagates screen orientation, locks during animations, and resumes controls afterwards", async () => {
+    const { host, controllers } = await setupTable()
+    runInAction(() => { host.game!.orientation = Layout.pointy })
+    await hub.flush()
+    expect(controllers[0].table!.orientation).toBe("pointy")
+    Object.defineProperty(window, "matchMedia", { configurable: true, value: () => ({ matches: false }) })
+    controllers[0].control("place")
+    await hub.flush()
+    expect(controllers[1].table!.busy).toBe(true)
+    expect(controllers[1].canPlay).toBe(false)
+    jest.advanceTimersByTime(5000)
+    await hub.flush()
+    expect(controllers[1].table!.busy).toBe(false)
+    expect(controllers[1].canPlay).toBe(true)
+})
+
+test("shared screen and phone reload restore two-tile hands, scores and cursor without taking a player seat", async () => {
+    const { host, controllers: [first, second] } = await setupTable()
+    first.control("step", 0)
+    await hub.flush()
+    first.control("select", 1)
+    await hub.flush()
+    const cursor = clone(host.cursor)
+    const hands = saved(host).dealer.tableHands
+    const room = host.room
+    first.dispose()
+    const restoredPhone = session(saves.get(first))
+    restoredPhone.join(host.invitation, "Player 1")
+    await hub.flush()
+    expect(restoredPhone.me).toBe(PlayerId.Player1)
+    expect(restoredPhone.table!.hand).toEqual(hands[PlayerId.Player1])
+    host.dispose()
+    const restoredScreen = session(saves.get(host))
+    restoredScreen.join(room, "")
+    await hub.flush()
+    expect(restoredScreen.mode).toBe("table")
+    expect(restoredScreen.me).toBeNull()
+    expect(restoredScreen.cursor).toEqual(cursor)
+    await restoredPhone.connect()
+    await second.connect()
+    await hub.flush()
+    expect(restoredPhone.canPlay).toBe(true)
+    expect(saved(restoredScreen).dealer.tableHands).toEqual(hands)
+    restoredScreen.closeRoom()
+    await hub.flush()
+    expect(restoredPhone.status).toBe("closed")
+    expect(second.status).toBe("closed")
+})
+
+test.each([2, 3, 4])("a complete shared-table game with %i phones preserves tile counts and reveals scores only at the end", async count => {
+    let seed = count + 50
+    jest.spyOn(Math, "random").mockImplementation(() => {
+        seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
+        return seed / 4294967296
+    })
+    const { host, controllers } = await setupTable(count)
+    for (let turn = 0; turn < 54 && !host.finished; turn++) {
+        const current = controllers.find(controller => controller.me === host.turn)!
+        const options: { cell: string, slot: number, angle: number }[] = []
+        current.table!.hand.forEach((name, slot) => Object.keys(host.game!.tiles).forEach(cell => tileNameToAngle[name].forEach(angle => {
+            const route = name === "c" ? RouteTiles.c : RouteTiles[`${name}-${angle}` as keyof typeof RouteTiles]
+            if (!placementError(host.game!.tiles, cell, route)) options.push({ cell, slot, angle })
+        })))
+        expect(options.length).toBeGreaterThan(0)
+        const option = options[Math.floor(Math.random() * options.length)]
+        current.control("select", option.slot)
+        await hub.flush()
+        while (host.cursor!.angle !== option.angle) { current.control("rotate", 1); await hub.flush() }
+        await moveCursor(host, current, option.cell)
+        current.control("place")
+        await hub.flush()
+        const dealer = saved(host).dealer
+        expect(dealer.deck.length + Object.values(dealer.tableHands).reduce((sum: number, hand: any) => sum + hand.length, 0) +
+            board(host).routes.filter(tile => tile.length > 2).length).toBe(54)
+        controllers.forEach(controller => {
+            expect(saved(controller).packet.game).toBeNull()
+            expect(controller.table!.stones).toEqual(host.game!.playersStore.players.find(player => player.id === controller.me)!.stones)
+            if (!host.finished) expect(controller.table!.results).toBeNull()
+        })
+    }
+    expect(host.finished).toBe(true)
+    controllers.forEach(controller => {
+        expect(controller.finished).toBe(true)
+        expect(controller.table!.results).toEqual(host.game!.playersStore.players)
+        expect(controller.canPlay).toBe(false)
+    })
+})
 
 const place = (room: OnlineSession) => {
     const store = room.game!

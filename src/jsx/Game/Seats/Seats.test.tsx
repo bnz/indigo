@@ -142,3 +142,20 @@ test("online players see only their own tile while waiting and during their turn
     fireEvent.click(screen.getByTestId("private-tile"))
     expect(store.playerMove[3]).toBe(-60)
 })
+
+test("the shared screen hides collected stones and counters until the game ends", () => {
+    localStorage.clear()
+    const store = new Store()
+    runInAction(() => {
+        store.playersStore.players[0].stones.push(StoneId.amber0)
+        store.stones.a0[4] = true
+        store.online = { me: null, tile: null, isSharedTable: true, canPlay: false, submit: jest.fn() }
+    })
+    const { container } = render(<StoreProvider store={store}><Seats /></StoreProvider>)
+    expect(container.querySelector("[data-player-score]")).toBeNull()
+    expect(container.querySelector("[data-collected-stone]")).toBeNull()
+    expect(screen.queryByTestId("private-tile")).toBeNull()
+    act(() => runInAction(() => { Object.values(store.stones).forEach(stone => { stone[4] = true }) }))
+    expect(container.querySelector('[data-player-score="p-1"]')).not.toBeNull()
+    expect(container.querySelector('[data-collected-stone="a0"]')).not.toBeNull()
+})

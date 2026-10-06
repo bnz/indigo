@@ -1,0 +1,104 @@
+.root {
+    max-width: 480px;
+    margin: 64px auto 24px;
+    padding: 16px;
+    display: grid;
+    gap: 12px;
+    text-align: center;
+}
+
+.root h1 { font-size: 24px; }
+.root h2 { font-size: 18px; }
+.root p { margin: 0; }
+.root ul { text-align: left; }
+
+.badge {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+.root button {
+    border: 2px solid transparent;
+    border-radius: 12px;
+    min-height: 48px;
+    background: #67428c;
+    color: #fff;
+    padding: 10px;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
+.root button:disabled { opacity: .5; cursor: default; }
+.root button:focus-visible { outline: 3px solid var(--sphere-p-2-color); outline-offset: 2px; }
+
+.hand,
+.rotations {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.hand button {
+    padding: 12px 8px;
+    background: var(--button-background-color);
+    color: var(--main-text-color);
+}
+
+.hand button:disabled { opacity: 1; }
+.hand button[aria-pressed="true"] { border-color: var(--sphere-p-2-color); }
+
+.tile {
+    display: block;
+    width: 100%;
+    height: 116px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-bottom: 8px;
+}
+
+.directions {
+    position: relative;
+    width: 230px;
+    height: 230px;
+    justify-self: center;
+}
+
+.directions button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 56px;
+    height: 56px;
+    font-size: 28px;
+    line-height: 1;
+}
+
+.coordinate {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-variant-numeric: tabular-nums;
+}
+
+.place { font-size: 20px; }
+.score div { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; font-size: 14px; }
+.gem { display: inline-block; width: 10px; height: 10px; transform: rotate(45deg); }
+
+.cursor {
+    pointer-events: none !important;
+    z-index: 5;
+}
+
+.cursor svg { width: 100%; height: 100%; overflow: visible; }
+.cursor polygon {
+    fill: rgba(255, 255, 255, .12);
+    stroke: #fff;
+    stroke-width: 3;
+    stroke-dasharray: 7 3;
+    filter: drop-shadow(0 0 3px #000);
+}

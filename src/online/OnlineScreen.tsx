@@ -7,6 +7,7 @@ import { Arena } from "../jsx/Game/Arena/Arena"
 import { useOnline } from "./OnlineProvider"
 import { i18n } from "../i18n/i18n"
 import styles from "./OnlineScreen.module.css"
+import { TableController } from "./TableController"
 
 export const OnlineEntry: FC = observer(() => {
     const session = useOnline()
@@ -15,6 +16,7 @@ export const OnlineEntry: FC = observer(() => {
     return (
         <div className={styles.entry}>
             <button onClick={() => { ui.closeDrawer(); session.openSetup() }}>{i18n("online.entry")}</button>
+            <button onClick={() => { ui.closeDrawer(); session.openSetup("table") }}>{i18n("table.title")}</button>
             {session.resumeRoom && <>
                 <button onClick={() => { ui.closeDrawer(); session.resume() }}>{i18n("online.resume")}</button>
                 <button className={styles.secondary} title={i18n("online.forgetHint")} onClick={() => session.forgetRoom()}>{i18n("online.forget")}</button>
@@ -29,12 +31,12 @@ const Setup: FC = observer(() => {
     const [link, setLink] = useState(session.inviteRoom)
     return (
         <main className={styles.lobby}>
-            <h1>{i18n("online.title")}</h1>
-            <p>{i18n("online.intro")}</p>
-            <label>{i18n("online.name")}<input value={name} maxLength={24} onChange={event => setName(event.target.value)} autoComplete="nickname" /></label>
-            <div>
-                <button onClick={() => session.create(name)}>{i18n("online.create")}</button>
-            </div>
+            <h1>{i18n(session.isSharedTable ? "table.title" : "online.title")}</h1>
+            <p>{i18n(session.isSharedTable ? "table.intro" : "online.intro")}</p>
+            {(!session.isSharedTable || session.inviteRoom) && <label>{i18n("online.name")}<input value={name} maxLength={24} onChange={event => setName(event.target.value)} autoComplete="nickname" /></label>}
+            {(!session.isSharedTable || !session.inviteRoom) && <div>
+                <button onClick={() => session.create(name)}>{i18n(session.isSharedTable ? "table.create" : "online.create")}</button>
+            </div>}
             <form onSubmit={event => { event.preventDefault(); session.join(link, name) }}>
                 <label>{i18n("online.link")}<input value={link} onChange={event => setLink(event.target.value)} spellCheck={false} /></label>
                 <button type="submit" disabled={!link.trim()}>{i18n("online.join")}</button>
@@ -74,7 +76,7 @@ const RoomDetails: FC = observer(() => {
                 {session.members.map(member => (
                     <li key={member.id}>
                         <span className={styles.dot} style={{ background: `var(--sphere-${member.id}-color)` }} />
-                        <span>{member.name}{member.id === session.me ? ` (${i18n("online.you")})` : ""}{member.id === "p-1" ? ` · ${i18n("online.host")}` : ""}</span>
+                        <span>{member.name}{member.id === session.me ? ` (${i18n("online.you")})` : ""}{!session.isSharedTable && member.id === "p-1" ? ` · ${i18n("online.host")}` : ""}</span>
                         <span>{i18n(member.online ? "online.connected" : "online.offline")}</span>
                     </li>
                 ))}
@@ -84,9 +86,13 @@ const RoomDetails: FC = observer(() => {
             {session.status !== "connected" && <button onClick={() => { void session.connect() }}>{i18n("online.reconnect")}</button>}
             <button onClick={session.leave}>{i18n("online.leave")}</button>
             {session.role === "host" && <button className={styles.destructive} onClick={session.closeRoom}>{i18n("online.closeRoom")}</button>}
+            {session.isSharedTable && session.role === "host" && <button onClick={() => {
+                const request = document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.()
+                request?.catch(() => {})
+            }}>{i18n("table.fullscreen")}</button>}
             <button className={styles.secondary} title={i18n("online.forgetHint")} onClick={() => session.forgetRoom()}>{i18n("online.forget")}</button>
             <small>{i18n("online.savedHint")}</small>
-            <small>{i18n("online.hiddenTilesHint")}</small>
+            <small>{i18n(session.isSharedTable ? "table.rulesHint" : "online.hiddenTilesHint")}</small>
         </div>
     )
 })
@@ -94,10 +100,10 @@ const RoomDetails: FC = observer(() => {
 export const OnlineScreen: FC = observer(() => {
     const session = useOnline()!
     const store = useStore()
-    const activePlayer = store.playerMove[0]
+    const activePlayer = session.turn
     useEffect(() => {
         document.body.classList.remove("p-1", "p-2", "p-3", "p-4")
-        if (session.started && session.room && session.status !== "closed") document.body.classList.add(activePlayer)
+        if (activePlayer && session.started && session.room && session.status !== "closed") document.body.classList.add(activePlayer)
         return () => {
             document.body.classList.remove("p-1", "p-2", "p-3", "p-4")
         }
@@ -115,12 +121,13 @@ export const OnlineScreen: FC = observer(() => {
     const turn = session.members.find(member => member.id === activePlayer)?.name || ""
     const status = session.status === "error" ? i18n("online.noConnection") : session.status !== "connected" ? i18n("online.connecting") :
         !session.allOnline ? i18n("online.waiting") : session.pending ? i18n("online.pending") :
-        store.animatedStones ? i18n("game.moving") : store.finished ? i18n("result.text.h1") :
+        (session.isController ? session.table?.busy : store.animatedStones) ? i18n("game.moving") : session.finished ? i18n("result.text.h1") :
         session.me === activePlayer ? i18n("online.yourTurn") : `${i18n("game.turn")}: ${turn}`
 
     if (!session.started) return (
         <main className={styles.lobby}>
-            <h1>{i18n("online.roomTitle")}</h1>
+            <h1>{i18n(session.isSharedTable ? "table.title" : "online.roomTitle")}</h1>
+            {session.isSharedTable && <p>{i18n(session.role === "host" ? "table.hostHint" : "table.controllerHint")}</p>}
             <p role="status">{i18n(session.status === "connected" ? "online.inviteHint" : session.status === "error" ? "online.noConnection" : "online.connecting")}</p>
             <RoomDetails />
             {session.role === "host" ? (
@@ -135,7 +142,7 @@ export const OnlineScreen: FC = observer(() => {
                 <summary><span role="status">{status}</span><span>{i18n("online.roomMenu")} ▾</span></summary>
                 <RoomDetails />
             </details>
-            <Arena />
+            {session.isController ? <TableController /> : <Arena sharedTable={session.isSharedTable} />}
         </>
     )
 })

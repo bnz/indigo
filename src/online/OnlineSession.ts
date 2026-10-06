@@ -1,13 +1,14 @@
-import { makeAutoObservable, observable, runInAction } from "mobx"
+import { makeAutoObservable, observable, reaction, runInAction } from "mobx"
 import { Store } from "../Storage/Store/Store"
 import { commitMove } from "../Storage/Store/applyers/applySit"
 import { tileNameToAngle } from "../Storage/Store/maps/TileNameToAngle"
-import { resolveMove } from "../game/rules"
-import { PlayerId, RouteTiles, TileName } from "../types"
+import { placementError, resolveMove } from "../game/rules"
+import { Angle, HexType, PlayerId, RouteTiles, TileName } from "../types"
 import { Channel, createPeer, PeerEndpoint, PeerFactory } from "./transport"
 import { clone, isRecord, playerIds, privateView, PublicGameSnapshot, publicSnapshot, restoreSnapshot, snapshot } from "./snapshot"
 import { i18n } from "../i18n/i18n"
 import { DealerState, dealHands, isPacket, isSavedRoom, Member, migrateSavedRoom, Packet, PROTOCOL, SavedRoom, Seat, validRoom } from "./protocol"
+import { RoomMode, TableAction, TableCursor, TableView } from "./table"
 
 const HEARTBEAT_MS = 3000
 const TIMEOUT_MS = 15000
@@ -31,6 +32,7 @@ export class OnlineSession {
     setup = false
     inviteRoom = ""
     room = ""
+    mode: RoomMode = "online"
     role: "host" | "guest" = "guest"
     me: PlayerId | null = null
     tile: TileName | null = null
@@ -43,6 +45,8 @@ export class OnlineSession {
     pending = false
     revision = 0
     resumeRoom = ""
+    table: TableView | null = null
+    cursor: TableCursor | null = null
 
     private token = ""
     private name = ""
@@ -59,11 +63,13 @@ export class OnlineSession {
     private generation = 0
     private openedAt = 0
     private pendingAt = 0
+    private stopTableReaction: (() => void) | undefined
 
     constructor(private factory: PeerFactory = createPeer, private persistence: Pick<Storage, "getItem" | "setItem" | "removeItem" | "key" | "length"> = browserStorage) {
-        makeAutoObservable<this, "factory" | "persistence" | "peer" | "links" | "host" | "timer" | "retry" | "closeTimer" | "generation" | "openedAt" | "pendingAt" | "state" | "dealer" | "seats" | "token" | "name" | "lastMove">(this, {
+        makeAutoObservable<this, "factory" | "persistence" | "peer" | "links" | "host" | "timer" | "retry" | "closeTimer" | "generation" | "openedAt" | "pendingAt" | "state" | "dealer" | "seats" | "token" | "name" | "lastMove" | "stopTableReaction">(this, {
             game: observable.ref, factory: false, persistence: false, peer: false, links: false, host: false, timer: false, retry: false,
             closeTimer: false,
+            stopTableReaction: false,
             generation: false, openedAt: false, pendingAt: false, state: observable.ref, dealer: false, seats: false, token: false, name: false, lastMove: false,
         }, { autoBind: true })
         try { this.resumeRoom = this.persistence.getItem("indigo-last-room") || "" } catch { /* Storage may be unavailable. */ }
@@ -71,33 +77,44 @@ export class OnlineSession {
     }
 
     get active() { return this.setup || !!this.room }
-    get invitation() { return `${window.location.origin}${window.location.pathname}#/room/${this.room}` }
+    get invitation() { return `${window.location.origin}${window.location.pathname}#/${this.isSharedTable ? "table" : "room"}/${this.room}` }
+    get isSharedTable() { return this.mode === "table" }
+    get isController() { return this.isSharedTable && this.role === "guest" }
+    get turn() { return this.isController ? this.table?.turn ?? null : this.game?.playerMove[0] ?? null }
+    get finished() { return this.isController ? this.table?.finished ?? false : this.game?.finished ?? false }
     get allOnline() { return this.members.length >= 2 && this.members.every(member => member.online) }
-    get remaining() { return this.state?.remaining ?? 0 }
+    get remaining() { return this.isController ? this.table?.remaining ?? 0 : this.state?.remaining ?? 0 }
     get canPlay() {
         return this.status === "connected" && this.started && this.allOnline && !this.pending &&
-            this.me !== null && this.tile !== null && this.game?.playerMove[0] === this.me
+            this.me !== null && this.turn === this.me && (this.isController
+                ? !!this.table?.hand.length && !this.table.finished && !this.table.busy
+                : this.tile !== null)
     }
 
     boot() {
-        const match = window.location.hash.match(/^#\/room\/([a-f0-9]{32})$/)
+        const match = window.location.hash.match(/^#\/(room|table)\/([a-f0-9]{32})$/)
         if (!match) return
-        this.inviteRoom = match[1]
-        if (this.wasClosed(match[1])) { this.showClosed(match[1]); return }
-        const saved = this.readSaved(match[1])
-        if (saved) this.enter(match[1], saved.role, saved.name, saved)
+        this.mode = match[1] === "table" ? "table" : "online"
+        this.inviteRoom = match[2]
+        if (this.wasClosed(match[2])) { this.showClosed(match[2]); return }
+        const saved = this.readSaved(match[2])
+        if (saved) this.enter(match[2], saved.role, saved.name, saved)
         else this.setup = true
     }
 
-    openSetup() { this.setup = true }
+    openSetup(mode: RoomMode = "online") { this.mode = mode; this.setup = true }
 
-    create(name: string) {
+    create(name: string, mode: RoomMode = this.mode) {
+        this.mode = mode
         this.enter(uid(), "host", name)
     }
 
     join(roomOrLink: string, name: string) {
-        const room = roomOrLink.trim().split("/room/").pop() || ""
+        const input = roomOrLink.trim()
+        const link = input.match(/#\/(room|table)\/([a-f0-9]{32})$/)
+        const room = link?.[2] ?? input
         if (!validRoom(room)) { this.error = i18n("online.invalidLink"); return }
+        if (link) this.mode = link[1] === "table" ? "table" : "online"
         if (this.wasClosed(room)) { this.showClosed(room); return }
         const saved = this.readSaved(room)
         this.enter(room, saved?.role || "guest", name, saved || undefined)
@@ -122,13 +139,18 @@ export class OnlineSession {
 
     private enter(room: string, role: "host" | "guest", name: string, saved?: SavedRoom) {
         this.stopTransport()
+        this.stopTableReaction?.()
+        this.stopTableReaction = undefined
         this.game?.dispose()
         this.room = room
         this.role = role
+        this.mode = saved?.packet.mode ?? (saved ? "online" : this.mode)
         this.token = saved?.token || uid()
         this.name = cleanName(name)
-        this.me = role === "host" ? PlayerId.Player1 : saved?.packet.player ?? null
+        this.me = role === "host" ? (this.isSharedTable ? null : PlayerId.Player1) : saved?.packet.player ?? null
         this.tile = saved?.packet.tile ?? null
+        this.table = saved?.packet.table ?? null
+        this.cursor = role === "host" && this.table?.cursor ? { cell: this.table.cursor.cell, slot: this.table.cursor.slot, angle: this.table.cursor.angle } : null
         this.setup = false
         this.status = "connecting"
         this.error = ""
@@ -138,22 +160,34 @@ export class OnlineSession {
         this.state = saved?.packet.game || null
         this.dealer = role === "host" ? saved?.dealer ?? null : null
         this.lastMove = undefined
-        this.seats = saved?.seats || (role === "host" ? [{ id: PlayerId.Player1, token: this.token }] : [])
+        this.seats = saved?.seats || (role === "host" && !this.isSharedTable ? [{ id: PlayerId.Player1, token: this.token }] : [])
         this.members = saved?.packet.members.map(member => ({ ...member, online: false })) ||
-            [{ id: PlayerId.Player1, name: this.name, online: false }]
+            (this.isSharedTable ? [] : [{ id: PlayerId.Player1, name: this.name, online: false }])
         this.game = new Store(`game-online-v2:${room}:${this.token}`)
         this.game.online = this
         // The rendering store never holds the draw pile or an opponent's unplayed tile.
         this.game.leftTiles = []
         this.game.storage.set("tiles-left", [])
         if (this.state) restoreSnapshot(this.game, privateView(this.state, this.me, this.tile))
+        if (this.isSharedTable && role === "host") {
+            this.stopTableReaction = reaction(() => [this.game?.animatedStones !== null, this.game?.orientationType], () => {
+                if (this.started && this.status === "connected") {
+                    this.persist()
+                    this.links.forEach(link => { if (link.player) this.send(link.channel, this.packet(link.player)) })
+                }
+            })
+        }
         this.resumeRoom = room
-        window.history.replaceState(null, "", `#/room/${room}`)
+        window.history.replaceState(null, "", `#/${this.isSharedTable ? "table" : "room"}/${room}`)
         this.persist()
         void this.connect()
     }
 
     private packet(player = this.me): Packet {
+        if (this.isSharedTable) return clone({ type: "state", protocol: PROTOCOL, room: this.room, revision: this.revision,
+            mode: "table", started: this.started, members: this.members, player, tile: null,
+            game: this.role === "host" && player === null ? this.state : null,
+            table: this.role === "host" ? this.tableView(player) : this.table ?? this.tableView(null) })
         return clone({ type: "state", protocol: PROTOCOL, room: this.room, revision: this.revision,
             started: this.started, members: this.members, game: this.state, lastMove: this.lastMove,
             player, tile: this.role === "host" ? (player && this.dealer?.hands[player]) ?? null : this.tile })
@@ -203,7 +237,7 @@ export class OnlineSession {
                 runInAction(() => {
                     if (this.role === "host") {
                         this.status = "connected"
-                        this.members[0].online = true
+                        if (!this.isSharedTable) this.members[0].online = true
                         this.publish()
                     } else this.attach(peer.connect(`indigo-${this.room}`), true)
                 })
@@ -231,7 +265,7 @@ export class OnlineSession {
         channel.on("open", () => {
             if (generation !== this.generation) return
             if (this.status === "closed") this.sendClosed(channel)
-            else if (host) this.send(channel, { type: "hello", protocol: PROTOCOL, token: this.token, name: this.name })
+            else if (host) this.send(channel, { type: "hello", protocol: PROTOCOL, mode: this.mode, token: this.token, name: this.name })
         })
         channel.on("data", data => {
             if (generation !== this.generation || !this.links.has(channel)) return
@@ -261,12 +295,12 @@ export class OnlineSession {
         if (data.type === "pong") return
         if (this.role === "host") {
             if (data.type === "hello") {
-                if (data.protocol !== PROTOCOL || typeof data.token !== "string" || !validRoom(data.token) || typeof data.name !== "string") {
+                if (data.protocol !== PROTOCOL || (data.mode ?? "online") !== this.mode || typeof data.token !== "string" || !validRoom(data.token) || typeof data.name !== "string") {
                     this.send(channel, { type: "rejected", reason: "online.version" }); return
                 }
                 if (link.player) return
                 let seat = this.seats.find(s => s.token === data.token)
-                if (seat?.id === PlayerId.Player1) {
+                if ((!this.isSharedTable && seat?.id === PlayerId.Player1) || data.token === this.token) {
                     this.send(channel, { type: "rejected", reason: "online.hostTaken" }); return
                 }
                 if (!seat) {
@@ -286,20 +320,31 @@ export class OnlineSession {
                 this.send(channel, { type: "welcome", player: seat.id })
                 this.publish()
             } else if (link.player && data.type === "sync") this.send(channel, this.packet(link.player))
+            else if (link.player && data.type === "table-command") this.acceptTableCommand(link.player, data, channel)
             else if (link.player && data.type === "move") this.acceptMove(link.player, data, channel)
         } else if (channel === this.host) {
-            if (data.type === "welcome" && playerIds.slice(1).includes(data.player)) this.me = data.player
+            if (data.type === "welcome" && (this.isSharedTable ? playerIds : playerIds.slice(1)).includes(data.player)) this.me = data.player
             else if (data.type === "rejected") this.disconnect(i18n(["online.version", "online.hostTaken", "online.started", "online.full"].includes(data.reason) ? data.reason : "online.denied"), false)
             else if (data.type === "move-error") {
                 this.pending = false
                 this.error = i18n("online.moveRejected")
                 this.send(channel, { type: "sync" })
-            } else if (isPacket(data, this.room) && this.me && data.player === this.me) this.applyPacket(data)
+            } else if (isPacket(data, this.room) && (data.mode ?? "online") === this.mode && this.me && data.player === this.me) this.applyPacket(data)
         }
     }
 
     private applyPacket(packet: Packet) {
         if (packet.revision < this.revision || !this.game) return
+        if (this.isController && packet.table) {
+            this.table = clone(packet.table)
+            this.members = clone(packet.members)
+            this.started = packet.started
+            this.revision = packet.revision
+            this.pending = false
+            this.status = "connected"
+            this.persist()
+            return
+        }
         const changedGame = JSON.stringify(packet.game) !== JSON.stringify(this.state)
         let animation: ReturnType<typeof resolveMove> | null = null
         if (changedGame && this.state && packet.lastMove && packet.revision === this.revision + 1) {
@@ -326,14 +371,22 @@ export class OnlineSession {
         this.game.playersStore.setPlayerCount(this.members.length as 2 | 3 | 4)
         this.members.forEach(member => this.game!.playersStore.setPlayerName(member.id, member.name))
         this.dealer = dealHands(snapshot(this.game))
-        this.tile = this.dealer.hands[PlayerId.Player1] ?? null
+        if (this.isSharedTable) {
+            const initial = snapshot(this.game)
+            const deck = [...initial.deck, initial.move[1]!]
+            this.dealer = { deck, hands: {}, tableHands: {} }
+            this.members.forEach(member => { this.dealer!.tableHands![member.id] = [deck.pop()!, deck.pop()!] })
+            this.tile = null
+        } else this.tile = this.dealer.hands[PlayerId.Player1] ?? null
         this.state = publicSnapshot(this.game, this.dealer.deck.length)
         restoreSnapshot(this.game, privateView(this.state, this.me, this.tile))
+        if (this.isSharedTable) this.resetCursor()
         this.started = true
         this.publish()
     }
 
     submit(cell: string, route: RouteTiles) {
+        if (this.isSharedTable) return
         if (!this.canPlay || !this.game || this.game.animatedStones !== null) return
         const move: Move = { type: "move", revision: this.revision, moveId: uid(), cell, route }
         this.error = ""
@@ -346,6 +399,7 @@ export class OnlineSession {
     }
 
     private acceptMove(player: PlayerId, data: Record<string, any>, channel?: Channel) {
+        if (this.isSharedTable) return
         const reject = () => {
             if (channel) { this.send(channel, { type: "move-error" }); this.send(channel, this.packet(player)) }
             else this.error = i18n("online.moveRejected")
@@ -378,6 +432,82 @@ export class OnlineSession {
         const next = [...this.members.slice(index + 1), ...this.members.slice(0, index + 1)]
             .find(member => dealer.hands[member.id])?.id ?? player
         game.playerMove = next === this.me && this.tile ? [next, this.tile, 0] : [next]
+    }
+
+    private tableRoute(player: PlayerId) {
+        const tile = this.dealer?.tableHands?.[player]?.[this.cursor?.slot ?? 0]
+        if (!tile || !this.cursor) return undefined
+        return tile === "c" ? RouteTiles.c : RouteTiles[`${tile}-${this.cursor.angle}` as keyof typeof RouteTiles]
+    }
+
+    private tableView(player: PlayerId | null): TableView {
+        const finished = !!this.started && !!this.game?.finished
+        const turn = this.started ? this.state?.turn ?? null : null
+        const route = turn ? this.tableRoute(turn) : undefined
+        return clone({
+            turn, remaining: this.state?.remaining ?? 0, finished,
+            busy: !!this.game?.animatedStones, orientation: this.game?.orientationType ?? "flat",
+            hand: player ? this.dealer?.tableHands?.[player] ?? [] : [],
+            stones: player ? this.state?.players.find(p => p.id === player)?.stones ?? [] : [],
+            cursor: !finished && this.cursor && (player === null || player === turn) ? {
+                ...this.cursor, valid: route !== undefined && !!this.game && !placementError(this.game.tiles, this.cursor.cell, route),
+            } : null,
+            results: finished ? this.state?.players ?? null : null,
+        })
+    }
+
+    private resetCursor() {
+        const game = this.game!
+        const cell = ["1,0", ...Object.keys(game.tiles)].find(id => game.tiles[id]?.type === HexType.route && game.tiles[id].tile === undefined)
+        this.cursor = !game.finished && cell ? { cell, slot: 0, angle: 0 } : null
+    }
+
+    control(action: TableAction, value = 0) {
+        if (!this.isController || !this.canPlay || !this.host?.open) return
+        this.pending = true
+        this.pendingAt = Date.now()
+        this.error = ""
+        this.send(this.host, { type: "table-command", action, value, revision: this.revision, moveId: uid() })
+    }
+
+    private acceptTableCommand(player: PlayerId, data: Record<string, any>, channel: Channel) {
+        if (!this.isSharedTable) return
+        const reject = () => {
+            this.send(channel, { type: "move-error" })
+            this.send(channel, this.packet(player))
+        }
+        const game = this.game
+        const hand = this.dealer?.tableHands?.[player]
+        if (!game || !this.started || game.finished || game.animatedStones || !this.allOnline ||
+            this.status !== "connected" || this.state?.turn !== player || data.revision !== this.revision ||
+            typeof data.moveId !== "string" || !validRoom(data.moveId) || !this.cursor || !hand?.length) { reject(); return }
+        const cursor = this.cursor
+        if (data.action === "step" && Number.isInteger(data.value) && data.value >= 0 && data.value < 6) {
+            const next = game.tiles[cursor.cell].hex.neighbor(data.value).id
+            if ([HexType.route, HexType.treasure].includes(game.tiles[next]?.type)) this.cursor = { ...cursor, cell: next }
+        } else if (data.action === "select" && Number.isInteger(data.value) && data.value >= 0 && data.value < hand.length) {
+            this.cursor = { ...cursor, slot: data.value, angle: 0 }
+        } else if (data.action === "rotate" && [-1, 1].includes(data.value)) {
+            const angles = tileNameToAngle[hand[cursor.slot]]
+            this.cursor = { ...cursor, angle: angles[(angles.indexOf(cursor.angle) + data.value + angles.length) % angles.length] as Angle }
+        } else if (data.action === "place") {
+            const route = this.tableRoute(player)
+            if (route === undefined || placementError(game.tiles, cursor.cell, route)) { reject(); return }
+            try {
+                commitMove(game, cursor.cell, route, () => {
+                    hand.splice(cursor.slot, 1)
+                    const replacement = !game.finished ? this.dealer!.deck.pop() : undefined
+                    if (replacement) hand.push(replacement)
+                    const index = this.members.findIndex(member => member.id === player)
+                    const next = game.finished ? player : [...this.members.slice(index + 1), ...this.members.slice(0, index + 1)]
+                        .find(member => this.dealer!.tableHands![member.id]?.length)?.id ?? player
+                    game.playerMove = [next]
+                })
+                this.state = publicSnapshot(game, this.dealer!.deck.length)
+                this.resetCursor()
+            } catch { reject(); return }
+        } else { reject(); return }
+        this.publish()
     }
 
     private drop(channel: Channel) {
@@ -509,9 +639,13 @@ export class OnlineSession {
 
     leave() {
         this.stopTransport()
+        this.stopTableReaction?.()
+        this.stopTableReaction = undefined
         this.game?.dispose()
         this.game = null
         this.tile = null
+        this.table = null
+        this.cursor = null
         this.dealer = null
         this.state = null
         this.seats = []
@@ -532,6 +666,7 @@ export class OnlineSession {
 
     dispose() {
         this.stopTransport()
+        this.stopTableReaction?.()
         this.status = "disconnected"
         this.pending = false
         this.game?.dispose()

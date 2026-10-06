@@ -9,8 +9,9 @@ import { CollisionEffects } from "../Stones/CollisionEffects"
 import { TileActions } from "../TileActions/TileActions"
 import { Actions } from "./Actions"
 import { GameResults } from "../GameResults/GameResults"
+import { TableCursorOverlay } from "../../../online/TableController"
 
-export const Arena: FC = () => (
+export const Arena: FC<{ sharedTable?: boolean }> = ({ sharedTable }) => (
     <div className="game">
         <ArenaWrapper>
             <Actions />
@@ -19,8 +20,10 @@ export const Arena: FC = () => (
             <GatewaySeats />
             <Stones />
             <CollisionEffects />
-            <TileHovered />
-            <TileActions />
+            {sharedTable ? <TableCursorOverlay /> : <>
+                <TileHovered />
+                <TileActions />
+            </>}
         </ArenaWrapper>
         <GameResults />
     </div>

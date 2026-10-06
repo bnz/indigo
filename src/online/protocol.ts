@@ -1,10 +1,15 @@
 import { PlayerId, RouteTiles, TileName } from "../types"
 import { clone, GameSnapshot, isPublicSnapshot, isRecord, isSnapshot, isTileName, playerIds, PublicGameSnapshot } from "./snapshot"
+import { isTableView, RoomMode, TableView } from "./table"
 
 export const PROTOCOL = 2
 export interface Member { id: PlayerId, name: string, online: boolean }
 export interface Seat { id: PlayerId, token: string }
-export interface DealerState { deck: TileName[], hands: Partial<Record<PlayerId, TileName | null>> }
+export interface DealerState {
+    deck: TileName[]
+    hands: Partial<Record<PlayerId, TileName | null>>
+    tableHands?: Partial<Record<PlayerId, TileName[]>>
+}
 export interface Packet {
     type: "state"
     protocol: number
@@ -15,6 +20,8 @@ export interface Packet {
     game: PublicGameSnapshot | null
     player: PlayerId | null
     tile: TileName | null
+    mode?: RoomMode
+    table?: TableView
     lastMove?: { cell: string, route: RouteTiles, moveId: string }
 }
 export interface SavedRoom {
@@ -28,16 +35,21 @@ export interface SavedRoom {
 }
 
 export const validRoom = (room: string) => /^[a-f0-9]{32}$/.test(room)
-const validMembers = (members: unknown): members is Member[] => Array.isArray(members) &&
-    members.length >= 1 && members.length <= 4 && members.every((m, i) => isRecord(m) && m.id === playerIds[i] &&
+const validMembers = (members: unknown, allowEmpty = false): members is Member[] => Array.isArray(members) &&
+    members.length >= (allowEmpty ? 0 : 1) && members.length <= 4 && members.every((m, i) => isRecord(m) && m.id === playerIds[i] &&
         typeof m.name === "string" && m.name.length <= 24 && typeof m.online === "boolean")
 
 export const isPacket = (data: unknown, room: string): data is Packet => {
     if (!isRecord(data)) return false
-    return data.type === "state" && data.protocol === PROTOCOL && data.room === room &&
+    const base = data.type === "state" && data.protocol === PROTOCOL && data.room === room &&
         !["deck", "dealer", "hands"].some(key => key in data) &&
         Number.isSafeInteger(data.revision) && data.revision >= 0 && typeof data.started === "boolean" &&
-        validMembers(data.members) && (data.player === null || data.members.some(m => m.id === data.player)) &&
+        validMembers(data.members, data.mode === "table") && (data.player === null || data.members.some(m => m.id === data.player))
+    if (!base) return false
+    if (data.mode === "table") return isTableView(data.table) && data.tile === null && data.lastMove === undefined &&
+        (data.started ? data.members.length >= 2 && data.members.some((m: Member) => m.id === data.table.turn) : data.table.turn === null) &&
+        (data.player === null && data.started ? isPublicSnapshot(data.game) && data.game.players.length === data.members.length : data.game === null)
+    return (data.mode === undefined || data.mode === "online") && data.table === undefined &&
         (data.tile === null || (data.player !== null && isTileName(data.tile))) &&
         (data.started ? isPublicSnapshot(data.game) && data.game.players.length === data.members.length : data.game === null && data.tile === null)
 }
@@ -48,12 +60,16 @@ export const isSavedRoom = (data: unknown, room: string): data is SavedRoom => {
         !Array.isArray(data.seats) || !data.seats.every(s => isRecord(s) && playerIds.includes(s.id) &&
             typeof s.token === "string" && validRoom(s.token))) return false
     if (data.role === "guest") return data.dealer === undefined && data.seats.length === 0
-    if (data.seats.length !== data.packet.members.length || data.seats[0]?.token !== data.token ||
+    const table = data.packet.mode === "table"
+    if (data.seats.length !== data.packet.members.length || (!table && data.seats[0]?.token !== data.token) ||
         data.seats.some((s, i) => s.id !== playerIds[i])) return false
     if (!data.packet.started) return !data.dealer
     const dealer = data.dealer
-    return isRecord(dealer) && Array.isArray(dealer.deck) && dealer.deck.every(isTileName) &&
-        dealer.deck.length === data.packet.game!.remaining && isRecord(dealer.hands) &&
+    if (!isRecord(dealer) || !Array.isArray(dealer.deck) || !dealer.deck.every(isTileName) ||
+        dealer.deck.length !== data.packet.game!.remaining || !isRecord(dealer.hands)) return false
+    if (table) return isRecord(dealer.tableHands) && Object.keys(dealer.tableHands).length === data.packet.members.length &&
+        data.packet.members.every(m => Array.isArray(dealer.tableHands[m.id]) && dealer.tableHands[m.id].length <= 2 && dealer.tableHands[m.id].every(isTileName))
+    return dealer.tableHands === undefined &&
         Object.keys(dealer.hands).length === data.packet.members.length &&
         data.packet.members.every(m => dealer.hands[m.id] === null || isTileName(dealer.hands[m.id]))
 }
