@@ -12,6 +12,8 @@ import { RoomMode, TableAction, TableCursor, TableView } from "./table"
 
 const HEARTBEAT_MS = 3000
 const TIMEOUT_MS = 15000
+const CONNECT_TIMEOUT_MS = 45000
+const MAX_CONNECT_ATTEMPTS = 3
 const CLOSE_TIMEOUT_MS = 2500
 const key = (room: string) => `indigo-room-v2:${room}`
 const closedKey = (room: string) => `indigo-room-closed:${room}`
@@ -26,7 +28,7 @@ const uid = () => Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.
 const cleanName = (name: string) => name.trim().replace(/\s+/g, " ").slice(0, 24) || i18n("online.player")
 
 interface Move { type: "move", revision: number, moveId: string, cell: string, route: RouteTiles }
-interface Link { channel: Channel, seen: number, player: PlayerId | null }
+interface Link { channel: Channel, seen: number, player: PlayerId | null, opened: boolean }
 
 export class OnlineSession {
     setup = false
@@ -41,6 +43,9 @@ export class OnlineSession {
     started = false
     status: "connecting" | "connected" | "disconnected" | "error" | "closed" = "disconnected"
     error = ""
+    connectionStage: "loading" | "signaling" | "peer" | "handshake" | null = null
+    connectionAttempts = 0
+    connectingPeers = 0
     saveFailed = false
     pending = false
     revision = 0
@@ -84,6 +89,12 @@ export class OnlineSession {
     get finished() { return this.isController ? this.table?.finished ?? false : this.game?.finished ?? false }
     get allOnline() { return this.members.length >= 2 && this.members.every(member => member.online) }
     get remaining() { return this.isController ? this.table?.remaining ?? 0 : this.state?.remaining ?? 0 }
+    get connectionLabel() {
+        if (this.status === "error") return i18n("online.noConnection")
+        if (this.status === "disconnected") return i18n("online.retrying")
+        const stage = this.connectionStage ? i18n(`online.stage.${this.connectionStage}`) : i18n("online.connecting")
+        return `${stage} (${this.connectionAttempts}/${MAX_CONNECT_ATTEMPTS})`
+    }
     get canPlay() {
         return this.status === "connected" && this.started && this.allOnline && !this.pending &&
             this.me !== null && this.turn === this.me && (this.isController
@@ -215,13 +226,15 @@ export class OnlineSession {
         this.links.forEach(link => { if (link.player) this.send(link.channel, this.packet(link.player)) })
     }
 
-    async connect() {
+    async connect(automatic = false) {
         if (this.status === "closed") return
         if (this.wasClosed(this.room)) { this.showClosed(this.room); return }
         this.stopTransport()
         if (!this.room) return
+        if (!automatic) { this.connectionAttempts = 0; this.error = "" }
+        this.connectionAttempts++
         this.status = "connecting"
-        this.error = ""
+        this.connectionStage = "loading"
         this.pending = false
         this.members = this.members.map(m => ({ ...m, online: false }))
         this.openedAt = Date.now()
@@ -230,18 +243,28 @@ export class OnlineSession {
         try {
             const peer = await this.factory(this.role === "host" ? `indigo-${this.room}` : undefined)
             if (this.generation !== generation) { peer.destroy(); return }
-            runInAction(() => { this.peer = peer })
+            runInAction(() => { this.peer = peer; this.connectionStage = "signaling" })
             const current = () => this.generation === generation
-            peer.on("open", () => {
+            let opened = false
+            const onOpen = () => {
                 if (!current() || this.status === "closed") return
+                if (opened) return
+                opened = true
                 runInAction(() => {
                     if (this.role === "host") {
                         this.status = "connected"
+                        this.connectionStage = null
+                        this.connectionAttempts = 0
+                        this.error = ""
                         if (!this.isSharedTable) this.members[0].online = true
                         this.publish()
-                    } else this.attach(peer.connect(`indigo-${this.room}`), true)
+                    } else {
+                        this.connectionStage = "peer"
+                        this.attach(peer.connect(`indigo-${this.room}`), true)
+                    }
                 })
-            })
+            }
+            peer.on("open", onOpen)
             peer.on("connection", channel => {
                 if (current() && this.role === "host") this.attach(channel, false)
                 else channel.close()
@@ -249,30 +272,52 @@ export class OnlineSession {
             peer.on("error", error => {
                 if (!current()) return
                 const fatal = error?.type === "unavailable-id" || error?.type === "browser-incompatible"
-                this.disconnect(i18n(fatal ? "online.unavailable" : "online.connectFailed"), !fatal)
+                if (this.role === "host" && this.status === "connected" && error?.type === "webrtc") {
+                    runInAction(() => { this.error = i18n("online.incomingFailed") })
+                    return
+                }
+                const message = fatal ? "online.unavailable" : error?.type === "peer-unavailable" ? "online.hostUnavailable" :
+                    error?.type === "webrtc" ? "online.directFailed" : "online.connectFailed"
+                this.disconnect(i18n(message), !fatal)
             })
             peer.on("disconnected", () => { if (current()) this.disconnect(i18n("online.signalLost"), true) })
             peer.on("close", () => { if (current()) this.disconnect(i18n("online.closed"), true) })
-        } catch {
-            if (this.generation === generation) this.disconnect(i18n("online.loadFailed"), true)
+            if (peer.open) onOpen()
+        } catch (error) {
+            const configurationError = error instanceof Error && error.message === "invalid-ice-config"
+            if (this.generation === generation) this.disconnect(i18n(configurationError ? "online.invalidIceConfig" : "online.loadFailed"), !configurationError)
         }
     }
 
     private attach(channel: Channel, host: boolean) {
         const generation = this.generation
-        this.links.set(channel, { channel, player: null, seen: Date.now() })
+        const link: Link = { channel, player: null, seen: Date.now(), opened: false }
+        this.links.set(channel, link)
+        this.updateConnectingPeers()
         if (host) this.host = channel
-        channel.on("open", () => {
-            if (generation !== this.generation) return
+        const onOpen = () => runInAction(() => {
+            if (generation !== this.generation || link.opened) return
+            link.opened = true
+            link.seen = Date.now()
             if (this.status === "closed") this.sendClosed(channel)
-            else if (host) this.send(channel, { type: "hello", protocol: PROTOCOL, mode: this.mode, token: this.token, name: this.name })
+            else if (host) {
+                this.connectionStage = "handshake"
+                this.openedAt = Date.now()
+                this.send(channel, { type: "hello", protocol: PROTOCOL, mode: this.mode, token: this.token, name: this.name })
+            }
         })
+        channel.on("open", onOpen)
         channel.on("data", data => {
             if (generation !== this.generation || !this.links.has(channel)) return
             this.receive(channel, data)
         })
         channel.on("close", () => { if (generation === this.generation) this.drop(channel) })
         channel.on("error", () => { if (generation === this.generation) this.drop(channel) })
+        channel.on("iceStateChanged", state => {
+            if (generation === this.generation && (state === "failed" || (state === "disconnected" && this.role === "host" && !link.player))) this.drop(channel)
+        })
+        // Some browser/transport implementations can open before listeners are attached.
+        if (channel.open) onOpen()
     }
 
     private receive(channel: Channel, data: unknown) {
@@ -314,6 +359,8 @@ export class OnlineSession {
                 const previous = Array.from(this.links.values()).find(other => other !== link && other.player === seat!.id)
                 if (previous) { previous.player = null; previous.channel.close(); this.links.delete(previous.channel) }
                 link.player = seat.id
+                this.updateConnectingPeers()
+                this.error = ""
                 const member = this.members.find(m => m.id === seat!.id)!
                 member.online = true
                 if (!this.started) member.name = cleanName(data.name)
@@ -335,6 +382,7 @@ export class OnlineSession {
 
     private applyPacket(packet: Packet) {
         if (packet.revision < this.revision || !this.game) return
+        if (this.status !== "connected") this.error = ""
         if (this.isController && packet.table) {
             this.table = clone(packet.table)
             this.members = clone(packet.members)
@@ -342,6 +390,8 @@ export class OnlineSession {
             this.revision = packet.revision
             this.pending = false
             this.status = "connected"
+            this.connectionStage = null
+            this.connectionAttempts = 0
             this.persist()
             return
         }
@@ -362,6 +412,8 @@ export class OnlineSession {
         this.revision = packet.revision
         this.pending = false
         this.status = "connected"
+        this.connectionStage = null
+        this.connectionAttempts = 0
         this.persist()
     }
 
@@ -514,27 +566,31 @@ export class OnlineSession {
         const link = this.links.get(channel)
         if (!link) return
         this.links.delete(channel)
+        this.updateConnectingPeers()
         channel.close()
         if (this.status === "closed") {
             if (!this.links.size) this.stopTransport()
         } else if (this.role === "guest" && channel === this.host) {
-            this.disconnect(i18n("online.hostLost"), true)
+            this.disconnect(i18n(this.status === "connecting" ? "online.directFailed" : "online.hostLost"), true)
         } else if (link.player) {
             const member = this.members.find(m => m.id === link.player)
             if (member) member.online = false
             this.publish()
+        } else {
+            this.error = i18n("online.incomingFailed")
         }
     }
 
     private tick() {
         if (this.status === "closed") return
         const now = Date.now()
-        if (this.status === "connecting" && now - this.openedAt > TIMEOUT_MS) {
-            this.disconnect(i18n("online.timeout"), true)
+        if (this.status === "connecting" && now - this.openedAt > (this.connectionStage === "handshake" ? TIMEOUT_MS : CONNECT_TIMEOUT_MS)) {
+            this.disconnect(i18n(this.connectionStage === "peer" ? "online.directFailed" : "online.timeout"), true)
             return
         }
         this.links.forEach(link => {
-            if (now - link.seen > TIMEOUT_MS) this.drop(link.channel)
+            const ready = this.role === "host" ? link.player !== null : this.status === "connected"
+            if (now - link.seen > (ready ? TIMEOUT_MS : CONNECT_TIMEOUT_MS)) this.drop(link.channel)
             else this.send(link.channel, { type: "ping" })
         })
         if (this.pending && now - this.pendingAt > 8000 && this.host) {
@@ -546,11 +602,17 @@ export class OnlineSession {
     private disconnect(message: string, retry: boolean) {
         this.stopTransport()
         if (this.status === "closed") return
-        this.status = retry ? "disconnected" : "error"
+        const retryAllowed = retry && this.connectionAttempts < MAX_CONNECT_ATTEMPTS
+        this.status = retryAllowed ? "disconnected" : "error"
+        this.connectionStage = null
         this.error = message
         this.pending = false
         this.members = this.members.map(m => ({ ...m, online: false }))
-        if (retry) this.retry = setTimeout(() => { void this.connect() }, 4000)
+        if (retryAllowed) this.retry = setTimeout(() => { void this.connect(true) }, 4000)
+    }
+
+    private updateConnectingPeers() {
+        this.connectingPeers = this.role === "host" ? Array.from(this.links.values()).filter(link => !link.player).length : 0
     }
 
     private stopTransport() {
@@ -560,6 +622,7 @@ export class OnlineSession {
         clearTimeout(this.closeTimer)
         this.links.forEach(link => link.channel.close())
         this.links.clear()
+        this.connectingPeers = 0
         this.peer?.destroy()
         this.peer = null
         this.host = null

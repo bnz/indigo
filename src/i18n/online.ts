@@ -1,4 +1,14 @@
 export const onlineRus = {
+    "online.stage.loading": "Загружаем модуль связи…",
+    "online.stage.signaling": "Подключаемся к сервису связи…",
+    "online.stage.peer": "Устанавливаем связь с ведущим…",
+    "online.stage.handshake": "Получаем данные комнаты…",
+    "online.retrying": "Связь не установлена. Скоро повторим попытку…",
+    "online.incoming": "Входящих подключений",
+    "online.incomingFailed": "Участник попытался подключиться, но канал связи не открылся. Проверьте, что Wi-Fi разрешает связь между устройствами. В некоторых сетях нужен TURN-сервер.",
+    "online.directFailed": "Не удалось открыть прямой канал с ведущим. Даже в одной Wi-Fi сети связь может блокироваться роутером или браузером. Проверьте ограничения сети; для обхода таких ограничений нужен рабочий TURN-сервер.",
+    "online.hostUnavailable": "Ведущий недоступен. Убедитесь, что общий экран открыт и ссылка комнаты актуальна.",
+    "online.invalidIceConfig": "Некорректная конфигурация STUN/TURN. Проверьте настройки подключения сайта.",
     "table.title": "Общий стол",
     "table.intro": "Одно поле на большом экране, личные плитки и управление — на телефонах игроков.",
     "table.create": "Открыть общий стол",
@@ -76,6 +86,16 @@ export const onlineRus = {
 }
 
 export const onlineEng: Record<keyof typeof onlineRus, string> = {
+    "online.stage.loading": "Loading connection module…",
+    "online.stage.signaling": "Connecting to signaling service…",
+    "online.stage.peer": "Connecting to the host…",
+    "online.stage.handshake": "Receiving room data…",
+    "online.retrying": "Connection failed. Retrying shortly…",
+    "online.incoming": "Incoming connections",
+    "online.incomingFailed": "A player tried to join, but the data channel did not open. Check whether the Wi-Fi network allows devices to communicate. Some networks require a TURN server.",
+    "online.directFailed": "Could not open a direct channel to the host. Routers or browsers can block peer connections even on the same Wi-Fi network. Check network restrictions; a working TURN server is needed to bypass them.",
+    "online.hostUnavailable": "The host is unavailable. Check that the shared screen is open and the room link is current.",
+    "online.invalidIceConfig": "Invalid STUN/TURN configuration. Check the site's connection settings.",
     "table.title": "Shared table",
     "table.intro": "One board on the big screen; private tiles and controls on each player's phone.",
     "table.create": "Open shared table",

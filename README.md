@@ -61,10 +61,12 @@ Table invitations use `#/table/<room>`. Reopening that link in the same browser 
 ### Connection and hosting
 
 - The site is still a static application: there is no application server or central game database.
-- PeerJS Cloud handles signaling. Moves and state snapshots travel over reliable WebRTC DataChannels using PeerJS's default STUN/TURN configuration.
+- PeerJS Cloud handles signaling. Moves and state snapshots travel over reliable WebRTC DataChannels. Direct connections use explicit Google and Cloudflare STUN servers; PeerJS 1.5.5's unavailable default TURN hostnames are not used.
 - No API key or subscription is needed for this initial setup. PeerJS is loaded only when connecting to a room.
-- Public signaling/relay services are best-effort. Restricted networks may still fail to connect; the UI reports a timeout and offers reconnection. A dedicated TURN service is not configured.
+- A working TURN service is not configured by default. Direct connections can fail even on the same Wi-Fi network, including between Safari/WebKit and Chromium, when local candidates cannot be reached. The UI displays connection stages and the incoming attempts on the host, preserves the error, and stops after three attempts instead of reconnecting forever. Each connection negotiation gets up to 45 seconds; established connections use a separate heartbeat timeout.
 - Serve the site over HTTPS (or localhost for development). Invitation URLs use `#/room/<id>`, so static hosting needs no route rewrites. For remote friends, use the deployed URL, not a localhost invitation.
+
+A deployment can set `REACT_APP_ICE_SERVERS` to a JSON array of standard `RTCIceServer` entries before building to configure a working TURN service (including `turns:` over TCP/443). This overrides the default STUN list. These are browser-facing ICE credentials, visible in the built application; do not use a provider's administrative API key. Invalid configuration is reported explicitly. Changing STUN addresses or retry timing does not replace a relay when direct connectivity is blocked.
 
 ### State and reconnection
 

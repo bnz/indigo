@@ -44,6 +44,7 @@ class FakeChannel extends Events implements Channel {
 }
 
 class FakePeer extends Events implements PeerEndpoint {
+    open = false
     channels: FakeChannel[] = []
     constructor(public id: string, private hub: Hub) { super() }
     connect(id: string) {
@@ -75,7 +76,7 @@ class Hub {
     factory: PeerFactory = async id => {
         const peer = new FakePeer(id || `guest-${++this.sequence}`, this)
         this.peers.set(peer.id, peer)
-        this.queue.push(() => peer.emit("open", peer.id))
+        this.queue.push(() => { peer.open = true; peer.emit("open", peer.id) })
         return peer
     }
     async flush() {
@@ -562,6 +563,114 @@ test("heartbeat detects silent disconnection and locks every player's board", as
     expect(host.members[1].online).toBe(false)
     expect(host.game!.canPlay).toBe(false)
     expect(guest.game!.canPlay).toBe(false)
+})
+
+test("slow ICE negotiation is not destroyed by the established-channel heartbeat timeout", async () => {
+    const host = session()
+    host.create("", "table")
+    await hub.flush()
+    const guest = session()
+    guest.join(host.invitation, "Slow phone")
+    await Promise.resolve()
+    hub.queue.shift()!() // Signaling is ready; defer the data channel opening.
+    hub.queue.shift() // Remove the automatic open callback.
+    const channel = hub.guestChannel()
+    hub.peers.get(`indigo-${host.room}`)!.emit("connection", channel.other)
+    expect(host.connectingPeers).toBe(1)
+    jest.advanceTimersByTime(18000)
+    await hub.flush()
+    expect(guest.status).toBe("connecting")
+    expect(guest.connectionStage).toBe("peer")
+    expect(guest.connectionAttempts).toBe(1)
+    channel.open = channel.other.open = true
+    channel.other.emit("open")
+    channel.emit("open")
+    await hub.flush()
+    expect(guest.status).toBe("connected")
+    expect(host.members).toHaveLength(1)
+    expect(host.connectingPeers).toBe(0)
+})
+
+test("already-open peer and data channels still complete the handshake exactly once", async () => {
+    const eagerFactory: PeerFactory = async id => {
+        const peer = await hub.factory(id) as FakePeer
+        peer.open = true
+        const connect = peer.connect.bind(peer)
+        peer.connect = remote => {
+            const channel = connect(remote)
+            hub.queue.pop() // This transport is already open and will not emit another open event.
+            channel.open = channel.other.open = true
+            hub.peers.get(remote)!.emit("connection", channel.other)
+            return channel
+        }
+        return peer
+    }
+    const host = new OnlineSession(eagerFactory, new MemoryStorage())
+    const guest = new OnlineSession(eagerFactory, new MemoryStorage())
+    sessions.push(host, guest)
+    host.create("Host")
+    await hub.flush()
+    await hub.flush()
+    guest.join(host.invitation, "Guest")
+    await hub.flush()
+    await hub.flush()
+    expect(guest.status).toBe("connected")
+    expect(host.members).toHaveLength(2)
+    expect(hub.guestChannel().sent.filter(message => message.type === "hello")).toHaveLength(1)
+})
+
+test("failed connections stop after three attempts and keep an actionable error until manual retry", async () => {
+    const factory = jest.fn(async () => { throw new Error("offline") })
+    const room = new OnlineSession(factory, new MemoryStorage())
+    sessions.push(room)
+    room.create("Host")
+    await Promise.resolve()
+    const firstError = room.error
+    expect(firstError).toBeTruthy()
+    for (let i = 0; i < 2; i++) {
+        jest.advanceTimersByTime(4000)
+        expect(room.error).toBe(firstError)
+        await Promise.resolve()
+    }
+    expect(factory).toHaveBeenCalledTimes(3)
+    expect(room.status).toBe("error")
+    expect(room.connectionAttempts).toBe(3)
+    jest.advanceTimersByTime(60000)
+    await Promise.resolve()
+    expect(factory).toHaveBeenCalledTimes(3)
+    await room.connect()
+    expect(factory).toHaveBeenCalledTimes(4)
+    expect(room.connectionAttempts).toBe(1)
+})
+
+test.each(["failed", "disconnected"])("an incoming ICE %s is visible without disconnecting existing players", async iceState => {
+    const { host, controllers } = await setupTable()
+    const extra = session()
+    extra.join(host.invitation, "Third phone")
+    await Promise.resolve()
+    hub.queue.shift()!()
+    hub.queue.shift()
+    const channel = hub.guestChannel(3)
+    hub.peers.get(`indigo-${host.room}`)!.emit("connection", channel.other)
+    expect(host.connectingPeers).toBe(1)
+    channel.other.emit("iceStateChanged", iceState)
+    expect(host.status).toBe("connected")
+    expect(host.error).toContain("канал связи не открылся")
+    expect(host.connectingPeers).toBe(0)
+    controllers.forEach(controller => expect(controller.status).toBe("connected"))
+})
+
+test("a transient ICE disconnection on an established channel keeps the heartbeat grace period", async () => {
+    const { host, guests: [guest] } = await setup()
+    const channel = hub.guestChannel()
+    channel.other.emit("iceStateChanged", "disconnected")
+    channel.emit("iceStateChanged", "disconnected")
+    expect(host.allOnline).toBe(true)
+    expect(guest.status).toBe("connected")
+    jest.advanceTimersByTime(3000)
+    await hub.flush()
+    expect(host.allOnline).toBe(true)
+    expect(guest.status).toBe("connected")
 })
 
 test("missed move acknowledgement is recovered by sync without replaying the move", async () => {

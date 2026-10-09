@@ -72,6 +72,7 @@ const RoomDetails: FC = observer(() => {
                 />
                 <figcaption>{i18n("online.qrHint")}</figcaption>
             </figure>
+            {session.connectingPeers > 0 && <p role="status">{i18n("online.incoming")}: {session.connectingPeers}</p>}
             <ul className={styles.members}>
                 {session.members.map(member => (
                     <li key={member.id}>
@@ -119,7 +120,7 @@ export const OnlineScreen: FC = observer(() => {
     if (!session.room) return <Setup />
 
     const turn = session.members.find(member => member.id === activePlayer)?.name || ""
-    const status = session.status === "error" ? i18n("online.noConnection") : session.status !== "connected" ? i18n("online.connecting") :
+    const status = session.status !== "connected" ? session.connectionLabel :
         !session.allOnline ? i18n("online.waiting") : session.pending ? i18n("online.pending") :
         (session.isController ? session.table?.busy : store.animatedStones) ? i18n("game.moving") : session.finished ? i18n("result.text.h1") :
         session.me === activePlayer ? i18n("online.yourTurn") : `${i18n("game.turn")}: ${turn}`
@@ -128,7 +129,7 @@ export const OnlineScreen: FC = observer(() => {
         <main className={styles.lobby}>
             <h1>{i18n(session.isSharedTable ? "table.title" : "online.roomTitle")}</h1>
             {session.isSharedTable && <p>{i18n(session.role === "host" ? "table.hostHint" : "table.controllerHint")}</p>}
-            <p role="status">{i18n(session.status === "connected" ? "online.inviteHint" : session.status === "error" ? "online.noConnection" : "online.connecting")}</p>
+            <p role="status">{session.status === "connected" ? i18n("online.inviteHint") : session.connectionLabel}</p>
             <RoomDetails />
             {session.role === "host" ? (
                 <button disabled={session.status !== "connected" || !session.allOnline} onClick={session.start}>{i18n("button.startGame")} ({session.members.length}/4)</button>
